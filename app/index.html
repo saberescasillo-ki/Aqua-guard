@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1f44">
+  <title>Aqua Guard · Litium</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="icons/icon.svg" alt="" class="brand-logo">
+      <div>
+        <h1>Aqua Guard</h1>
+        <span class="brand-sub">by Litium</span>
+      </div>
+    </div>
+    <div id="link-status" class="pill pill-off" title="Estado de conexión">
+      <span class="dot"></span><span id="link-status-text">Sin conexión</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ PANEL ============ -->
+    <section id="view-panel" class="view active">
+      <div class="card source-card">
+        <div>
+          <p class="label">Recibiendo datos de</p>
+          <p id="active-source" class="source-name">Ningún ESP32</p>
+        </div>
+        <button id="btn-refresh" class="btn btn-ghost">Actualizar</button>
+      </div>
+
+      <div class="grid">
+        <article class="card device" id="card-cisterna">
+          <header class="device-head">
+            <h2>Cisterna</h2>
+            <span class="pill pill-off" data-status="cisterna"><span class="dot"></span><span>Offline</span></span>
+          </header>
+          <div class="tank">
+            <div class="tank-water" id="cisterna-water"></div>
+            <span class="tank-value" id="cisterna-level">--%</span>
+          </div>
+          <dl class="stats">
+            <div><dt>Distancia sensor</dt><dd id="cisterna-dist">-- cm</dd></div>
+            <div><dt>Señal WiFi</dt><dd id="cisterna-rssi">-- dBm</dd></div>
+          </dl>
+        </article>
+
+        <article class="card device" id="card-bomba">
+          <header class="device-head">
+            <h2>Bomba</h2>
+            <span class="pill pill-off" data-status="bomba"><span class="dot"></span><span>Offline</span></span>
+          </header>
+          <div class="pump-state">
+            <div class="pump-icon" id="pump-icon">
+              <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="22" fill="none" stroke="currentColor" stroke-width="4"/><path class="fan" d="M32 32 L32 14 A18 18 0 0 1 47 24 Z M32 32 L47 41 A18 18 0 0 1 32 50 Z M32 32 L17 41 A18 18 0 0 1 17 24 Z" fill="currentColor"/></svg>
+            </div>
+            <p id="pump-text" class="pump-text">Apagada</p>
+          </div>
+          <dl class="stats">
+            <div><dt>Nivel tinaco</dt><dd id="bomba-level">--%</dd></div>
+            <div><dt>Modo</dt><dd id="bomba-mode">--</dd></div>
+            <div><dt>Señal WiFi</dt><dd id="bomba-rssi">-- dBm</dd></div>
+          </dl>
+          <div class="btn-row">
+            <button class="btn" data-pump="on">Encender</button>
+            <button class="btn btn-ghost" data-pump="off">Apagar</button>
+            <button class="btn btn-ghost" data-pump="auto">Auto</button>
+          </div>
+        </article>
+      </div>
+
+      <div class="card">
+        <h3>Registro</h3>
+        <ul id="log" class="log"><li>La app está lista. Configura tus ESP32 en la pestaña “Conexión”.</li></ul>
+      </div>
+    </section>
+
+    <!-- ============ CONEXIÓN ============ -->
+    <section id="view-conexion" class="view">
+      <div class="card">
+        <h2>Conectar por WiFi</h2>
+        <ol class="steps-list">
+          <li>Conecta tu teléfono a la <strong>misma red WiFi</strong> que los ESP32 (o a la red <code>AquaGuard-XXXX</code> que crean ellos).</li>
+          <li>Escribe la IP de cada ESP32 (aparece en el Monitor Serie de Arduino al encenderlo).</li>
+          <li>Pulsa <strong>Buscar</strong>: la app se conecta automáticamente al ESP32 que esté enviando datos.</li>
+        </ol>
+      </div>
+
+      <form id="form-conexion" class="card form">
+        <label>
+          <span>IP ESP32 · Cisterna</span>
+          <input id="ip-cisterna" type="text" inputmode="url" placeholder="192.168.1.50" autocomplete="off">
+        </label>
+        <label>
+          <span>IP ESP32 · Bomba</span>
+          <input id="ip-bomba" type="text" inputmode="url" placeholder="192.168.1.51" autocomplete="off">
+        </label>
+        <label>
+          <span>Actualizar cada</span>
+          <select id="poll-interval">
+            <option value="1000">1 segundo</option>
+            <option value="2000" selected>2 segundos</option>
+            <option value="5000">5 segundos</option>
+          </select>
+        </label>
+        <div class="btn-row">
+          <button type="submit" class="btn">Guardar y buscar</button>
+          <button type="button" id="btn-disconnect" class="btn btn-ghost">Desconectar</button>
+        </div>
+        <p id="scan-result" class="hint"></p>
+      </form>
+    </section>
+
+    <!-- ============ SIMULACIÓN / TUTORIAL ============ -->
+    <section id="view-simulacion" class="view">
+      <div class="card">
+        <h2>¿Cómo funciona Aqua Guard?</h2>
+        <p class="hint">Simulación de un funcionamiento normal. Avanza paso a paso o pulsa “Reproducir”.</p>
+      </div>
+
+      <div class="card sim">
+        <svg id="sim-svg" viewBox="0 0 360 260" role="img" aria-label="Simulación del sistema">
+          <!-- WiFi entre ESP32 y teléfono -->
+          <g id="sim-wifi" class="sim-wifi">
+            <path d="M168 34 q12 -12 24 0" /><path d="M162 28 q18 -18 36 0" /><path d="M156 22 q24 -24 48 0" />
+          </g>
+          <rect x="165" y="36" width="30" height="50" rx="5" class="sim-phone"/>
+          <text x="180" y="66" class="sim-mini">App</text>
+
+          <!-- Tinaco (arriba derecha) -->
+          <rect x="250" y="40" width="80" height="90" rx="8" class="sim-tank"/>
+          <clipPath id="clip-tinaco"><rect x="252" y="42" width="76" height="86" rx="6"/></clipPath>
+          <rect id="sim-tinaco-water" x="252" y="128" width="76" height="0" class="sim-water" clip-path="url(#clip-tinaco)"/>
+          <text x="290" y="34" class="sim-label">Tinaco</text>
+          <text id="sim-tinaco-txt" x="290" y="92" class="sim-value">0%</text>
+
+          <!-- Cisterna (abajo izquierda) -->
+          <rect x="20" y="140" width="130" height="100" rx="8" class="sim-tank"/>
+          <clipPath id="clip-cisterna"><rect x="22" y="142" width="126" height="96" rx="6"/></clipPath>
+          <rect id="sim-cisterna-water" x="22" y="238" width="126" height="0" class="sim-water" clip-path="url(#clip-cisterna)"/>
+          <text x="85" y="134" class="sim-label">Cisterna</text>
+          <text id="sim-cisterna-txt" x="85" y="198" class="sim-value">0%</text>
+
+          <!-- Sensores ultrasónicos -->
+          <g id="sim-sensor-c" class="sim-sensor"><rect x="72" y="142" width="26" height="10" rx="2"/><path class="sim-ping" d="M78 158 q7 6 14 0 M75 166 q10 8 20 0"/></g>
+          <g id="sim-sensor-t" class="sim-sensor"><rect x="277" y="42" width="26" height="10" rx="2"/><path class="sim-ping" d="M283 58 q7 6 14 0 M280 66 q10 8 20 0"/></g>
+
+          <!-- ESP32 -->
+          <g id="sim-esp-c" class="sim-esp"><rect x="20" y="92" width="56" height="24" rx="4"/><text x="48" y="108">ESP32 C</text></g>
+          <g id="sim-esp-b" class="sim-esp"><rect x="170" y="190" width="56" height="26" rx="4"/><text x="198" y="207">ESP32 B</text></g>
+
+          <!-- Tubería + bomba -->
+          <path d="M148 225 H180 M212 225 H230 V110 H250" class="sim-pipe"/>
+          <path id="sim-flow" d="M148 225 H180 M212 225 H230 V110 H250" class="sim-flow"/>
+          <g id="sim-pump" class="sim-pump"><circle cx="196" cy="225" r="14"/><path d="M196 225 l0 -9 M196 225 l8 5 M196 225 l-8 5"/></g>
+          <text x="196" y="252" class="sim-label">Bomba (relé)</text>
+        </svg>
+
+        <div class="sim-step">
+          <p class="sim-step-num" id="sim-step-num">Paso 1 de 6</p>
+          <h3 id="sim-step-title">—</h3>
+          <p id="sim-step-text">—</p>
+        </div>
+        <div class="progress"><div id="sim-progress"></div></div>
+        <div class="btn-row">
+          <button id="sim-prev" class="btn btn-ghost">Anterior</button>
+          <button id="sim-play" class="btn">Reproducir</button>
+          <button id="sim-next" class="btn btn-ghost">Siguiente</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <button class="tab active" data-view="panel">
+      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z"/></svg>Panel
+    </button>
+    <button class="tab" data-view="conexion">
+      <svg viewBox="0 0 24 24"><path d="M12 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM4.9 13.1l1.4 1.4a8 8 0 0 1 11.4 0l1.4-1.4a10 10 0 0 0-14.2 0zM1.3 9.5l1.4 1.4a13 13 0 0 1 18.6 0l1.4-1.4a15 15 0 0 0-21.4 0z"/></svg>Conexión
+    </button>
+    <button class="tab" data-view="simulacion">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Tutorial
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
+  <script src="simulation.js"></script>
+</body>
+</html>

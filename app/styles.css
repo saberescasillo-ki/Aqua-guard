@@ -1,0 +1,199 @@
+/* =========================================================
+   Aqua Guard · Litium — Estilos
+   Paleta: azul marino + blanco. Cambia los colores aquí.
+   ========================================================= */
+:root {
+  --navy-900: #06142e;
+  --navy-800: #0a1f44;
+  --navy-700: #13315c;
+  --navy-500: #1e4d8c;
+  --accent: #4da3ff;
+  --water: #3b8fe8;
+  --white: #ffffff;
+  --gray-100: #f3f6fb;
+  --gray-300: #cfd8e6;
+  --gray-500: #6b7a93;
+  --ok: #2ecc71;
+  --off: #e5534b;
+  --radius: 16px;
+  --shadow: 0 6px 20px rgba(10, 31, 68, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--gray-100);
+  color: var(--navy-800);
+  min-height: 100vh;
+  padding-bottom: 80px; /* espacio para la barra inferior */
+}
+
+h1, h2, h3 { margin: 0; }
+h2 { font-size: 1.15rem; }
+h3 { font-size: 1rem; margin-bottom: 8px; }
+
+/* ---------- Barra superior ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 16px;
+  background: var(--navy-800);
+  color: var(--white);
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-logo { width: 38px; height: 38px; }
+.brand h1 { font-size: 1.2rem; letter-spacing: .3px; }
+.brand-sub { font-size: .75rem; color: var(--gray-300); }
+
+/* ---------- Píldoras de estado ---------- */
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: .78rem; font-weight: 600;
+  background: rgba(229, 83, 75, .12); color: var(--off);
+  white-space: nowrap;
+}
+.topbar .pill { background: rgba(255,255,255,.1); color: var(--white); }
+.pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--off); }
+.pill-on { background: rgba(46, 204, 113, .14); color: #1e9e57; }
+.pill-on .dot { background: var(--ok); box-shadow: 0 0 0 3px rgba(46,204,113,.25); }
+
+/* ---------- Layout ---------- */
+main { max-width: 900px; margin: 0 auto; padding: 16px; }
+.view { display: none; flex-direction: column; gap: 16px; }
+.view.active { display: flex; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.label { margin: 0; font-size: .8rem; color: var(--gray-500); }
+.hint { margin: 6px 0 0; font-size: .85rem; color: var(--gray-500); }
+
+.source-card {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--navy-700); color: var(--white);
+}
+.source-card .label { color: var(--gray-300); }
+.source-name { margin: 2px 0 0; font-size: 1.1rem; font-weight: 700; }
+
+/* ---------- Botones ---------- */
+.btn {
+  appearance: none; border: 2px solid var(--navy-800);
+  background: var(--navy-800); color: var(--white);
+  padding: 10px 16px; border-radius: 12px;
+  font-weight: 600; font-size: .9rem; cursor: pointer;
+  transition: transform .1s, background .2s;
+}
+.btn:active { transform: scale(.97); }
+.btn-ghost { background: transparent; color: var(--navy-800); }
+.source-card .btn-ghost { color: var(--white); border-color: var(--white); }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.btn-row .btn { flex: 1; }
+
+/* ---------- Tarjetas de dispositivo ---------- */
+.device-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+
+.tank {
+  position: relative; height: 160px;
+  border: 3px solid var(--navy-700); border-radius: 12px;
+  overflow: hidden; background: var(--gray-100);
+}
+.tank-water {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 0%;
+  background: linear-gradient(180deg, var(--accent), var(--navy-500));
+  transition: height .8s ease;
+}
+.tank-value {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: 2rem; font-weight: 800; color: var(--navy-800);
+  text-shadow: 0 1px 0 rgba(255,255,255,.7);
+}
+
+.pump-state { display: flex; align-items: center; gap: 14px; height: 80px; }
+.pump-icon { width: 64px; height: 64px; color: var(--gray-300); }
+.pump-icon.on { color: var(--navy-500); }
+.pump-icon.on .fan { transform-origin: 32px 32px; animation: spin 1s linear infinite; }
+.pump-text { font-size: 1.3rem; font-weight: 700; margin: 0; }
+
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 0; }
+.stats div { background: var(--gray-100); border-radius: 10px; padding: 8px 10px; }
+.stats dt { font-size: .72rem; color: var(--gray-500); }
+.stats dd { margin: 2px 0 0; font-weight: 700; }
+
+.log { list-style: none; margin: 0; padding: 0; max-height: 180px; overflow-y: auto; font-size: .82rem; }
+.log li { padding: 6px 0; border-bottom: 1px solid var(--gray-100); color: var(--gray-500); }
+.log li time { color: var(--navy-500); font-weight: 600; margin-right: 6px; }
+
+/* ---------- Formulario ---------- */
+.form { display: flex; flex-direction: column; gap: 12px; }
+.form label { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; font-weight: 600; }
+.form input, .form select {
+  font: inherit; padding: 10px 12px;
+  border: 2px solid var(--gray-300); border-radius: 10px;
+  background: var(--white); color: var(--navy-800);
+}
+.form input:focus, .form select:focus { outline: none; border-color: var(--navy-500); }
+.steps-list { margin: 10px 0 0; padding-left: 20px; line-height: 1.6; font-size: .9rem; }
+code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; }
+
+/* ---------- Barra inferior ---------- */
+.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
+  display: flex; background: var(--white);
+  border-top: 1px solid var(--gray-300);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.tab {
+  flex: 1; appearance: none; border: 0; background: none;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 10px 0; font-size: .75rem; font-weight: 600;
+  color: var(--gray-500); cursor: pointer;
+}
+.tab svg { width: 24px; height: 24px; fill: currentColor; }
+.tab.active { color: var(--navy-800); }
+
+/* ---------- Simulación ---------- */
+.sim svg { width: 100%; height: auto; display: block; }
+.sim-tank { fill: var(--gray-100); stroke: var(--navy-700); stroke-width: 3; }
+.sim-water { fill: var(--water); transition: y .5s linear, height .5s linear; }
+.sim-label { font-size: 11px; font-weight: 700; fill: var(--navy-800); text-anchor: middle; }
+.sim-value { font-size: 18px; font-weight: 800; fill: var(--navy-800); text-anchor: middle; }
+.sim-mini { font-size: 8px; fill: var(--white); text-anchor: middle; font-weight: 700; }
+.sim-phone { fill: var(--navy-800); }
+.sim-pipe { fill: none; stroke: var(--gray-300); stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+.sim-flow { fill: none; stroke: var(--water); stroke-width: 4; stroke-dasharray: 8 8; opacity: 0; stroke-linecap: round; }
+.sim-flow.on { opacity: 1; animation: flow .6s linear infinite; }
+.sim-pump circle { fill: var(--white); stroke: var(--navy-700); stroke-width: 3; }
+.sim-pump path { stroke: var(--navy-700); stroke-width: 3; stroke-linecap: round; }
+.sim-pump.on path { transform-origin: 196px 225px; animation: spin .8s linear infinite; }
+.sim-pump.on circle { stroke: var(--accent); }
+.sim-esp rect { fill: var(--navy-700); }
+.sim-esp text { font-size: 9px; fill: var(--white); text-anchor: middle; font-weight: 700; }
+.sim-sensor rect { fill: var(--navy-500); }
+.sim-ping { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0; }
+.sim-sensor.on .sim-ping { animation: ping 1s ease-out infinite; }
+.sim-wifi path { fill: none; stroke: var(--gray-300); stroke-width: 3; stroke-linecap: round; }
+.sim-wifi.on path { stroke: var(--accent); animation: blink 1.2s ease-in-out infinite; }
+.sim-wifi.on path:nth-child(2) { animation-delay: .2s; }
+.sim-wifi.on path:nth-child(3) { animation-delay: .4s; }
+.highlight rect, .highlight circle { stroke: var(--accent); stroke-width: 3; }
+
+.sim-step { margin-top: 12px; min-height: 120px; }
+.sim-step-num { margin: 0; font-size: .75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; }
+.sim-step p { line-height: 1.5; }
+.progress { height: 6px; background: var(--gray-100); border-radius: 99px; overflow: hidden; }
+.progress div { height: 100%; width: 0; background: var(--navy-500); transition: width .3s; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes flow { to { stroke-dashoffset: -16; } }
+@keyframes ping { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(8px); } }
+@keyframes blink { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
