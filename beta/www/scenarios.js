@@ -11,8 +11,12 @@
    El último evento lleva fin: true.
 
    Unidades: niveles en %, caudales en % por minuto.
+
+   Nombres: en el código, "tinaco" es el depósito de arriba (en
+   pantalla se llama CISTERNA) y "cisterna" es el depósito de abajo
+   (en pantalla se llama ALJIBE).
    ========================================================= */
-const TINACO_L = 1100;  // litros de referencia para los resúmenes
+const TINACO_L = 1100;  // litros de la cisterna (depósito de arriba) para los resúmenes
 
 const consumoDia = (st) => ((st.t % 12) < 5 ? 1.0 : 0);  // tandas: 5 min usando agua, 7 min sin usar
 const tieneAlerta = (res, id) => res.alerts.some((a) => a.id === id);
@@ -27,11 +31,11 @@ const SCENARIOS = [
     duracion: 75,
     consumo: consumoDia,
     eventos: [
-      { at: 0, texto: '☀️ 7:30 a. m. La familia se levanta: duchas, cocina y lavabo. El tinaco baja por tandas.' },
-      { at: 3, texto: '📡 Cada ESP32 mide su nivel con el sensor ultrasónico (calcula la distancia por el eco) y lo envía por WiFi a la app.' },
-      { when: (st) => st.bomba, texto: '🔌 El tinaco llegó al 25 %: el ESP32 Bomba activa el relé y la bomba sube agua de la cisterna al tinaco.' },
-      { when: (st) => !st.bomba, texto: '✅ Tinaco al 95 %: la bomba se apaga sola.' },
-      { after: 5, fin: true, texto: '👍 Así es un día normal: todo automático y sin ninguna alerta.' },
+      { at: 0, texto: 'Son las 07:30. La familia se levanta: duchas, cocina y lavabo. La cisterna baja por tandas.' },
+      { at: 3, texto: 'Cada ESP32 mide su nivel con el sensor ultrasónico (calcula la distancia por el eco) y lo envía por wifi a la aplicación.' },
+      { when: (st) => st.bomba, texto: 'La cisterna ha llegado al 25 %: el ESP32 Bomba activa el relé y la bomba sube agua del aljibe a la cisterna.' },
+      { when: (st) => !st.bomba, texto: 'Cisterna al 95 %: la bomba se apaga sola.' },
+      { after: 5, fin: true, texto: 'Así es un día normal: todo automático y sin ningún aviso.' },
     ],
   },
   {
@@ -42,12 +46,12 @@ const SCENARIOS = [
     duracion: 60,
     consumo: consumoDia,
     eventos: [
-      { at: 0, texto: '🏠 Mediodía: la casa usa agua por tandas, como siempre.' },
-      { at: 8, accion: (st) => { st.fuga = 0.6; }, texto: '💧 Se rompe una tubería después del tinaco. El agua empieza a salir sin parar.' },
-      { when: (st, res) => tieneAlerta(res, 'fuga'), texto: '📱 La app nota que el tinaco baja SIN pausas (el uso normal siempre tiene pausas) y te manda: “Posible fuga de agua”.' },
-      { after: 3, accion: (st) => { st.bloqueoUsuario = true; }, texto: '👆 Tú tocas “Bloquear bomba” en la app para no seguir gastando el agua de la cisterna en la fuga.' },
-      { after: 12, accion: (st, eng) => { st.fuga = 0; st.bloqueoUsuario = false; eng.clear('fuga'); }, texto: '🔧 El plomero repara la tubería. Marcas la alerta como revisada y la bomba vuelve a automático.' },
-      { after: 6, fin: true, texto: (st) => `📊 Resumen: la fuga tiró unos ${litros(st.perdida)} litros. Sin el aviso, la bomba habría seguido rellenando el tinaco hacia la fuga.` },
+      { at: 0, texto: 'Mediodía: en casa se gasta agua por tandas, como siempre.' },
+      { at: 8, accion: (st) => { st.fuga = 0.6; }, texto: 'Se rompe una tubería después de la cisterna. El agua empieza a salir sin parar.' },
+      { when: (st, res) => tieneAlerta(res, 'fuga'), texto: 'La aplicación nota que la cisterna baja SIN pausas (el uso normal siempre tiene pausas) y te avisa: «Posible fuga de agua».' },
+      { after: 3, accion: (st) => { st.bloqueoUsuario = true; }, texto: 'Pulsas «Bloquear bomba» en la aplicación para no seguir gastando el agua del aljibe en la fuga.' },
+      { after: 12, accion: (st, eng) => { st.fuga = 0; st.bloqueoUsuario = false; eng.clear('fuga'); }, texto: 'El fontanero repara la tubería. Marcas el aviso como revisado y la bomba vuelve a automático.' },
+      { after: 6, fin: true, texto: (st) => `Resumen: la fuga ha tirado unos ${litros(st.perdida)} litros. Sin el aviso, la bomba habría seguido rellenando la cisterna hacia la fuga.` },
     ],
   },
   {
@@ -58,74 +62,74 @@ const SCENARIOS = [
     duracion: 450,
     consumo: () => 0,
     eventos: [
-      { at: 0, texto: '🌙 22:30. El modo noche se activa solo (horario 22:00 – 06:00).' },
-      { at: 5, texto: '🤖 En modo noche la app decide sola: no te pregunta nada, aplica las protecciones y solo te despierta si algo es urgente.' },
-      { when: (st) => st.bomba, texto: '⛽ Aprovecha la noche para llenar el tinaco al 100 % y dejarlo listo para las duchas de la mañana.' },
-      { when: (st) => !st.bomba, texto: '🔕 Tinaco lleno. Los avisos sin importancia (como “Cisterna llena”) se guardan en silencio.' },
-      { when: (st) => st.t >= 450, fin: true, texto: '☀️ 6:00 a. m. Resumen de la noche: tinaco lleno, cisterna recuperada con el agua de la red y 0 alertas urgentes.' },
+      { at: 0, texto: 'Son las 22:30. El modo noche se activa solo (horario de 22:00 a 06:00).' },
+      { at: 5, texto: 'En modo noche la aplicación decide sola: no te pregunta nada, aplica las protecciones y solo te despierta si algo es urgente.' },
+      { when: (st) => st.bomba, texto: 'Aprovecha la noche para llenar la cisterna al 100 % y dejarla lista para las duchas de la mañana.' },
+      { when: (st) => !st.bomba, texto: 'Cisterna llena. Los avisos sin importancia (como «Aljibe lleno») se guardan en silencio.' },
+      { when: (st) => st.t >= 450, fin: true, texto: 'Son las 06:00. Resumen de la noche: cisterna llena, aljibe recuperado con el agua de la red y ningún aviso urgente.' },
     ],
   },
   {
     id: 'sensor',
-    nombre: 'Sensor dañado',
+    nombre: 'Sensor averiado',
     inicio: { hora: '15:00', cisterna: 70, tinaco: 55, suministro: 0.1 },
     minPorTick: 1,
     duracion: 35,
     consumo: consumoDia,
     eventos: [
-      { at: 0, texto: '🏠 Tarde normal: los dos sensores reportan bien.' },
-      { at: 6, accion: (st) => { st.sensorT = false; }, texto: '⚡ Al sensor ultrasónico del tinaco le entra humedad y deja de responder (manda lecturas imposibles).' },
-      { when: (st, res) => tieneAlerta(res, 'sensorT'), texto: '📱 Tras 2 lecturas imposibles la app avisa “Sensor del tinaco dañado” y bloquea la bomba: sin sensor no sabría cuándo apagarla y el tinaco se desbordaría.' },
-      { after: 10, accion: (st) => { st.sensorT = true; }, texto: '🔧 Secas el sensor y revisas el cable.' },
-      { when: (st, res) => !tieneAlerta(res, 'sensorT'), texto: '✅ Las lecturas vuelven a ser válidas: la alerta se quita sola y la bomba regresa a automático.' },
-      { after: 5, fin: true, texto: '💡 Consejo: usa sensores a prueba de agua (JSN-SR04T) dentro de los tanques.' },
+      { at: 0, texto: 'Tarde normal: los dos sensores informan bien.' },
+      { at: 6, accion: (st) => { st.sensorT = false; }, texto: 'Al sensor ultrasónico de la cisterna le entra humedad y deja de responder (envía lecturas imposibles).' },
+      { when: (st, res) => tieneAlerta(res, 'sensorT'), texto: 'Tras 2 lecturas imposibles la aplicación avisa «Sensor de la cisterna averiado» y bloquea la bomba: sin sensor no sabría cuándo apagarla y la cisterna rebosaría.' },
+      { after: 10, accion: (st) => { st.sensorT = true; }, texto: 'Secas el sensor y revisas el cable.' },
+      { when: (st, res) => !tieneAlerta(res, 'sensorT'), texto: 'Las lecturas vuelven a ser válidas: el aviso se quita solo y la bomba vuelve a automático.' },
+      { after: 5, fin: true, texto: 'Consejo: usa sensores estancos (JSN-SR04T) dentro de los depósitos.' },
     ],
   },
   {
     id: 'llena',
-    nombre: 'Cisterna llena',
+    nombre: 'Aljibe lleno',
     inicio: { hora: '09:00', cisterna: 82, tinaco: 85, suministro: 0.8 },
     minPorTick: 1,
     duracion: 35,
     consumo: (st) => consumoDia(st) * 0.5,
     eventos: [
-      { at: 0, texto: '🚰 Llega el agua de la red municipal y empieza a entrar a la cisterna.' },
-      { when: (st, res) => tieneAlerta(res, 'llena'), texto: '📱 Al pasar el 95 % la app te avisa “Cisterna llena”. Es solo informativo, no es un problema.' },
-      { when: (st) => st.cisterna >= 100, accion: (st) => { st.suministro = 0; }, texto: '🎈 El flotador de la cisterna cierra la entrada. Si el nivel siguiera subiendo, revisa el flotador: podría desbordarse.' },
-      { after: 6, fin: true, texto: '✅ Con la cisterna llena la bomba puede trabajar tranquila varios días.' },
+      { at: 0, texto: 'Llega el agua de la red de suministro y empieza a entrar en el aljibe.' },
+      { when: (st, res) => tieneAlerta(res, 'llena'), texto: 'Al pasar del 95 % la aplicación te avisa «Aljibe lleno». Es solo informativo, no es ningún problema.' },
+      { when: (st) => st.cisterna >= 100, accion: (st) => { st.suministro = 0; }, texto: 'La boya del aljibe cierra la entrada. Si el nivel siguiera subiendo, revisa la boya: podría rebosar.' },
+      { after: 6, fin: true, texto: 'Con el aljibe lleno, la bomba puede trabajar tranquila varios días.' },
     ],
   },
   {
     id: 'vacia',
-    nombre: 'Cisterna vacía',
+    nombre: 'Aljibe vacío',
     inicio: { hora: '13:00', cisterna: 22, tinaco: 30, suministro: 0 },
     minPorTick: 1,
     duracion: 45,
     consumo: consumoDia,
     eventos: [
-      { at: 0, texto: '🚱 Hoy no llegó agua de la red. La cisterna está baja (22 %).' },
-      { when: (st) => st.bomba, texto: '🔌 El tinaco necesita agua y la bomba empieza a sacarla de la cisterna.' },
-      { when: (st, res) => tieneAlerta(res, 'vacia'), texto: '🛑 La cisterna baja al 10 %: la app bloquea la bomba para que no trabaje en seco (se quemaría el motor).' },
-      { after: 8, accion: (st) => { st.suministro = 1.5; }, texto: '🚰 Regresa el agua de la red y la cisterna se empieza a llenar.' },
-      { when: (st, res) => !tieneAlerta(res, 'vacia'), texto: '✅ Al pasar el 20 % se quita el bloqueo y la bomba vuelve a trabajar sola.' },
-      { after: 6, fin: true, texto: '💡 Por eso el ESP32 Cisterna es importante: protege a la bomba aunque nadie esté viendo.' },
+      { at: 0, texto: 'Hoy no ha llegado agua de la red. El aljibe está bajo (22 %).' },
+      { when: (st) => st.bomba, texto: 'La cisterna necesita agua y la bomba empieza a sacarla del aljibe.' },
+      { when: (st, res) => tieneAlerta(res, 'vacia'), texto: 'El aljibe baja al 10 %: la aplicación bloquea la bomba para que no trabaje en seco (se quemaría el motor).' },
+      { after: 8, accion: (st) => { st.suministro = 1.5; }, texto: 'Vuelve el agua de la red y el aljibe empieza a llenarse.' },
+      { when: (st, res) => !tieneAlerta(res, 'vacia'), texto: 'Al pasar del 20 % se quita el bloqueo y la bomba vuelve a trabajar sola.' },
+      { after: 6, fin: true, texto: 'Por eso el ESP32 Aljibe es importante: protege la bomba aunque nadie esté mirando.' },
     ],
   },
   {
     id: 'bomba',
-    nombre: 'Bomba no funciona',
+    nombre: 'Bomba averiada',
     inicio: { hora: '18:00', cisterna: 80, tinaco: 32, suministro: 0.1 },
     minPorTick: 1,
     duracion: 45,
     consumo: consumoDia,
     eventos: [
-      { at: 0, texto: '🏠 Tarde: el tinaco está algo bajo.' },
-      { at: 2, accion: (st) => { st.bombaFunciona = false; }, texto: '⚙️ Sin que nadie lo note, el motor de la bomba se atasca.' },
-      { when: (st) => st.bomba, texto: '🔌 El tinaco llega al 25 % y el ESP32 activa el relé… pero el agua no sube.' },
-      { when: (st, res) => tieneAlerta(res, 'bomba'), texto: '📱 Tras 5 minutos sin que el tinaco suba, la app avisa “La bomba no funciona” y corta el relé para proteger el motor.' },
-      { after: 8, accion: (st, eng) => { st.bombaFunciona = true; eng.clear('bomba'); }, texto: '🔧 El técnico libera el impulsor. Marcas la alerta como revisada.' },
-      { when: (st) => st.bomba, texto: '✅ La bomba vuelve a encender y esta vez el tinaco sí sube.' },
-      { after: 6, fin: true, texto: '💡 Revisa también el breaker y que la bomba esté cebada (con agua en el tubo de succión).' },
+      { at: 0, texto: 'Por la tarde: la cisterna está algo baja.' },
+      { at: 2, accion: (st) => { st.bombaFunciona = false; }, texto: 'Sin que nadie se dé cuenta, el motor de la bomba se atasca.' },
+      { when: (st) => st.bomba, texto: 'La cisterna llega al 25 % y el ESP32 activa el relé… pero el agua no sube.' },
+      { when: (st, res) => tieneAlerta(res, 'bomba'), texto: 'Tras 5 minutos sin que la cisterna suba, la aplicación avisa «La bomba no funciona» y corta el relé para proteger el motor.' },
+      { after: 8, accion: (st, eng) => { st.bombaFunciona = true; eng.clear('bomba'); }, texto: 'El técnico desatasca el impulsor. Marcas el aviso como revisado.' },
+      { when: (st) => st.bomba, texto: 'La bomba vuelve a arrancar y esta vez la cisterna sí sube.' },
+      { after: 6, fin: true, texto: 'Revisa también el diferencial y que la bomba esté cebada (con agua en el tubo de aspiración).' },
     ],
   },
   {
@@ -136,11 +140,11 @@ const SCENARIOS = [
     duracion: 330,
     consumo: () => 0,
     eventos: [
-      { at: 0, texto: '🌙 00:30, modo noche activo. Todos duermen: el consumo debería ser cero.' },
-      { at: 30, accion: (st) => { st.fuga = 0.3; }, texto: '💧 Se rompe la manguera del baño. Empieza a salir agua.' },
-      { when: (st, res) => tieneAlerta(res, 'fugaNoche'), texto: '🤖 En solo 10 minutos la app nota que el nivel baja sin que nadie use agua. Como es de noche, actúa SOLA: bloquea la bomba.' },
-      { after: 6, texto: '📳 Por ser urgente, esta alerta sí suena aunque sea de noche (las leves se guardan en silencio).' },
-      { when: (st) => st.t >= 330, fin: true, texto: (st) => `☀️ 6:00 a. m. Al despertar ves el resumen: el tinaco perdió unos ${litros(st.perdida)} L, pero la cisterna quedó intacta (${Math.round(st.cisterna)} %) porque la bomba no siguió bombeando hacia la fuga.` },
+      { at: 0, texto: 'Son las 00:30 y el modo noche está activo. Todos duermen: el consumo debería ser cero.' },
+      { at: 30, accion: (st) => { st.fuga = 0.3; }, texto: 'Se rompe el latiguillo del baño. Empieza a salir agua.' },
+      { when: (st, res) => tieneAlerta(res, 'fugaNoche'), texto: 'En solo 10 minutos la aplicación nota que el nivel baja sin que nadie use agua. Como es de noche, actúa SOLA: bloquea la bomba.' },
+      { after: 6, texto: 'Por ser urgente, este aviso sí suena aunque sea de noche (los leves se guardan en silencio).' },
+      { when: (st) => st.t >= 330, fin: true, texto: (st) => `Son las 06:00. Al despertar ves el resumen: la cisterna ha perdido unos ${litros(st.perdida)} L, pero el aljibe sigue intacto (${Math.round(st.cisterna)} %) porque la bomba no ha seguido bombeando hacia la fuga.` },
     ],
   },
 ];
@@ -165,7 +169,7 @@ function createSimRunner(scenario) {
     fuga: 0,
     consumo: 0,
     bloqueoUsuario: false,
-    perdida: 0,       // % de tinaco perdido por fugas
+    perdida: 0,       // % de cisterna perdido por fugas
     lectura: { tinaco: null, cisterna: null },
   };
   const engine = AquaEngine.create();
@@ -200,7 +204,7 @@ function createSimRunner(scenario) {
     st.perdida += st.tinaco > 0 ? Math.min(st.fuga * dt, salida) : 0;
     st.tinaco -= salida;
     if (st.bomba && st.bombaFunciona && st.cisterna > 0) {
-      const flujo = Math.min(2.5 * dt, st.cisterna * 2);  // el tinaco es más chico: 1 % de cisterna ≈ 2 % de tinaco
+      const flujo = Math.min(2.5 * dt, st.cisterna * 2);  // la cisterna es más pequeña: 1 % del aljibe ≈ 2 % de la cisterna
       st.tinaco += flujo;
       st.cisterna -= flujo / 2;
     }

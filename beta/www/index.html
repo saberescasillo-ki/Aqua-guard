@@ -20,12 +20,12 @@
     <span id="link-status" class="status off" title="Estado de conexión">Sin conexión</span>
   </header>
 
-  <!-- ================= MENÚ LATERAL (☰) ================= -->
+  <!-- ================= MENÚ LATERAL (tres rayas) ================= -->
   <div id="drawer-backdrop" class="backdrop" hidden></div>
   <aside id="drawer" class="drawer" aria-hidden="true">
     <!-- Lista principal -->
     <div class="drawer-page" data-page="menu">
-      <div class="drawer-head"><strong>Opciones</strong><button class="icon-btn" data-close aria-label="Cerrar">✕</button></div>
+      <div class="drawer-head"><strong>Opciones</strong><button class="icon-btn" data-close aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M5.7 4.3 12 10.6l6.3-6.3 1.4 1.4-6.3 6.3 6.3 6.3-1.4 1.4-6.3-6.3-6.3 6.3-1.4-1.4 6.3-6.3-6.3-6.3z"/></svg></button></div>
       <nav class="menu-list">
         <button data-open="letra">Tamaño de letra</button>
         <button data-open="color">Color de app</button>
@@ -35,6 +35,7 @@
         <button data-open="lectura">Forma de leer los datos</button>
         <button data-open="version">Versión de la app</button>
         <button data-open="yailywai">Yailywai</button>
+        <button data-open="puntos">...</button>
       </nav>
     </div>
 
@@ -88,7 +89,7 @@
       <div class="options">
         <label class="check"><input type="checkbox" data-setting="simPausa"> Pausar en cada paso para leer</label>
         <label class="check"><input type="checkbox" data-setting="simLoop"> Repetir al terminar</label>
-        <label class="check"><input type="checkbox" data-setting="simNotifs"> Mostrar notificaciones del celular</label>
+        <label class="check"><input type="checkbox" data-setting="simNotifs"> Mostrar notificaciones del móvil</label>
       </div>
     </div>
 
@@ -101,8 +102,8 @@
         <label><input type="radio" name="unidad" value="centimetros"> Distancia del sensor (cm)</label>
       </div>
       <div class="field-row">
-        <label>Capacidad cisterna (L)<input type="number" min="1" data-setting="capCisterna" data-type="number"></label>
-        <label>Capacidad tinaco (L)<input type="number" min="1" data-setting="capTinaco" data-type="number"></label>
+        <label>Capacidad cisterna (L)<input type="number" min="1" data-setting="capTinaco" data-type="number"></label>
+        <label>Capacidad aljibe (L)<input type="number" min="1" data-setting="capCisterna" data-type="number"></label>
       </div>
       <p class="opt-title">Leer cada</p>
       <div class="options" data-setting="intervalo" data-type="number">
@@ -114,7 +115,7 @@
       <p class="opt-title">Leer desde</p>
       <div class="options" data-setting="fuente">
         <label><input type="radio" name="fuente" value="auto"> Automático (el ESP32 que envíe datos)</label>
-        <label><input type="radio" name="fuente" value="cisterna"> Solo ESP32 Cisterna</label>
+        <label><input type="radio" name="fuente" value="cisterna"> Solo ESP32 Aljibe</label>
         <label><input type="radio" name="fuente" value="bomba"> Solo ESP32 Bomba</label>
       </div>
     </div>
@@ -122,7 +123,7 @@
     <div class="drawer-page" data-page="version" hidden>
       <div class="drawer-head"><button class="icon-btn" data-back aria-label="Atrás">←</button><strong>Versión de la app</strong></div>
       <dl class="kv">
-        <div><dt>App</dt><dd>Aqua Guard Beta</dd></div>
+        <div><dt>Aplicación</dt><dd>Aqua Guard Beta</dd></div>
         <div><dt>Versión</dt><dd id="app-version">—</dd></div>
         <div><dt>Canal</dt><dd>Beta (pruebas)</dd></div>
         <div><dt>Plataforma</dt><dd id="app-platform">—</dd></div>
@@ -133,6 +134,28 @@
     <div class="drawer-page yailywai" data-page="yailywai" hidden>
       <div class="drawer-head"><button class="icon-btn" data-back aria-label="Atrás">←</button><strong>Yailywai</strong></div>
       <p class="yailywai-text">TEXTO DE PRUEBA jsjsjajs Ozi oZi</p>
+    </div>
+
+    <!-- Opción "..." y sus tres subopciones -->
+    <div class="drawer-page" data-page="puntos" hidden>
+      <div class="drawer-head"><button class="icon-btn" data-back aria-label="Atrás">←</button><strong>...</strong></div>
+      <nav class="menu-list">
+        <button data-open="whatsapp">Vincular al WhatsApp</button>
+        <button data-open="tutorial">Tutorial</button>
+        <button data-open="aquaguard">Aqua guard</button>
+      </nav>
+    </div>
+    <div class="drawer-page centered-msg" data-page="whatsapp" hidden>
+      <div class="drawer-head"><button class="icon-btn" data-back="puntos" aria-label="Atrás">←</button><strong>Vincular al WhatsApp</strong></div>
+      <div class="center-body"><p>... Forget something? Oh yeah, the code... Nevermind, this doesnt work for now...</p></div>
+    </div>
+    <div class="drawer-page centered-msg" data-page="tutorial" hidden>
+      <div class="drawer-head"><button class="icon-btn" data-back="puntos" aria-label="Atrás">←</button><strong>Tutorial</strong></div>
+      <div class="center-body"><p>... Forget something? Oh yeah, the code... Nevermind, this doesnt work for now...</p></div>
+    </div>
+    <div class="drawer-page centered-msg" data-page="aquaguard" hidden>
+      <div class="drawer-head"><button class="icon-btn" data-back="puntos" aria-label="Atrás">←</button><strong>Aqua guard</strong></div>
+      <div class="center-body"><p>... Forget something? Oh yeah, the code... Nevermind, this doesnt work for now...</p></div>
     </div>
   </aside>
 
@@ -151,17 +174,17 @@
 
       <div class="grid">
         <article class="box">
-          <div class="row-between"><h2>Cisterna</h2><span class="status off" data-status="cisterna">Offline</span></div>
+          <div class="row-between"><h2>Aljibe</h2><span class="status off" data-status="cisterna">Desconectado</span></div>
           <div class="bar"><div id="cisterna-bar"></div></div>
           <p class="big" id="cisterna-value">--</p>
-          <p class="muted small">Sensor: <span id="cisterna-dist">-- cm</span> · WiFi: <span id="cisterna-rssi">-- dBm</span></p>
+          <p class="muted small">Sensor: <span id="cisterna-dist">-- cm</span> · wifi: <span id="cisterna-rssi">-- dBm</span></p>
         </article>
 
         <article class="box">
-          <div class="row-between"><h2>Tinaco / Bomba</h2><span class="status off" data-status="bomba">Offline</span></div>
+          <div class="row-between"><h2>Cisterna / Bomba</h2><span class="status off" data-status="bomba">Desconectado</span></div>
           <div class="bar"><div id="tinaco-bar"></div></div>
           <p class="big" id="tinaco-value">--</p>
-          <p class="muted small">Bomba: <strong id="pump-text">Sin datos</strong> · Modo: <span id="pump-mode">--</span> · WiFi: <span id="bomba-rssi">-- dBm</span></p>
+          <p class="muted small">Bomba: <strong id="pump-text">Sin datos</strong> · Modo: <span id="pump-mode">--</span> · wifi: <span id="bomba-rssi">-- dBm</span></p>
           <div class="btn-row">
             <button class="btn" data-pump="on">Encender</button>
             <button class="btn outline" data-pump="off">Apagar</button>
@@ -173,7 +196,7 @@
 
       <article class="box">
         <div class="row-between"><h2>Modo noche</h2><span id="night-state" class="status off">Inactivo</span></div>
-        <p class="muted small">De noche la app actúa sola: deja la bomba en automático, llena el tinaco al 100 %, bloquea la bomba si detecta una fuga y solo te avisa de lo urgente.</p>
+        <p class="muted small">De noche la aplicación actúa sola: deja la bomba en automático, llena la cisterna al 100 %, bloquea la bomba si detecta una fuga y solo te avisa de lo urgente.</p>
         <div class="segmented" data-setting="modoNoche">
           <label><input type="radio" name="modoNoche" value="apagado"><span>Apagado</span></label>
           <label><input type="radio" name="modoNoche" value="encendido"><span>Encendido</span></label>
@@ -183,7 +206,7 @@
 
       <article class="box">
         <h2>Registro</h2>
-        <ul id="log" class="log"><li>App lista. Configura tus ESP32 en “Conexión” o prueba la “Simulación”.</li></ul>
+        <ul id="log" class="log"><li>Aplicación lista. Configura tus ESP32 en «Conexión» o prueba la «Simulación».</li></ul>
       </article>
     </section>
 
@@ -191,7 +214,7 @@
     <section id="view-simulacion" class="view">
       <article class="box">
         <h2>Simulación</h2>
-        <p class="muted small">Elige una situación y pulsa Reproducir. Usa el mismo “cerebro” que la app real, así ves exactamente qué haría.</p>
+        <p class="muted small">Elige una situación y pulsa Reproducir. Usa el mismo «cerebro» que la aplicación real, así ves exactamente qué haría.</p>
         <div id="sim-scenarios" class="chips"></div>
       </article>
 
@@ -211,20 +234,20 @@
           <path d="M248 112 V125 H220 V100" class="pipe"/>
           <g id="sim-tap" class="drops"><circle cx="220" cy="106" r="2"/><circle cx="220" cy="114" r="2"/></g>
 
-          <!-- Tinaco -->
+          <!-- Cisterna (depósito de arriba) -->
           <rect x="240" y="40" width="70" height="72" class="tank"/>
           <rect id="sim-tinaco" x="241" y="111" width="68" height="0" class="water"/>
-          <text x="275" y="34" class="lbl">Tinaco</text>
+          <text x="275" y="34" class="lbl">Cisterna</text>
           <text id="sim-tinaco-txt" x="275" y="82" class="val">0%</text>
           <g id="sim-sensor-t" class="sensor"><rect x="266" y="41" width="18" height="6"/><path class="x" d="M268 50 l14 10 M282 50 l-14 10"/></g>
 
           <!-- Fuga -->
           <g id="sim-leak" class="leak"><circle cx="238" cy="128" r="2.5"/><circle cx="232" cy="136" r="2.5"/><circle cx="242" cy="140" r="2.5"/><text x="232" y="154">fuga</text></g>
 
-          <!-- Cisterna -->
+          <!-- Aljibe (depósito de abajo) -->
           <rect x="20" y="140" width="120" height="70" class="tank"/>
           <rect id="sim-cisterna" x="21" y="209" width="118" height="0" class="water"/>
-          <text x="80" y="134" class="lbl">Cisterna</text>
+          <text x="80" y="134" class="lbl">Aljibe</text>
           <text id="sim-cisterna-txt" x="80" y="182" class="val">0%</text>
           <g id="sim-sensor-c" class="sensor"><rect x="71" y="141" width="18" height="6"/><path class="x" d="M73 150 l14 10 M87 150 l-14 10"/></g>
 
@@ -241,7 +264,7 @@
           <text x="185" y="224" class="lbl">Bomba</text>
 
           <!-- ESP32 -->
-          <g class="esp"><rect x="20" y="104" width="50" height="18"/><text x="45" y="116">ESP32 C</text></g>
+          <g class="esp"><rect x="20" y="104" width="50" height="18"/><text x="45" y="116">ESP32 A</text></g>
           <g class="esp"><rect x="270" y="150" width="50" height="18"/><text x="295" y="162">ESP32 B</text></g>
           <g id="sim-wifi" class="wifi"><path d="M70 100 q8 -8 16 0"/><path d="M66 95 q12 -12 24 0"/></g>
         </svg>
@@ -259,7 +282,7 @@
       </article>
 
       <article class="box" id="sim-phone-box">
-        <h2>📱 Lo que verías en tu celular</h2>
+        <h2>Lo que verías en tu móvil</h2>
         <ul id="sim-phone" class="notifs"><li class="muted small">Aún no hay notificaciones.</li></ul>
       </article>
     </section>
@@ -267,16 +290,16 @@
     <!-- ================= CONEXIÓN ================= -->
     <section id="view-conexion" class="view">
       <article class="box">
-        <h2>Conectar por WiFi</h2>
+        <h2>Conectar por wifi</h2>
         <ol class="steps">
-          <li>Conecta tu dispositivo a la <strong>misma red WiFi</strong> que los ESP32 (o a la red <code>AquaGuard-…</code> que crean ellos).</li>
+          <li>Conecta tu dispositivo a la <strong>misma red wifi</strong> que los ESP32 (o a la red <code>AquaGuard-…</code> que crean ellos).</li>
           <li>Escribe la IP de cada ESP32 (sale en el Monitor Serie de Arduino).</li>
-          <li>Pulsa <strong>Guardar y buscar</strong>: la app se conecta al ESP32 que esté enviando datos.</li>
+          <li>Pulsa <strong>Guardar y buscar</strong>: la aplicación se conecta al ESP32 que esté enviando datos.</li>
         </ol>
       </article>
 
       <form id="form-conexion" class="box form">
-        <label>IP ESP32 · Cisterna<input id="ip-cisterna" type="text" inputmode="url" placeholder="192.168.1.50" autocomplete="off"></label>
+        <label>IP ESP32 · Aljibe<input id="ip-cisterna" type="text" inputmode="url" placeholder="192.168.1.50" autocomplete="off"></label>
         <label>IP ESP32 · Bomba<input id="ip-bomba" type="text" inputmode="url" placeholder="192.168.1.51" autocomplete="off"></label>
         <div class="btn-row">
           <button type="submit" class="btn">Guardar y buscar</button>

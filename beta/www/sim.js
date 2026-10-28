@@ -105,7 +105,7 @@
   function dibujar() {
     const st = runner.st;
     const res = runner.res;
-    $('sim-clock').textContent = `${st.noche ? '🌙' : '☀️'} ${runner.hora()}`;
+    $('sim-clock').textContent = `${st.noche ? 'Noche' : 'Día'} · ${runner.hora()}`;
     simBox.classList.toggle('night', st.noche);
     nivel('sim-tinaco', 'sim-tinaco-txt', st.tinaco, st.lectura.tinaco, 41, 70);
     nivel('sim-cisterna', 'sim-cisterna-txt', st.cisterna, st.lectura.cisterna, 141, 68);
@@ -123,7 +123,7 @@
     notificar(res.alerts, st.noche);
   }
 
-  /* ---------- Notificaciones del celular simulado ---------- */
+  /* ---------- Notificaciones del móvil simulado ---------- */
   function vacio() {
     const li = document.createElement('li');
     li.className = 'muted small';
@@ -142,7 +142,7 @@
       const li = document.createElement('li');
       li.className = `n ${a.level}${silenciosa ? ' silent' : ''}`;
       const t = document.createElement('strong');
-      t.textContent = `${silenciosa ? '🔕 ' : ''}${a.title}`;
+      t.textContent = `${silenciosa ? 'En silencio: ' : ''}${a.title}`;
       const m = document.createElement('small');
       m.textContent = `${runner.hora()} · ${a.msg}${silenciosa ? ' (guardada en silencio por el modo noche)' : ''}`;
       li.append(t, m);

@@ -1,7 +1,7 @@
 {
   "name": "aqua-guard-beta-desktop",
   "productName": "Aqua Guard Beta",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Aqua Guard Beta para computadora (Windows, macOS y Linux)",
   "author": "Litium",

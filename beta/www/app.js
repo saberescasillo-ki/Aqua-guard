@@ -14,11 +14,13 @@ const devices = {
   cisterna: { online: false, data: {} },
   bomba: { online: false, data: {} },
 };
+// En el código el ESP32 "cisterna" es el del depósito de abajo; en pantalla se llama Aljibe
+const NOMBRES = { cisterna: 'Aljibe', bomba: 'Bomba' };
 const engine = AquaEngine.create();
 let pollTimer = null;
 let polling = false;
 let bloqueoUsuario = false;
-let bloqueoAplicado = false;   // la app apagó la bomba por un bloqueo
+let bloqueoAplicado = false;   // la aplicación apagó la bomba por un bloqueo
 let nocheAnterior = null;
 let alertasPrevias = new Set();
 
@@ -60,10 +62,10 @@ async function pollDevice(nombre) {
   try {
     dev.data = await fetchJson(ip, '/api/status');
     dev.online = true;
-    if (!estaba) log(`ESP32 ${nombre} conectado (${ip})`);
+    if (!estaba) log(`ESP32 ${NOMBRES[nombre]} conectado (${ip})`);
   } catch {
     dev.online = false;
-    if (estaba) log(`ESP32 ${nombre} dejó de responder`);
+    if (estaba) log(`ESP32 ${NOMBRES[nombre]} ha dejado de responder`);
   }
 }
 
@@ -130,7 +132,7 @@ function revisar() {
   const b = devices.bomba;
 
   if (noche !== nocheAnterior) {
-    if (nocheAnterior !== null) log(noche ? '🌙 Modo noche activado: la app actúa sola' : '☀️ Modo noche desactivado');
+    if (nocheAnterior !== null) log(noche ? 'Modo noche activado: la aplicación actúa sola' : 'Modo noche desactivado');
     if (noche && b.online && b.data.modo !== 'auto' && !bloqueoUsuario) setPump('auto', 'modo noche');
     nocheAnterior = noche;
   }
@@ -147,7 +149,7 @@ function revisar() {
   const ids = new Set(res.alerts.map((a) => a.id));
   res.alerts.filter((a) => !alertasPrevias.has(a.id)).forEach((a) => {
     const silencio = noche && a.level === 'info';
-    log(`${silencio ? '🔕' : '⚠️'} ${a.title}`);
+    log(`${silencio ? '[en silencio] ' : 'Aviso: '}${a.title}`);
     if (!silencio && a.level === 'danger' && navigator.vibrate) navigator.vibrate([300, 150, 300]);
   });
   alertasPrevias = ids;
@@ -166,7 +168,7 @@ function revisar() {
 }
 
 /* ---------------- Interfaz ---------------- */
-function setStatus(el, online, on = 'Online', off = 'Offline') {
+function setStatus(el, online, on = 'Conectado', off = 'Desconectado') {
   el.classList.toggle('on', online);
   el.classList.toggle('off', !online);
   el.textContent = online ? on : off;
@@ -186,7 +188,7 @@ function dbm(v) { return typeof v === 'number' ? `${v} dBm` : '-- dBm'; }
 function render() {
   const c = devices.cisterna;
   const b = devices.bomba;
-  const fuentes = [c.online && 'Cisterna', b.online && 'Bomba'].filter(Boolean);
+  const fuentes = [c.online && 'Aljibe', b.online && 'Bomba'].filter(Boolean);
   $('#active-source').textContent = fuentes.length ? `ESP32 ${fuentes.join(' + ')}` : 'Ningún ESP32';
   setStatus($('#link-status'), fuentes.length > 0, 'Conectado', 'Sin conexión');
   setStatus(document.querySelector('[data-status="cisterna"]'), c.online);
@@ -212,7 +214,7 @@ function render() {
   lockBtn.textContent = bloqueoUsuario ? 'Desbloquear bomba' : 'Bloquear bomba';
   lockBtn.classList.toggle('danger', bloqueoUsuario);
 
-  setStatus($('#night-state'), esNoche(), '🌙 Activo', 'Inactivo');
+  setStatus($('#night-state'), esNoche(), 'Activo', 'Inactivo');
   renderAlerts();
 }
 
@@ -232,7 +234,7 @@ function renderAlerts() {
     body.append(title, msg);
     div.append(body);
     if (a.id === 'fuga' && !noche && !bloqueoUsuario) div.append(button('Bloquear bomba', () => { bloqueoUsuario = true; revisar(); render(); }));
-    if (['fuga', 'fugaNoche', 'bomba'].includes(a.id)) div.append(button('Revisado', () => { engine.clear(a.id); log(`✔ ${a.title}: revisado`); revisar(); render(); }));
+    if (['fuga', 'fugaNoche', 'bomba'].includes(a.id)) div.append(button('Revisado', () => { engine.clear(a.id); log(`${a.title}: revisado`); revisar(); render(); }));
     cont.append(div);
   }
 }
@@ -269,7 +271,7 @@ document.querySelectorAll('[data-pump]').forEach((btn) => btn.addEventListener('
 }));
 $('#btn-lock').addEventListener('click', () => {
   bloqueoUsuario = !bloqueoUsuario;
-  log(bloqueoUsuario ? '🔒 Bomba bloqueada por ti' : '🔓 Bomba desbloqueada');
+  log(bloqueoUsuario ? 'Has bloqueado la bomba' : 'Has desbloqueado la bomba');
   revisar();
   render();
 });
@@ -288,8 +290,8 @@ $('#form-conexion').addEventListener('submit', async (e) => {
   $('#ip-bomba').value = Settings.get('ipBomba');
   const names = Object.keys(found);
   result.textContent = names.length
-    ? `Conectado a: ${names.map((n) => `ESP32 ${n} (${found[n]})`).join(', ')}`
-    : 'No se encontró ningún ESP32. Revisa la red WiFi y las IPs.';
+    ? `Conectado a: ${names.map((n) => `ESP32 ${NOMBRES[n]} (${found[n]})`).join(', ')}`
+    : 'No se encontró ningún ESP32. Revisa la red wifi y las IP.';
   log(result.textContent);
   startPolling();
   if (names.length) showView('panel');

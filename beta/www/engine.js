@@ -6,6 +6,8 @@
 
    update() recibe una lectura:
      { t: minutos, cisterna: %, tinaco: %, bomba: bool, noche: bool }
+   (en el código "tinaco" = depósito de arriba, en pantalla CISTERNA;
+    "cisterna" = depósito de abajo, en pantalla ALJIBE)
    (un nivel null / negativo / >100 cuenta como lectura dañada)
    y devuelve { alerts: [...], lock: [...] }:
      alerts → avisos activos { id, level: info|warn|danger, title, msg }
@@ -13,11 +15,11 @@
    ========================================================= */
 const AquaEngine = (() => {
   const DEFAULTS = {
-    vaciaOn: 10, vaciaOff: 20,        // % cisterna: bloquear / desbloquear
-    llenaOn: 95, llenaOff: 90,        // % cisterna: aviso de llena
+    vaciaOn: 10, vaciaOff: 20,        // % aljibe: bloquear / desbloquear
+    llenaOn: 95, llenaOff: 90,        // % aljibe: aviso de lleno
     saltoMax: 25,                     // % de salto entre lecturas = sensor errático
     lecturasMalas: 2,                 // lecturas malas seguidas para avisar
-    bombaMin: 5, bombaSubida: 2,      // si en 5 min con bomba encendida el tinaco no sube 2 % → falla
+    bombaMin: 5, bombaSubida: 2,      // si en 5 min con la bomba encendida la cisterna no sube 2 %, está averiada
     fugaDia:   { ventana: 20, caida: 6 },   // minutos / % de caída sin pausas
     fugaNoche: { ventana: 10, caida: 1.5 },
     pausaMin: 3,                      // una pausa de 3 min sin bajar = consumo normal, no fuga
@@ -26,13 +28,13 @@ const AquaEngine = (() => {
   };
 
   const ALERTAS = {
-    fuga:      { level: 'danger', title: 'Posible fuga de agua', msg: 'El tinaco baja sin parar aunque la bomba está apagada.' },
-    fugaNoche: { level: 'danger', title: 'Fuga detectada (modo noche)', msg: 'De noche nadie usa agua y el tinaco sigue bajando. Bomba bloqueada automáticamente.' },
-    sensorT:   { level: 'warn', title: 'Sensor del tinaco dañado', msg: 'Lecturas imposibles o sin respuesta. La bomba se bloquea por seguridad.' },
-    sensorC:   { level: 'warn', title: 'Sensor de la cisterna dañado', msg: 'Lecturas imposibles o sin respuesta. Sin él no hay protección contra marcha en seco.' },
-    vacia:     { level: 'danger', title: 'Cisterna vacía', msg: 'Bomba bloqueada para que no trabaje en seco.' },
-    llena:     { level: 'info', title: 'Cisterna llena', msg: 'La cisterna está a su máxima capacidad.' },
-    bomba:     { level: 'danger', title: 'La bomba no funciona', msg: 'El relé está encendido pero el tinaco no sube. Bomba apagada para proteger el motor.' },
+    fuga:      { level: 'danger', title: 'Posible fuga de agua', msg: 'La cisterna baja sin parar aunque la bomba está apagada.' },
+    fugaNoche: { level: 'danger', title: 'Fuga detectada (modo noche)', msg: 'De noche nadie usa agua y la cisterna sigue bajando. Bomba bloqueada automáticamente.' },
+    sensorT:   { level: 'warn', title: 'Sensor de la cisterna averiado', msg: 'Lecturas imposibles o sin respuesta. La bomba se bloquea por seguridad.' },
+    sensorC:   { level: 'warn', title: 'Sensor del aljibe averiado', msg: 'Lecturas imposibles o sin respuesta. Sin él no hay protección contra marcha en seco.' },
+    vacia:     { level: 'danger', title: 'Aljibe vacío', msg: 'Bomba bloqueada para que no trabaje en seco.' },
+    llena:     { level: 'info', title: 'Aljibe lleno', msg: 'El aljibe está a su máxima capacidad.' },
+    bomba:     { level: 'danger', title: 'La bomba no funciona', msg: 'El relé está activado pero la cisterna no sube. Bomba apagada para proteger el motor.' },
   };
 
   function create(options = {}) {

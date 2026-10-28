@@ -1,7 +1,7 @@
 /* =========================================================
-   Aqua Guard Beta — Menú ☰ y enlace de los ajustes
+   Aqua Guard Beta — Menú de tres rayas y enlace de los ajustes
    ========================================================= */
-const APP_VERSION = '0.1.0-beta';
+const APP_VERSION = '0.2.0-beta';
 
 (() => {
   const drawer = document.getElementById('drawer');
@@ -28,7 +28,8 @@ const APP_VERSION = '0.1.0-beta';
   document.getElementById('btn-menu').addEventListener('click', open);
   backdrop.addEventListener('click', close);
   drawer.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', close));
-  drawer.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', () => showPage('menu')));
+  // data-back sin valor vuelve a la lista principal; con valor, a esa página (ej. las subopciones de "...")
+  drawer.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', () => showPage(b.dataset.back || 'menu')));
   drawer.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => showPage(b.dataset.open)));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 
@@ -65,7 +66,7 @@ const APP_VERSION = '0.1.0-beta';
   const cap = window.Capacitor;
   const platform = cap && cap.isNativePlatform && cap.isNativePlatform()
     ? (cap.getPlatform() === 'ios' ? 'iPhone / iPad' : 'Android')
-    : (navigator.userAgent.includes('Electron') ? 'Computadora (escritorio)' : 'Navegador web');
+    : (navigator.userAgent.includes('Electron') ? 'Ordenador (escritorio)' : 'Navegador web');
   document.getElementById('app-version').textContent = APP_VERSION;
   document.getElementById('app-platform').textContent = platform;
 })();

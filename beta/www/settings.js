@@ -12,11 +12,11 @@ const Settings = (() => {
     simSpeed: 1,             // 0.5 | 1 | 2 | 4
     simPausa: true,          // pausar un momento en cada paso para leer
     simLoop: false,          // repetir el escenario al terminar
-    simNotifs: true,         // mostrar las notificaciones del celular simulado
+    simNotifs: true,         // mostrar las notificaciones del móvil simulado
     // Forma de leer los datos
     unidad: 'porcentaje',    // porcentaje | litros | centimetros
-    capCisterna: 5000,       // litros
-    capTinaco: 1100,         // litros
+    capCisterna: 5000,       // litros del aljibe (depósito de abajo)
+    capTinaco: 1100,         // litros de la cisterna (depósito de arriba)
     intervalo: 2000,         // ms entre lecturas
     fuente: 'auto',          // auto | cisterna | bomba
     // Conexión y operación

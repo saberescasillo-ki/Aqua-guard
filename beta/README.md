@@ -5,16 +5,26 @@ Versión de pruebas de Aqua Guard, separada de la app estable. Se instala **junt
 
 Funciona en **Android, iPhone, Windows, macOS, Linux y en el navegador**.
 
+## Nombres de los depósitos
+
+| En pantalla | Qué es | En el código |
+|---|---|---|
+| **Cisterna** | depósito de arriba (la que abastece la casa) | `tinaco` |
+| **Aljibe** | depósito de abajo (recibe el agua de la red) | `cisterna` |
+
+Los nombres internos del código no se han cambiado para no romper la comunicación con los ESP32.
+
 ## Novedades respecto a la versión estable
 
 - Interfaz más simple: esquinas rectas y bordes finos.
-- **Menú ☰** con: tamaño de letra, color de app, acerca de este proyecto, tema claro/oscuro,
+- **Menú de tres rayas** con: tamaño de letra, color de app, acerca de este proyecto, tema claro/oscuro,
   opciones de la simulación, forma de leer los datos (%, litros o cm; cada cuánto; desde qué ESP32),
-  versión de la app y Yailywai.
-- **Detección automática** de: fuga de agua, sensor dañado, cisterna llena, cisterna vacía
-  y bomba que no funciona (con bloqueo de la bomba cuando hace falta).
+  versión de la app, Yailywai y «...» (Vincular al WhatsApp, Tutorial y Aqua guard, aún sin funcionar).
+- Sin emojis y con vocabulario de España (móvil, ordenador, fontanero, pulsar…).
+- **Detección automática** de: fuga de agua, sensor averiado, aljibe lleno, aljibe vacío
+  y bomba averiada (con bloqueo de la bomba cuando hace falta).
 - **Modo noche** (apagado / encendido / automático de 22:00 a 06:00): la app actúa sola,
-  llena el tinaco al 100 %, bloquea la bomba si detecta una fuga y solo avisa lo urgente.
+  llena la cisterna al 100 %, bloquea la bomba si detecta una fuga y solo avisa lo urgente.
 - **Simulación** con 8 situaciones reproducibles. Usa el mismo “cerebro” (`engine.js`) que el Panel real.
 - Créditos al final de la pestaña **Conexión**.
 
@@ -23,27 +33,27 @@ Funciona en **Android, iPhone, Windows, macOS, Linux y en el navegador**.
 ```
 beta/
   www/                 ← la app (aquí se edita todo)
-    index.html         ← pantallas, menú ☰ y créditos
+    index.html         ← pantallas, menú de tres rayas y créditos
     styles.css         ← diseño y colores (claro/oscuro, colores de app)
     settings.js        ← ajustes guardados en el dispositivo
-    menu.js            ← menú ☰ y versión de la app
-    engine.js          ← motor de detección (fugas, sensores, cisterna, bomba)
+    menu.js            ← menú de tres rayas y versión de la app
+    engine.js          ← motor de detección (fugas, sensores, aljibe, bomba)
     scenarios.js       ← escenarios de la simulación (textos y eventos)
     sim.js             ← dibujo y controles de la simulación
     app.js             ← panel, modo noche y conexión con los ESP32
   android/  ios/       ← proyectos nativos (Capacitor)
-  desktop/             ← versión de computadora (Electron)
+  desktop/             ← versión de ordenador (Electron)
 ```
 
 ### Qué archivo tocar para…
 
 - **Textos o pasos de una situación de la simulación** → `www/scenarios.js`
-- **Sensibilidad de las alertas** (ej. cuánto debe bajar el tinaco para considerarlo fuga) → `DEFAULTS` en `www/engine.js`
-- **Créditos, “Acerca de” o “Yailywai”** → `www/index.html`
+- **Sensibilidad de las alertas** (ej. cuánto debe bajar la cisterna para considerarlo fuga) → `DEFAULTS` en `www/engine.js`
+- **Créditos, «Acerca de», «Yailywai» o las opciones de «...»** → `www/index.html`
 - **Colores** → `www/styles.css` (al inicio)
 - **Número de versión** → `APP_VERSION` en `www/menu.js`
 
-## Probar en tu computadora
+## Probar en tu ordenador
 
 - **Navegador:** abre `beta/www/index.html` con Live Server en VS Code.
 - **Como app de escritorio:**
