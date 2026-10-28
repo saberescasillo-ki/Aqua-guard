@@ -9,6 +9,10 @@ App para monitorear y controlar por WiFi un sistema de agua con **2 ESP32**:
 
 La app se conecta automáticamente al ESP32 (o a los dos) que esté enviando datos.
 
+> 🧪 **¿Buscas la versión BETA?** Está en la carpeta [`beta/`](beta/README.md): más funciones
+> (detección de fugas, modo noche, menú de opciones, simulación con 8 situaciones) y también
+> funciona en computadoras (Windows, macOS y Linux).
+
 ## Estructura
 
 ```

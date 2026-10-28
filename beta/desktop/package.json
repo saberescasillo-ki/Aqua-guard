@@ -1,0 +1,42 @@
+{
+  "name": "aqua-guard-beta-desktop",
+  "productName": "Aqua Guard Beta",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aqua Guard Beta para computadora (Windows, macOS y Linux)",
+  "author": "Litium",
+  "main": "main.js",
+  "scripts": {
+    "copiar-www": "node -e \"require('fs').rmSync('www',{recursive:true,force:true});require('fs').cpSync('../www','www',{recursive:true})\"",
+    "start": "npm run copiar-www && electron .",
+    "dist": "npm run copiar-www && electron-builder --publish never"
+  },
+  "build": {
+    "appId": "com.litium.aquaguard.beta",
+    "productName": "Aqua Guard Beta",
+    "files": [
+      "main.js",
+      "www/**/*"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "artifactName": "AquaGuardBeta-${os}.${ext}",
+    "win": {
+      "target": "portable"
+    },
+    "mac": {
+      "target": "zip",
+      "identity": null
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Utility"
+    }
+  },
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.17.0"
+  }
+}

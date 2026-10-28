@@ -1,0 +1,12 @@
+{
+  "name": "Aqua Guard Beta",
+  "short_name": "AquaGuard β",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a1f44",
+  "theme_color": "#0a1f44",
+  "lang": "es",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

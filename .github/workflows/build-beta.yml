@@ -1,0 +1,134 @@
+# Compila Aqua Guard BETA para celulares (Android/iPhone) y computadoras (Windows/macOS/Linux).
+# Los archivos quedan en GitHub → Releases → "Aqua Guard Beta (última versión)".
+name: Compilar beta
+
+on:
+  push:
+    branches: ['**']
+    paths: ['beta/**', '.github/workflows/build-beta.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    working-directory: beta
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: beta/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npx cap sync android
+      - name: Compilar APK
+        working-directory: beta/android
+        run: ./gradlew assembleDebug --no-daemon
+      - run: cp android/app/build/outputs/apk/debug/app-debug.apk AquaGuardBeta.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beta-android
+          path: beta/AquaGuardBeta.apk
+
+  ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: beta/package-lock.json
+      - run: npm ci
+      - run: npx cap sync ios
+      - name: Compilar app iOS (sin firmar)
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+      - name: Empaquetar IPA
+        run: |
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/App.app Payload/
+          zip -qr AquaGuardBeta-sin-firmar.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beta-ios
+          path: beta/AquaGuardBeta-sin-firmar.ipa
+
+  escritorio:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            target: --win
+          - os: macos-15
+            target: --mac
+          - os: ubuntu-latest
+            target: --linux
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: beta/desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: beta/desktop/package-lock.json
+      - run: npm ci
+      - run: npm run dist -- ${{ matrix.target }}
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beta-escritorio-${{ runner.os }}
+          path: |
+            beta/desktop/dist/*.exe
+            beta/desktop/dist/*.zip
+            beta/desktop/dist/*.AppImage
+
+  publicar:
+    needs: [android, ios, escritorio]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: archivos
+      - name: Publicar en Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          ls -la archivos
+          gh release delete beta-latest --cleanup-tag -y || true
+          gh release create beta-latest archivos/* \
+            --prerelease --target "$GITHUB_SHA" \
+            --title "Aqua Guard Beta (última versión)" \
+            --notes "Versión BETA compilada automáticamente desde la rama ${GITHUB_REF_NAME} (${GITHUB_SHA::7}).
+
+          | Archivo | Para |
+          |---|---|
+          | AquaGuardBeta.apk | Android |
+          | AquaGuardBeta-sin-firmar.ipa | iPhone (hay que firmarlo) |
+          | AquaGuardBeta-win.exe | Windows (portable, no se instala: solo ábrelo) |
+          | AquaGuardBeta-mac.zip | macOS |
+          | AquaGuardBeta-linux.AppImage | Linux |"
