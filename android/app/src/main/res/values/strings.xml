@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Aqua Guard</string>
+    <string name="title_activity_main">Aqua Guard</string>
+    <string name="package_name">com.litium.aquaguard</string>
+    <string name="custom_url_scheme">com.litium.aquaguard</string>
+</resources>

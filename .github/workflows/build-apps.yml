@@ -1,0 +1,82 @@
+# Compila la app para Android (.apk) e iPhone (.ipa sin firmar) en cada push.
+# Los archivos quedan en GitHub → Releases → "Aqua Guard (última versión)".
+name: Compilar apps
+
+on:
+  push:
+    branches: ['**']
+    paths-ignore: ['firmware/**', 'tools/**', '**.md']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npx cap sync android
+      - name: Compilar APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+      - run: cp android/app/build/outputs/apk/debug/app-debug.apk AquaGuard.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: AquaGuard.apk
+
+  ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx cap sync ios
+      - name: Compilar app iOS (sin firmar)
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+      - name: Empaquetar IPA
+        run: |
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/App.app Payload/
+          zip -qr AquaGuard-sin-firmar.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios
+          path: AquaGuard-sin-firmar.ipa
+
+  publicar:
+    needs: [android, ios]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - name: Publicar en Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release delete app-latest --cleanup-tag -y || true
+          gh release create app-latest AquaGuard.apk AquaGuard-sin-firmar.ipa \
+            --prerelease --target "$GITHUB_SHA" \
+            --title "Aqua Guard (última versión)" \
+            --notes "Compilada automáticamente desde la rama ${GITHUB_REF_NAME} (${GITHUB_SHA::7})."

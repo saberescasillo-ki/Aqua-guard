@@ -41,11 +41,19 @@ function baseUrl(ip) {
 
 async function fetchJson(ip, path) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
-  try {
+  let timer;
+  // En la app nativa (Capacitor) fetch va por HTTP nativo y puede ignorar
+  // la señal de cancelación, así que el tiempo límite también se aplica aquí.
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => { ctrl.abort(); reject(new Error('timeout')); }, REQUEST_TIMEOUT_MS);
+  });
+  const request = (async () => {
     const res = await fetch(baseUrl(ip) + path, { signal: ctrl.signal, cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    return res.json();
+  })();
+  try {
+    return await Promise.race([request, timeout]);
   } finally {
     clearTimeout(timer);
   }
@@ -66,11 +74,19 @@ async function pollDevice(name, ip) {
   }
 }
 
+let polling = false;
+
 async function pollAll() {
-  await Promise.all([
-    pollDevice('cisterna', config.ipCisterna),
-    pollDevice('bomba', config.ipBomba),
-  ]);
+  if (polling) return;  // evita acumular peticiones si un ESP32 tarda
+  polling = true;
+  try {
+    await Promise.all([
+      pollDevice('cisterna', config.ipCisterna),
+      pollDevice('bomba', config.ipBomba),
+    ]);
+  } finally {
+    polling = false;
+  }
   render();
 }
 
@@ -221,6 +237,8 @@ $('#poll-interval').value = String(config.interval);
 render();
 if (config.ipCisterna || config.ipBomba) startPolling();
 
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+// El service worker solo hace falta en la versión web (la app nativa ya trae los archivos)
+const isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+if (!isNativeApp && 'serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }

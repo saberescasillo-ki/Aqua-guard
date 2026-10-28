@@ -12,7 +12,7 @@ La app se conecta automáticamente al ESP32 (o a los dos) que esté enviando dat
 ## Estructura
 
 ```
-app/                  ← la aplicación (HTML + CSS + JavaScript, sin instalaciones)
+app/                  ← la aplicación (HTML + CSS + JavaScript) — aquí se edita todo
   index.html          ← estructura de las pantallas
   styles.css          ← colores y diseño (azul marino / blanco)
   app.js              ← conexión WiFi con los ESP32 y panel
@@ -22,6 +22,8 @@ firmware/
   esp32_bomba/        ← código Arduino del ESP32 de la bomba
 tools/
   simulador_esp32.py  ← finge ser los 2 ESP32 para probar la app sin hardware
+android/  ios/        ← proyectos nativos generados por Capacitor (casi nunca hay que tocarlos)
+assets/               ← icono y pantalla de inicio de la app
 ```
 
 ## Cómo abrir y editar el código
@@ -41,14 +43,50 @@ tools/
 - **Cambiar pantallas/botones** → `app/index.html`.
 - **Cambiar cómo se comunica con el ESP32** → `app/app.js`.
 
-### Usarla en el teléfono
+## Instalar la app en el celular
 
-Sube la carpeta `app/` a cualquier hosting o ábrela con Live Server desde tu PC
-(usa la IP de tu PC, p. ej. `http://192.168.1.10:5500/app/`). En el teléfono:
-menú del navegador → **Agregar a pantalla de inicio** y se instala como app.
+La app se empaqueta para **Android e iPhone** con [Capacitor](https://capacitorjs.com).
+Cada vez que se sube un cambio, GitHub la compila sola (pestaña **Actions**) y deja los
+instaladores en **Releases → “Aqua Guard (última versión)”**:
 
-> Nota: los ESP32 hablan `http://`. Si alojas la app en una página `https://`,
-> el navegador bloqueará las peticiones. Sírvela por `http://` en tu red local.
+| Archivo | Para |
+|---|---|
+| `AquaGuard.apk` | Android |
+| `AquaGuard-sin-firmar.ipa` | iPhone (hay que firmarlo, ver abajo) |
+
+### Android
+1. Desde el celular abre la página del repositorio → **Releases** → descarga `AquaGuard.apk`.
+2. Ábrelo. Android pedirá permitir **“Instalar apps desconocidas”** para el navegador: acéptalo.
+3. Listo, aparece “Aqua Guard” en tus apps.
+
+### iPhone
+Apple no deja instalar apps sin firmar. Opciones:
+- **Gratis (renovar cada 7 días):** en una PC con Windows o Mac instala
+  [Sideloadly](https://sideloadly.io), conecta el iPhone por cable, arrastra `AquaGuard-sin-firmar.ipa`
+  e inicia sesión con tu Apple ID. En el iPhone: Ajustes → General → VPN y gestión de dispositivos → confiar.
+  Después: Ajustes → Privacidad → **Modo de desarrollador** → activar.
+- **Permanente / App Store:** cuenta Apple Developer (99 USD/año). Se firma desde Xcode (Mac)
+  o se puede automatizar en GitHub Actions con el certificado.
+
+La primera vez, el iPhone preguntará si Aqua Guard puede **acceder a la red local**: responde *Permitir*
+(si no, no podrá ver los ESP32).
+
+### Compilar tú mismo (opcional)
+```bash
+npm install
+npx cap sync          # copia la carpeta app/ dentro de los proyectos nativos
+npx cap open android  # abre Android Studio
+npx cap open ios      # abre Xcode (solo en Mac)
+```
+Después de editar algo en `app/`, ejecuta `npx cap sync` antes de compilar.
+
+## Editar el código desde el celular
+
+- **Lo más fácil:** pídeselo a Claude desde la app de Claude (Claude Code) y él hace y sube los cambios.
+- **GitHub en el navegador del celular:** abre un archivo del repositorio → icono de **lápiz ✏️** →
+  edita → **Commit changes**. GitHub recompila la app sola.
+- **Android:** la app [Acode](https://acode.app) (gratis) edita HTML/CSS/JS y tiene vista previa.
+- **iPhone:** [Working Copy](https://workingcopy.app) (clona el repositorio y edita) o *Textastic*.
 
 ## Probar sin hardware
 

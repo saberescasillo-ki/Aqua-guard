@@ -1,0 +1,14 @@
+{
+  "appId": "com.litium.aquaguard",
+  "appName": "Aqua Guard",
+  "webDir": "app",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}

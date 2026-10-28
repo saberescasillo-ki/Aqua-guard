@@ -40,6 +40,7 @@ h3 { font-size: 1rem; margin-bottom: 8px; }
   position: sticky; top: 0; z-index: 10;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 14px 16px;
+  padding-top: calc(14px + env(safe-area-inset-top)); /* muesca del iPhone */
   background: var(--navy-800);
   color: var(--white);
 }
