@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "botw:no_mans_land_carve_rule",
-      "places_feature": "botw:no_mans_land_carve_column_feature"
+      "places_feature": "botw:no_mans_land_carve_biome_check_feature"
     },
     "conditions": {
       "placement_pass": "first_pass",

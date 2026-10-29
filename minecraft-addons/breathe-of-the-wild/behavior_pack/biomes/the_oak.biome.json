@@ -1,5 +1,5 @@
 {
-  "format_version": "1.26.0",
+  "format_version": "1.26.50",
   "minecraft:biome": {
     "description": {
       "identifier": "botw:the_oak"
@@ -34,7 +34,7 @@
             "targets": [
               "minecraft:forest"
             ],
-            "amount": 0.35,
+            "amount": 0.175,
             "noise_frequency_scale": 25
           }
         ]

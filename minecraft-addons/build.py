@@ -31,14 +31,15 @@ import treegen
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
 
-MIN_ENGINE = [1, 26, 40]
+MIN_ENGINE = [1, 26, 60]
 FEATURE_FMT = "1.13.0"
 BLOCK_FEATURE_FMT = "1.21.40"
 NEW_FEATURE_FMT = "1.26.40"
-BIOME_FMT = "1.26.0"
+CONDITIONAL_FMT = "1.26.50"
+BIOME_FMT = "1.26.50"
 CLIENT_BIOME_FMT = "1.21.120"
 
-VERSION = [3, 0, 0]
+VERSION = [4, 0, 0]
 
 UUIDS = {
     "botw_bp": "399882bf-3a8d-46bd-ad24-5283eb4ea059",
@@ -125,9 +126,14 @@ TERRAIN = [
 # ---------------------------------------------------------------------------
 
 class Pack:
-    def __init__(self, path):
+    def __init__(self, path, exact_biomes=False):
         self.path = path
         self.files = {}
+        # Feature rules attach to every chunk that contains a bit of the
+        # biome. With exact_biomes, each placement also checks the biome at
+        # its own position, so nothing spills into neighbouring biomes.
+        self.exact_biomes = exact_biomes
+        self.check_y = {}       # biome tag -> y used for the position check
 
     def put(self, rel, data):
         self.files[rel] = data
@@ -140,8 +146,27 @@ class Pack:
         })
         return ident
 
-    def rule(self, ident, places, biome_filter, distribution, placement_pass):
+    def rule(self, ident, places, biome_filter, distribution, placement_pass,
+             check_offset=0):
         name = ident.split(":", 1)[1]
+        # Cave carvers must sit directly in pregeneration_pass, so they are
+        # never wrapped.
+        if (self.exact_biomes and len(biome_filter) == 1
+                and placement_pass != "pregeneration_pass"):
+            biome_tag = biome_filter[0]["value"]
+            y = self.check_y.get(biome_tag, "variable.worldy")
+            x = f"variable.worldx + {check_offset}" if check_offset else "variable.worldx"
+            z = f"variable.worldz + {check_offset}" if check_offset else "variable.worldz"
+            places = self.feature(
+                ident.replace("_rule", "_biome_check_feature"),
+                "minecraft:conditional_list", {
+                    "conditional_features": [{
+                        "places_feature": places,
+                        "condition": f"query.has_biome_tag('{biome_tag}', "
+                                     f"{x}, {y}, {z})",
+                    }],
+                    "early_out_scheme": "condition_success",
+                }, fmt=CONDITIONAL_FMT)
         self.put(f"feature_rules/{name}.json", {
             "format_version": FEATURE_FMT,
             "minecraft:feature_rules": {
@@ -243,10 +268,11 @@ def fallen_log(pack, ident, log, length, decoration):
 
 # Structure trees ---------------------------------------------------------
 
-VARIANTS = 20
+VARIANTS = 30
 # Blocks a tree structure may overwrite. Leaves and logs are left out on
 # purpose so a tree never lands on top of (or inside) another tree.
-TREE_ALLOW = [*PLANTS, *SOILS, "air"]
+TREE_ALLOW = [*PLANTS, *SOILS, "air", "stone", "granite", "diorite",
+              "andesite", "tuff", "gravel", "sand", "clay", "coarse_dirt"]
 
 
 def structure_trees(pack, ns, species, extra_allow=(), seed_ns=None):
@@ -258,7 +284,8 @@ def structure_trees(pack, ns, species, extra_allow=(), seed_ns=None):
     allow = blocks(*TREE_ALLOW, *extra_allow)
     entries = []
     for i in range(VARIANTS):
-        t = treegen.generate(species, i, seed_ns or ns)
+        t = treegen.generate(species, i, seed_ns or ns,
+                             island="minecraft:grass_block")
         data, _, ground = t.to_mcstructure()
         for name in t.block_names():
             b(name)
@@ -371,7 +398,8 @@ def icon(sky_top, sky_bottom, trunk, leaves, ground):
 # ---------------------------------------------------------------------------
 
 def build_botw():
-    bp = Pack(os.path.join(ROOT, "breathe-of-the-wild", "behavior_pack"))
+    bp = Pack(os.path.join(ROOT, "breathe-of-the-wild", "behavior_pack"),
+              exact_biomes=True)
     rp = Pack(os.path.join(ROOT, "breathe-of-the-wild", "resource_pack"))
     name = "BREATHE OF THE WILD"
     desc = ("Six new vanilla-block biomes: Mystic Forest, Mighty Birch "
@@ -427,7 +455,7 @@ def client_biome(pack, ident, components):
 def fog(pack, ident, air_color, start, end, water_color):
     name = ident.split(":", 1)[1]
     pack.put(f"fogs/{name}.json", {
-        "format_version": "1.16.100",
+        "format_version": "1.21.90",
         "minecraft:fog_settings": {
             "description": {"identifier": ident},
             "distance": {
@@ -468,7 +496,7 @@ def mystic_forest(bp, rp, shelf):
           surface=overworld_surface("grass_block"),
           tags=["animal", "monster", "overworld", "botw",
                 "botw_mystic_forest"],
-          replacements=[replacement(["forest", "flower_forest"], 0.4, 25)],
+          replacements=[replacement(["forest", "flower_forest"], 0.2, 25)],
           extra={"minecraft:surface_material_adjustments": {"adjustments": [
               {"materials": {"top_material": b("podzol")},
                "noise_frequency_scale": 0.0625, "noise_range": [0.25, 0.55]},
@@ -534,7 +562,7 @@ def mighty_birch(bp, rp, shelf):
           tags=["animal", "monster", "overworld", "birch", "bee_habitat",
                 "botw", "botw_mighty_birch"],
           replacements=[replacement(["birch_forest", "birch_forest_mutated"],
-                                    0.5, 25)])
+                                    0.25, 25)])
     client_biome(rp, ident, {
         "minecraft:water_appearance": {"surface_color": "#0677ce"},
         "minecraft:grass_appearance": {"color": "#8ab66a"},
@@ -577,7 +605,7 @@ def structure_forest(bp, rp, key, species, targets, climate, extra_tags,
           surface=overworld_surface("grass_block"),
           tags=["animal", "monster", "overworld", "bee_habitat", "botw",
                 f"botw_{key}", *extra_tags],
-          replacements=[replacement(targets, 0.35, 25)])
+          replacements=[replacement(targets, 0.175, 25)])
     client_biome(rp, ident, {
         "minecraft:grass_appearance": {"color": grass},
         "minecraft:foliage_appearance": {"color": foliage},
@@ -669,7 +697,7 @@ def no_mans_land(bp, rp):
                    "temperature": 2.0},
           surface=overworld_surface("coarse_dirt", mid="gravel"),
           tags=["monster", "overworld", "botw", "botw_no_mans_land"],
-          replacements=[replacement(["savanna", "desert"], 0.3, 20)],
+          replacements=[replacement(["savanna", "desert"], 0.15, 20)],
           extra={"minecraft:creature_spawn_probability": {"probability": 0.0}})
     fog(rp, "botw:fog_no_mans_land", "#9c876a", 0.25, 0.85, "#3f3a2c")
     client_biome(rp, ident, {
@@ -681,6 +709,8 @@ def no_mans_land(bp, rp):
         "minecraft:precipitation": {"white_ash": 0.15},
     })
     f = [tag("botw_no_mans_land")]
+    # Pit features sit far below the surface; check the biome at Y 70.
+    bp.check_y["botw_no_mans_land"] = 70
 
     # 1) Hollow out the whole chunk from the floor up to the sky by stamping
     #    stacked 16x32x16 slices of air (structures overwrite every block,
@@ -707,7 +737,7 @@ def no_mans_land(bp, rp):
                         })
     bp.rule("botw:no_mans_land_carve_rule", column, f, {
         "iterations": 1, "x": 0, "y": PIT_FLOOR_Y + 1, "z": 0,
-    }, "first_pass")
+    }, "first_pass", check_offset=8)
 
     # 2) Repaint the exposed floor with a rough, scorched mix.
     floor_block = bp.feature("botw:no_mans_land_floor_block_feature",

@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "botw:mystic_forest_trees_rule",
-      "places_feature": "botw:mystic_oak_trees_feature"
+      "places_feature": "botw:mystic_forest_trees_biome_check_feature"
     },
     "conditions": {
       "placement_pass": "before_surface_pass",

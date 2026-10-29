@@ -1,5 +1,5 @@
 {
-  "format_version": "1.26.0",
+  "format_version": "1.26.50",
   "minecraft:biome": {
     "description": {
       "identifier": "botw:mystic_forest"
@@ -35,7 +35,7 @@
               "minecraft:forest",
               "minecraft:flower_forest"
             ],
-            "amount": 0.4,
+            "amount": 0.2,
             "noise_frequency_scale": 25
           }
         ]

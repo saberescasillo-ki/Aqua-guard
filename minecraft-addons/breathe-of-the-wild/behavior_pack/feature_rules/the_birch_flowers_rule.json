@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "botw:the_birch_flowers_rule",
-      "places_feature": "botw:the_birch_flowers_feature"
+      "places_feature": "botw:the_birch_flowers_biome_check_feature"
     },
     "conditions": {
       "placement_pass": "surface_pass",

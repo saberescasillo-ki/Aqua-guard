@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "botw:mystic_forest_ground_cover_rule",
-      "places_feature": "botw:mystic_forest_ground_cover_feature"
+      "places_feature": "botw:mystic_forest_ground_cover_biome_check_feature"
     },
     "conditions": {
       "placement_pass": "surface_pass",

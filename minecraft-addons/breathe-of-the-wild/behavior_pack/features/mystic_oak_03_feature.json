@@ -8,7 +8,7 @@
     "adjustment_radius": 4,
     "facing_direction": "south",
     "rotate_around_center": true,
-    "ground_level": 1,
+    "ground_level": 4,
     "constraints": {
       "block_intersection": {
         "block_allowlist": [
@@ -56,7 +56,16 @@
           "minecraft:dirt_with_roots",
           "minecraft:moss_block",
           "minecraft:mud",
-          "minecraft:air"
+          "minecraft:air",
+          "minecraft:stone",
+          "minecraft:granite",
+          "minecraft:diorite",
+          "minecraft:andesite",
+          "minecraft:tuff",
+          "minecraft:gravel",
+          "minecraft:sand",
+          "minecraft:clay",
+          "minecraft:coarse_dirt"
         ],
         "only_check_intersection_for_motion_blocking_blocks": true
       }

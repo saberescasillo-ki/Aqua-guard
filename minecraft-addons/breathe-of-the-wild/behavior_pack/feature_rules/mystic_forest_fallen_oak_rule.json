@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "botw:mystic_forest_fallen_oak_rule",
-      "places_feature": "botw:mystic_fallen_oak_feature"
+      "places_feature": "botw:mystic_forest_fallen_oak_biome_check_feature"
     },
     "conditions": {
       "placement_pass": "surface_pass",

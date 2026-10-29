@@ -1,5 +1,5 @@
 {
-  "format_version": "1.26.0",
+  "format_version": "1.26.50",
   "minecraft:biome": {
     "description": {
       "identifier": "botw:no_mans_land"
@@ -35,7 +35,7 @@
               "minecraft:savanna",
               "minecraft:desert"
             ],
-            "amount": 0.3,
+            "amount": 0.15,
             "noise_frequency_scale": 20
           }
         ]

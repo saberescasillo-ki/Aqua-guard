@@ -1,5 +1,5 @@
 {
-  "format_version": "1.26.0",
+  "format_version": "1.26.50",
   "minecraft:biome": {
     "description": {
       "identifier": "botw:the_birch"
@@ -35,7 +35,7 @@
               "minecraft:birch_forest",
               "minecraft:birch_forest_mutated"
             ],
-            "amount": 0.35,
+            "amount": 0.175,
             "noise_frequency_scale": 25
           }
         ]

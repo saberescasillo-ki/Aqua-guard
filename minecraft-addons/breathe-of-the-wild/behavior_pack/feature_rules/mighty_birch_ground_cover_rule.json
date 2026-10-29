@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "botw:mighty_birch_ground_cover_rule",
-      "places_feature": "botw:mighty_birch_ground_cover_feature"
+      "places_feature": "botw:mighty_birch_ground_cover_biome_check_feature"
     },
     "conditions": {
       "placement_pass": "surface_pass",

@@ -113,7 +113,7 @@ class Tree:
     # -- primitives ----------------------------------------------------------
     def put(self, p, name, states=None, priority=LOG, replace=False):
         p = (int(round(p[0])), int(round(p[1])), int(round(p[2])))
-        if p[1] < -1:
+        if p[1] < -8:
             return
         cur = self.cells.get(p)
         if cur and cur[0] >= priority and not replace:
@@ -232,6 +232,27 @@ class Tree:
                     if math.hypot(x - cx, z - cz) <= r - rng.random():
                         self.put((x, -1, z), soil, {}, SOIL)
 
+    def island(self, rng, top="minecraft:grass_block", depth=4):
+        """Grass-topped soil plug under the tree, so on uneven ground the
+        tree sits on a small island instead of hanging in the air."""
+        cx, cz = self.trunk_center
+        base = [math.hypot(x - cx, z - cz)
+                for (x, y, z) in self.cells if y in (-1, 0)]
+        radius = min(7.0, max(2.5, max(base, default=0) + 1.0))
+        for k in range(1, depth + 1):
+            r = radius * (1 - (k - 1) / depth) ** 0.8
+            name = top if k == 1 else "minecraft:dirt"
+            for x in range(int(cx - r - 1), int(cx + r + 2)):
+                for z in range(int(cz - r - 1), int(cz + r + 2)):
+                    if math.hypot(x - cx, z - cz) <= r - rng.random() * 0.6:
+                        self.put((x, -k, z), name, {}, SOIL)
+
+    def merge(self, other, offset):
+        """Copy another tree into this one, shifted by offset."""
+        ox, oy, oz = offset
+        for (x, y, z), (prio, name, states) in other.cells.items():
+            self.put((x + ox, y + oy, z + oz), name, states, prio)
+
     # -- decorations -----------------------------------------------------------
     # Bedrock vine_direction_bits: 1 = south, 2 = west, 4 = north, 8 = east;
     # the bit names the side the supporting block is on.
@@ -305,7 +326,7 @@ class Tree:
         x1 = max(max(xs), math.ceil(2 * cx - min(xs)))
         z0 = min(min(zs), math.floor(2 * cz - max(zs)))
         z1 = max(max(zs), math.ceil(2 * cz - min(zs)))
-        y0, y1 = -1, max(ys)
+        y0, y1 = min(ys), max(ys)
         sx, sy, sz = x1 - x0 + 1, y1 - y0 + 1, z1 - z0 + 1
 
         palette, index = [], {}
@@ -421,6 +442,17 @@ def broadleaf(rng, log, leaves, width, height, n_branches, branch_len,
 
 def mystic_oak(rng, i):
     """Huge, ancient oaks with many branches and many crowns."""
+    if i >= 20:
+        # Spreading giants: wide, low limbs reaching far from the trunk.
+        width = 3 if i % 2 else 2
+        t = broadleaf(rng, "minecraft:oak_log", "minecraft:oak_leaves", width,
+                      rng.randint(15, 22) + width, rng.randint(7, 10), (9, 13),
+                      (3.2, 4.4), (4.0, 5.0), branch_from=0.3,
+                      pitch=(0.05, 0.35), lean=rng.uniform(0.0, 0.04),
+                      roots=rng.randint(6, 9), root_reach=rng.uniform(4, 5.5),
+                      thick_branches=True, soil="minecraft:podzol")
+        t.vines(rng, 0.08, 7)
+        return t
     width = 3 if i % 4 == 3 else 2
     height = rng.randint(16, 26) + width
     t = broadleaf(rng, "minecraft:oak_log", "minecraft:oak_leaves", width,
@@ -435,7 +467,19 @@ def mystic_oak(rng, i):
 
 def mighty_birch(rng, i):
     """Birch trunks 15 blocks taller than vanilla (20-22), side crowns."""
-    ancient = i >= 17
+    if i >= 20:
+        # Twin birches: two trunks sharing one root.
+        def stem(height):
+            return broadleaf(rng, "minecraft:birch_log", "minecraft:birch_leaves",
+                             1, height, rng.randint(3, 6), (2.5, 4),
+                             (2.0, 2.5), (2.5, 3.0), branch_from=0.55,
+                             pitch=(0.5, 1.0), sub_branches=False, squash=1.15)
+        t = stem(rng.randint(20, 22))
+        yaw = rng.uniform(0, math.tau)
+        t.merge(stem(rng.randint(16, 19)),
+                (round(math.cos(yaw) * 2), 0, round(math.sin(yaw) * 2)))
+        return t
+    ancient = 17 <= i < 20
     width = 2 if ancient else 1
     height = rng.randint(26, 30) if ancient else rng.randint(20, 22)
     return broadleaf(rng, "minecraft:birch_log", "minecraft:birch_leaves",
@@ -446,7 +490,13 @@ def mighty_birch(rng, i):
 
 
 def oak(rng, i):
-    old = i >= 15
+    if i >= 20:
+        # Spreading oaks: shorter trunk, long low branches, wide crown.
+        return broadleaf(rng, "minecraft:oak_log", "minecraft:oak_leaves", 1,
+                         rng.randint(7, 10), rng.randint(4, 6), (5, 8),
+                         (2.4, 3.2), (2.6, 3.2), branch_from=0.45,
+                         pitch=(0.1, 0.45), roots=3, root_reach=2.5)
+    old = 15 <= i < 20
     width = 2 if old else 1
     height = rng.randint(12, 16) if old else rng.randint(8, 13)
     return broadleaf(rng, "minecraft:oak_log", "minecraft:oak_leaves", width,
@@ -457,6 +507,13 @@ def oak(rng, i):
 
 
 def birch(rng, i):
+    if i >= 20:
+        # Leaning birches.
+        return broadleaf(rng, "minecraft:birch_log", "minecraft:birch_leaves",
+                         1, rng.randint(11, 16), rng.randint(3, 5), (2, 3.5),
+                         (1.8, 2.4), (2.4, 3.0), branch_from=0.5,
+                         pitch=(0.55, 1.0), sub_branches=False, squash=1.2,
+                         lean=rng.uniform(0.025, 0.045))
     return broadleaf(rng, "minecraft:birch_log", "minecraft:birch_leaves", 1,
                      rng.randint(10, 15), rng.randint(3, 5), (2, 3.5),
                      (1.8, 2.4), (2.4, 3.0), branch_from=0.5,
@@ -621,7 +678,8 @@ def poplar(rng, i):
     color = ("yellow", "yellow", "orange", "orange", "red")[i % 5]
     leaves = f"minecraft:{color}_poplar_leaves"
     t = Tree("minecraft:poplar_log", leaves)
-    height = rng.randint(12, 18)
+    grand = i >= 20      # taller, fuller poplars
+    height = rng.randint(18, 22) if grand else rng.randint(12, 18)
     path = t.trunk(1, height, rng, wobble=0.1)
     start = int(height * rng.uniform(0.3, 0.4))
     for yaw in _spread_yaws(rng, rng.randint(3, 5)):
@@ -630,7 +688,7 @@ def poplar(rng, i):
     y = start
     while y < height + 1:
         frac = (y - start) / max(1, height - start)
-        r = rng.uniform(1.8, 2.7) * (1.1 - 0.45 * frac)
+        r = rng.uniform(1.8, 2.7) * (1.1 - 0.45 * frac) * (1.2 if grand else 1)
         c = _point_on(path, min(1.0, y / height))
         t.cluster((c[0], y + 1, c[2]), r, rng, squash=1.3, parts=3)
         y += rng.randint(2, 3)
@@ -655,7 +713,11 @@ SPECIES = {
 }
 
 
-def generate(species, variant, namespace):
+def generate(species, variant, namespace, island=None):
+    """island: top block of a soil plug added under the tree, or None."""
     seed = f"{namespace}:{species}:{variant}"
     rng = random.Random(seed)
-    return SPECIES[species](rng, variant)
+    tree = SPECIES[species](rng, variant)
+    if island:
+        tree.island(rng, island)
+    return tree

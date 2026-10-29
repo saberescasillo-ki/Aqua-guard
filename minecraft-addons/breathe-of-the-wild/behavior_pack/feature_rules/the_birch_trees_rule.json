@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "botw:the_birch_trees_rule",
-      "places_feature": "botw:birch_trees_feature"
+      "places_feature": "botw:the_birch_trees_biome_check_feature"
     },
     "conditions": {
       "placement_pass": "before_surface_pass",

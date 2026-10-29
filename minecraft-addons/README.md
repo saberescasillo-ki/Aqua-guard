@@ -8,7 +8,7 @@ Two Minecraft **Bedrock Edition** add-ons that change world generation using
 | BREATHE OF THE WILD | `dist/BREATHE_OF_THE_WILD.mcaddon` | Adds 6 new overworld biomes |
 | BREATHE OF THE TREES | `dist/BREATHE_OF_THE_TREES.mcaddon` | Adds bigger, branchier procedural versions of the vanilla trees |
 
-Built for Minecraft Bedrock **1.26.40 or newer**.
+Built for Minecraft Bedrock **1.26.60** (the latest version).
 
 ## Installing
 
@@ -37,21 +37,28 @@ Find the new biomes with:
 ## Tree shapes
 The big trees of *BREATHE OF THE WILD* are hand-shaped **structures**
 (`.mcstructure`), not the game's built-in tree generator. `treegen.py`
-designs each species from a seed and saves **20 variations per tree type**;
+designs each species from a seed and saves **30 variations per tree type**;
 the game picks one at random each time.
 
 - Broadleaf trees have a real trunk, root flares, branches that fork, and a
   fluffy leaf cluster at the end of every branch. No pyramid canopies.
 - A tree is never placed on top of, or inside, another tree.
+- Every tree stands on a small **grass-topped soil island**, so on slopes
+  and uneven ground it never hangs half in the air.
+- Trees, plants and fallen logs check the biome at their exact position, so
+  they only appear inside their own biome.
+- Each new biome takes half as much of its vanilla biome as before, so they
+  are 50% less common.
 
 ## BREATHE OF THE WILD
 
 ### Mystic Forest (`botw:mystic_forest`)
 Replaces part of the Forest and Flower Forest biomes. Its trees are all oak:
 
-- **20 Mystic Oaks**: 2×2 or 3×3 trunks 18–29 blocks tall, buttress roots
+- **30 Mystic Oaks**: 2×2 or 3×3 trunks 18–29 blocks tall, buttress roots
   over a podzol patch, 6–9 thick branches that fork, a crown on every
-  branch, and hanging vines. Some of them lean.
+  branch, and hanging vines. Some of them lean. Ten are spreading giants
+  with long, low limbs.
 - Oak bushes, fallen oak logs with shelf mushrooms, ferns, moss, leaf
   litter, firefly bushes, mushrooms and lily of the valley.
 - Podzol and moss patches, deep green grass, and a misty teal fog.
@@ -59,9 +66,10 @@ Replaces part of the Forest and Flower Forest biomes. Its trees are all oak:
 ### Mighty Birch Forest (`botw:mighty_birch_forest`)
 Replaces part of the Birch Forest and Old Growth Birch Forest biomes.
 
-- **20 Mighty Birches**: trunks 20–22 blocks tall (vanilla birch trunks are
+- **30 Mighty Birches**: trunks 20–22 blocks tall (vanilla birch trunks are
   5–7, so 15 blocks taller), bare lower trunk, side branches with their own
-  crowns. Three of the variants are rare 2×2 **Ancient Birches** (26–30).
+  crowns. Three are rare 2×2 **Ancient Birches** (26–30) and ten are **Twin
+  Birches** with two trunks.
 - Fallen birch logs, wildflowers, lily of the valley and dandelions.
 
 ### No Man's Land (`botw:no_mans_land`)
@@ -82,14 +90,15 @@ Replaces part of the Savanna and Desert biomes with an enormous open pit.
 
 ### The Oak, The Birch, The Poplar
 Variants of the vanilla Forest, Birch Forest and Dappled Forest. Each one
-grows **only** the 20 structure trees of its species (the same designs that
-*BREATHE OF THE TREES* 2.0 used), with no vanilla trees mixed in.
+grows **only** the structure trees of its species (the 20 designs that
+*BREATHE OF THE TREES* 2.0 used plus 10 new ones), with no vanilla trees
+mixed in.
 
 | Biome | Replaces part of | Trees |
 | --- | --- | --- |
-| The Oak (`botw:the_oak`) | Forest | 20 oak designs (5 are old 2×2 oaks), fallen oak logs |
-| The Birch (`botw:the_birch`) | Birch Forest, Old Growth Birch Forest | 20 birch designs, fallen birch logs |
-| The Poplar (`botw:the_poplar`) | Dappled Forest | 20 poplar designs in yellow, orange and red |
+| The Oak (`botw:the_oak`) | Forest | 30 oak designs (5 old 2×2 oaks, 10 spreading oaks), fallen oak logs |
+| The Birch (`botw:the_birch`) | Birch Forest, Old Growth Birch Forest | 30 birch designs (10 leaning birches), fallen birch logs |
+| The Poplar (`botw:the_poplar`) | Dappled Forest | 30 poplar designs in yellow, orange and red (10 tall grand poplars) |
 
 ## BREATHE OF THE TREES
 
