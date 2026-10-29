@@ -145,15 +145,16 @@
         }
       }
     },
-    "mega_canopy": {
-      "canopy_height": {
-        "range_min": 3,
-        "range_max": 4
-      },
-      "base_radius": 3,
-      "core_width": 2,
-      "simplify_canopy": false,
-      "leaf_block": "minecraft:oak_leaves"
+    "random_spread_canopy": {
+      "canopy_height": 4,
+      "canopy_radius": 4,
+      "leaf_placement_attempts": 150,
+      "leaf_blocks": [
+        [
+          "minecraft:oak_leaves",
+          1
+        ]
+      ]
     }
   }
 }

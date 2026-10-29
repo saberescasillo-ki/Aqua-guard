@@ -16,13 +16,27 @@ Built for Minecraft Bedrock **1.26.40 or newer**.
 2. Create a **new world** (world generation only affects new chunks).
 3. Under **Behavior Packs**, activate the add-on. *BREATHE OF THE WILD* also
    turns on its resource pack.
-4. **BREATHE OF THE WILD only:** under **Experiments**, turn on
-   **Custom Biomes**. Bedrock still treats custom biomes as an experiment.
-5. Both add-ons can run together. *BREATHE OF THE TREES* skips the three
+4. **BREATHE OF THE WILD only:** if your version shows a **Custom Biomes**
+   toggle under **Experiments**, turn it on before creating the world.
+5. When updating from an older version of these add-ons, delete the old
+   packs first (Settings → Storage) so the new version is the one used.
+6. Both add-ons can run together. *BREATHE OF THE TREES* skips the three
    *BREATHE OF THE WILD* biomes so they keep their own trees.
 
-Use `/locate biome botw:mystic_forest`, `botw:mighty_birch_forest` or
-`botw:no_mans_land` to find the new biomes.
+Find the new biomes with:
+
+```
+/locate biome botw:mystic_forest
+/locate biome botw:mighty_birch_forest
+/locate biome botw:no_mans_land
+```
+
+## Tree shapes
+No tree uses the stepped, pyramid-shaped canopies (vanilla `canopy`,
+`mega_canopy` or `mega_pine_canopy`). Crowns are made of rounded leaf
+clusters at the end of each branch plus a rounded or fluffy top crown.
+Spruces are rebuilt as **tiered conifers**: whorls of short branches up the
+trunk, each with its own leaf cluster.
 
 ## BREATHE OF THE WILD
 
@@ -72,8 +86,8 @@ spots and vanilla trees fill the gaps.
 | Forest, Flower Forest, Windswept Forest | Grand Oak, Branching Oak (branches with canopies), Old 2×2 Oak, fallen oak logs |
 | Plains | Rare lone Grand/Old Oaks |
 | Birch Forests | Tall Branching Birch, Grand Birch, fallen birch logs |
-| Taiga, Snowy Taiga, Grove | Towering Spruce, Giant 2×2 Spruce, fallen spruce logs |
-| Old Growth Taiga | Ancient Redwood: 2×2 trunk, 26–39 blocks, podzol base |
+| Taiga, Snowy Taiga, Grove | Towering tiered Spruce, Giant 2×2 tiered Spruce, fallen spruce logs |
+| Old Growth Taiga | Ancient Redwood: 2×2 tiered trunk, 26–39 blocks, podzol base |
 | Jungles | Jungle Giant (vines, canopied branches), tall Jungle Canopy Tree |
 | Savannas | Grand Acacia (double canopy), Umbrella Acacia |
 | Dark Forest | Ancient Dark Oak with roofed side canopies, fallen logs |

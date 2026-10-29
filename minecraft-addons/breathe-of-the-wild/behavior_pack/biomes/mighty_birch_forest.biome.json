@@ -36,7 +36,7 @@
               "birch_forest_mutated"
             ],
             "amount": 0.5,
-            "noise_frequency_scale": 1.0
+            "noise_frequency_scale": 25
           }
         ]
       },

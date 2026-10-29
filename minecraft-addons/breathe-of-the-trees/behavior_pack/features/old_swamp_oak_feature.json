@@ -135,30 +135,10 @@
         "step_direction": "down"
       }
     },
-    "canopy": {
-      "canopy_offset": {
-        "min": -4,
-        "max": 0
-      },
-      "min_width": 0,
-      "canopy_slope": {
-        "rise": 1,
-        "run": 2
-      },
-      "variation_chance": {
-        "numerator": 1,
-        "denominator": 2
-      },
-      "leaf_block": "minecraft:oak_leaves",
-      "canopy_decoration": {
-        "decoration_chance": {
-          "numerator": 1,
-          "denominator": 3
-        },
-        "decoration_block": "minecraft:vine",
-        "num_steps": 4,
-        "step_direction": "down"
-      }
+    "fancy_canopy": {
+      "height": 3,
+      "radius": 3,
+      "leaf_block": "minecraft:oak_leaves"
     }
   }
 }

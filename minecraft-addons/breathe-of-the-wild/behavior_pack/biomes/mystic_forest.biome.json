@@ -36,7 +36,7 @@
               "flower_forest"
             ],
             "amount": 0.4,
-            "noise_frequency_scale": 1.0
+            "noise_frequency_scale": 25
           }
         ]
       },

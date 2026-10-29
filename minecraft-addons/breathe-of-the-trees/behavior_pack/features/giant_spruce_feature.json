@@ -119,21 +119,35 @@
     "mega_trunk": {
       "trunk_width": 2,
       "trunk_height": {
-        "base": 18,
+        "base": 20,
         "intervals": [
           8
         ]
       },
-      "trunk_block": "minecraft:spruce_log"
+      "trunk_block": "minecraft:spruce_log",
+      "branches": {
+        "branch_length": 4,
+        "branch_slope": 0.15,
+        "branch_interval": {
+          "range_min": 2,
+          "range_max": 3
+        },
+        "branch_altitude_factor": {
+          "min": 0.3,
+          "max": 0.95
+        },
+        "branch_canopy": {
+          "fancy_canopy": {
+            "height": 2,
+            "radius": 2,
+            "leaf_block": "minecraft:spruce_leaves"
+          }
+        }
+      }
     },
-    "mega_pine_canopy": {
-      "canopy_height": {
-        "range_min": 14,
-        "range_max": 18
-      },
-      "base_radius": 4,
-      "radius_step_modifier": 0.5,
-      "core_width": 2,
+    "fancy_canopy": {
+      "height": 3,
+      "radius": 2,
       "leaf_block": "minecraft:spruce_leaves"
     }
   }
