@@ -40,7 +40,7 @@ CONDITIONAL_FMT = "1.26.50"
 BIOME_FMT = "1.26.50"
 CLIENT_BIOME_FMT = "1.21.120"
 
-VERSION = [5, 0, 0]
+VERSION = [6, 0, 0]
 
 UUIDS = {
     "botw_bp": "399882bf-3a8d-46bd-ad24-5283eb4ea059",
@@ -481,7 +481,12 @@ def overworld_surface(top, mid="dirt", foundation="stone"):
     }
 
 
-def replacement(targets, amount, scale):
+# noise_frequency_scale: lower values give bigger, continuous patches that
+# show up less often; high values (20+) scatter tiny chunk-sized fragments.
+PATCH_SCALE = 3
+
+
+def replacement(targets, amount, scale=PATCH_SCALE):
     return {"dimension": "minecraft:overworld",
             "targets": [f"minecraft:{t}" for t in targets],
             "amount": amount, "noise_frequency_scale": scale}
@@ -498,7 +503,7 @@ def structure_forest(bp, rp, key, species, targets, climate, extra_tags,
           surface=overworld_surface("grass_block"),
           tags=["animal", "monster", "overworld", "bee_habitat", "botw",
                 f"botw_{key}", *extra_tags],
-          replacements=[replacement(targets, 0.13, 25)])
+          replacements=[replacement(targets, 0.13)])
     client_biome(rp, ident, {
         "minecraft:grass_appearance": {"color": grass},
         "minecraft:foliage_appearance": {"color": foliage},
@@ -627,12 +632,11 @@ def grid_scatter(pack, ident, places, axis, extent, iterations=None):
 def no_mans_land(bp, rp):
     ident = "botw:no_mans_land"
     biome(bp, ident,
-          climate={"downfall": 0.0, "snow_accumulation": [0.0, 0.0],
+          climate={"downfall": 0.0, "snow_accumulation": [0.0, 0.125],
                    "temperature": 2.0},
           surface=overworld_surface("coarse_dirt", mid="gravel"),
           tags=["monster", "overworld", "botw", "botw_no_mans_land"],
-          replacements=[replacement(["savanna", "desert"], 0.11, 20)],
-          extra={"minecraft:creature_spawn_probability": {"probability": 0.0}})
+          replacements=[replacement(["savanna", "desert"], 0.11)])
     fog(rp, "botw:fog_no_mans_land", "#9c876a", 0.25, 0.85, "#3f3a2c")
     client_biome(rp, ident, {
         "minecraft:sky_color": {"sky_color": "#c2a983"},
@@ -669,6 +673,14 @@ def no_mans_land(bp, rp):
                            "z": 0,
                        })
     column_chain(bp, "carve", pit_floor_expr(), stack, "first_pass")
+
+    # Test helper, not used by world generation:
+    #   /place feature botw:no_mans_land_debug_shaft_feature ~ -32 ~
+    # carves a 16x16 shaft from Y -32 up at the player, with no biome checks.
+    debug_row = grid_scatter(bp, "botw:no_mans_land_debug_row_feature", stack,
+                             "z", [0, 15])
+    grid_scatter(bp, "botw:no_mans_land_debug_shaft_feature", debug_row,
+                 "x", [0, 15])
 
     # 2) Repaint the new ground (rim slopes and floor) with a scorched mix.
     floor_block = bp.feature("botw:no_mans_land_floor_block_feature",

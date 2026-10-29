@@ -1,0 +1,19 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:scatter_feature": {
+    "description": {
+      "identifier": "botw:no_mans_land_debug_row_feature"
+    },
+    "places_feature": "botw:no_mans_land_carve_stack_feature",
+    "iterations": 16,
+    "x": 0,
+    "y": 0,
+    "z": {
+      "distribution": "fixed_grid",
+      "extent": [
+        0,
+        15
+      ]
+    }
+  }
+}

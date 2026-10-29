@@ -46,7 +46,8 @@ the game picks one at random each time.
 - Trees, plants and fallen logs check the biome at their exact position, so
   they only appear inside their own biome.
 - The biomes are deliberately rare: each one replaces only a small share of
-  its vanilla biome.
+  its vanilla biome, in large continuous patches rather than scattered
+  chunk-sized fragments.
 
 ## BREATHE OF THE WILD
 
@@ -127,3 +128,6 @@ BEDROCK_BLOCKS_JSON=path/to/mojang-blocks.json python3 build.py
   per species give the variety instead of rotation.
 - If something does not generate, open **Settings → Creator → Content Log**
   to see the error.
+- To test No Man's Land carving by hand, run
+  `/place feature botw:no_mans_land_debug_shaft_feature ~ -32 ~`: it should
+  cut a 16×16 shaft from Y −32 up to the sky next to you.

@@ -35,7 +35,7 @@
               "minecraft:dappled_forest"
             ],
             "amount": 0.13,
-            "noise_frequency_scale": 25
+            "noise_frequency_scale": 3
           }
         ]
       },
