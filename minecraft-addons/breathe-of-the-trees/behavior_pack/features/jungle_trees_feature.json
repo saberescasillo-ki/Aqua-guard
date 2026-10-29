@@ -6,11 +6,83 @@
     },
     "features": [
       [
-        "bott:jungle_canopy_tree_feature",
-        2
+        "bott:jungle_01_feature",
+        1
       ],
       [
-        "bott:jungle_giant_feature",
+        "bott:jungle_02_feature",
+        1
+      ],
+      [
+        "bott:jungle_03_feature",
+        1
+      ],
+      [
+        "bott:jungle_04_feature",
+        1
+      ],
+      [
+        "bott:jungle_05_feature",
+        1
+      ],
+      [
+        "bott:jungle_06_feature",
+        1
+      ],
+      [
+        "bott:jungle_07_feature",
+        1
+      ],
+      [
+        "bott:jungle_08_feature",
+        1
+      ],
+      [
+        "bott:jungle_09_feature",
+        1
+      ],
+      [
+        "bott:jungle_10_feature",
+        1
+      ],
+      [
+        "bott:jungle_11_feature",
+        1
+      ],
+      [
+        "bott:jungle_12_feature",
+        1
+      ],
+      [
+        "bott:jungle_13_feature",
+        1
+      ],
+      [
+        "bott:jungle_14_feature",
+        1
+      ],
+      [
+        "bott:jungle_15_feature",
+        1
+      ],
+      [
+        "bott:jungle_16_feature",
+        1
+      ],
+      [
+        "bott:jungle_17_feature",
+        1
+      ],
+      [
+        "bott:jungle_18_feature",
+        1
+      ],
+      [
+        "bott:jungle_19_feature",
+        1
+      ],
+      [
+        "bott:jungle_20_feature",
         1
       ]
     ]

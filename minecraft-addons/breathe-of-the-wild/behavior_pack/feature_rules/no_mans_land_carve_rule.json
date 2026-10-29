@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "botw:no_mans_land_carve_rule",
-      "places_feature": "botw:no_mans_land_carve_row_feature"
+      "places_feature": "botw:no_mans_land_carve_column_feature"
     },
     "conditions": {
       "placement_pass": "first_pass",
@@ -16,14 +16,8 @@
       ]
     },
     "distribution": {
-      "iterations": 16,
-      "x": {
-        "distribution": "fixed_grid",
-        "extent": [
-          0,
-          15
-        ]
-      },
+      "iterations": 1,
+      "x": 0,
       "y": -32,
       "z": 0
     }

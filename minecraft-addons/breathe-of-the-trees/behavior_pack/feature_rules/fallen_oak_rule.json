@@ -49,16 +49,16 @@
       "x": {
         "distribution": "uniform",
         "extent": [
-          0,
-          15
+          2,
+          13
         ]
       },
       "y": "query.heightmap(variable.worldx, variable.worldz)",
       "z": {
         "distribution": "uniform",
         "extent": [
-          0,
-          15
+          2,
+          13
         ]
       },
       "scatter_chance": {

@@ -6,11 +6,83 @@
     },
     "features": [
       [
-        "bott:towering_spruce_feature",
-        5
+        "bott:spruce_01_feature",
+        1
       ],
       [
-        "bott:giant_spruce_feature",
+        "bott:spruce_02_feature",
+        1
+      ],
+      [
+        "bott:spruce_03_feature",
+        1
+      ],
+      [
+        "bott:spruce_04_feature",
+        1
+      ],
+      [
+        "bott:spruce_05_feature",
+        1
+      ],
+      [
+        "bott:spruce_06_feature",
+        1
+      ],
+      [
+        "bott:spruce_07_feature",
+        1
+      ],
+      [
+        "bott:spruce_08_feature",
+        1
+      ],
+      [
+        "bott:spruce_09_feature",
+        1
+      ],
+      [
+        "bott:spruce_10_feature",
+        1
+      ],
+      [
+        "bott:spruce_11_feature",
+        1
+      ],
+      [
+        "bott:spruce_12_feature",
+        1
+      ],
+      [
+        "bott:spruce_13_feature",
+        1
+      ],
+      [
+        "bott:spruce_14_feature",
+        1
+      ],
+      [
+        "bott:spruce_15_feature",
+        1
+      ],
+      [
+        "bott:spruce_16_feature",
+        1
+      ],
+      [
+        "bott:spruce_17_feature",
+        1
+      ],
+      [
+        "bott:spruce_18_feature",
+        1
+      ],
+      [
+        "bott:spruce_19_feature",
+        1
+      ],
+      [
+        "bott:spruce_20_feature",
         1
       ]
     ]

@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "bott:ancient_redwood_rule",
-      "places_feature": "bott:ancient_redwood_feature"
+      "places_feature": "bott:redwood_trees_feature"
     },
     "conditions": {
       "placement_pass": "before_surface_pass",
@@ -31,16 +31,16 @@
       "x": {
         "distribution": "uniform",
         "extent": [
-          0,
-          15
+          2,
+          13
         ]
       },
       "y": "query.heightmap(variable.worldx, variable.worldz)",
       "z": {
         "distribution": "uniform",
         "extent": [
-          0,
-          15
+          2,
+          13
         ]
       },
       "scatter_chance": {

@@ -4,15 +4,16 @@
     "description": {
       "identifier": "botw:no_mans_land_carve_column_feature"
     },
-    "places_feature": "botw:no_mans_land_air_feature",
-    "iterations": 160,
+    "places_feature": "botw:no_mans_land_pit_slice_feature",
+    "iterations": 5,
     "x": 0,
     "y": {
       "distribution": "fixed_grid",
       "extent": [
         0,
-        159
-      ]
+        128
+      ],
+      "step_size": 32
     },
     "z": 0
   }

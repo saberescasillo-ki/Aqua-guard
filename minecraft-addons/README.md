@@ -32,21 +32,24 @@ Find the new biomes with:
 ```
 
 ## Tree shapes
-No tree uses the stepped, pyramid-shaped canopies (vanilla `canopy`,
-`mega_canopy` or `mega_pine_canopy`). Crowns are made of rounded leaf
-clusters at the end of each branch plus a rounded or fluffy top crown.
-Spruces are rebuilt as **tiered conifers**: whorls of short branches up the
-trunk, each with its own leaf cluster.
+Every big tree is a hand-shaped **structure** (`.mcstructure`), not the
+game's built-in tree generator. `treegen.py` designs each species from a
+seed and saves **20 variations per tree type** (280 trees in total), and the
+game picks one at random each time.
+
+- Broadleaf trees have a real trunk, root flares, branches that fork, and a
+  fluffy leaf cluster at the end of every branch. No pyramid canopies.
+- Conifers are layered: uneven drooping whorls with gaps, not a clean cone.
+- A tree is never placed on top of, or inside, another tree.
 
 ## BREATHE OF THE WILD
 
 ### Mystic Forest (`botw:mystic_forest`)
 Replaces part of the Forest and Flower Forest biomes. Its trees are all oak:
 
-- **Great Oak**: 2×2 trunk, 18–28 blocks tall, side branches that each carry
-  their own canopy, a wide crown and vines on the trunk.
-- **Elder Oak**: huge 2×2 "fancy" oak with many branches and leaf clusters.
-- **Crooked Oak**: a leaning oak with an extra branch and canopy.
+- **20 Mystic Oaks**: 2×2 or 3×3 trunks 18–29 blocks tall, buttress roots
+  over a podzol patch, 6–9 thick branches that fork, a crown on every
+  branch, and hanging vines. Some of them lean.
 - Oak bushes, fallen oak logs with shelf mushrooms, ferns, moss, leaf
   litter, firefly bushes, mushrooms and lily of the valley.
 - Podzol and moss patches, deep green grass, and a misty teal fog.
@@ -54,16 +57,16 @@ Replaces part of the Forest and Flower Forest biomes. Its trees are all oak:
 ### Mighty Birch Forest (`botw:mighty_birch_forest`)
 Replaces part of the Birch Forest and Old Growth Birch Forest biomes.
 
-- **Mighty Birch**: a birch with a 20–22 block trunk (vanilla birch trunks
-  are 5–7, so 15 blocks taller) and side branches with their own canopies.
-- **Fancy Mighty Birch**: same height, with more open branching.
-- **Ancient Birch** (rare): 2×2 trunk, 24–29 blocks, branches with canopies.
+- **20 Mighty Birches**: trunks 20–22 blocks tall (vanilla birch trunks are
+  5–7, so 15 blocks taller), bare lower trunk, side branches with their own
+  crowns. Three of the variants are rare 2×2 **Ancient Birches** (26–30).
 - Fallen birch logs, wildflowers, lily of the valley and dandelions.
 
 ### No Man's Land (`botw:no_mans_land`)
 Replaces part of the Savanna and Desert biomes with an enormous open pit.
 
-- Every block in the biome is removed from **Y 127 down to Y −32**, so the
+- Every block in the biome is removed from **Y 127 down to Y −32** by
+  stacked air structures, so the
   biome becomes a canyon whose cliff walls drop straight into the deepslate
   layer. The walls show ore veins and cave cross-sections.
 - The floor (Y −33) is a scorched mix of deepslate, tuff, cobbled deepslate,
@@ -77,25 +80,24 @@ Replaces part of the Savanna and Desert biomes with an enormous open pit.
 
 ## BREATHE OF THE TREES
 
-Adds a bigger version of every vanilla tree type to the biomes where it
-grows. The big trees are placed before vanilla trees, so they take the best
-spots and vanilla trees fill the gaps.
+Adds 20 designed variations of every vanilla tree type to the biomes where
+it grows. The big trees are placed before vanilla trees, so they take the
+best spots and vanilla trees fill the gaps.
 
-| Biome | New trees |
+| Biome | New trees (20 variations each) |
 | --- | --- |
-| Forest, Flower Forest, Windswept Forest | Grand Oak, Branching Oak (branches with canopies), Old 2×2 Oak, fallen oak logs |
-| Plains | Rare lone Grand/Old Oaks |
-| Birch Forests | Tall Branching Birch, Grand Birch, fallen birch logs |
-| Taiga, Snowy Taiga, Grove | Towering tiered Spruce, Giant 2×2 tiered Spruce, fallen spruce logs |
-| Old Growth Taiga | Ancient Redwood: 2×2 tiered trunk, 26–39 blocks, podzol base |
-| Jungles | Jungle Giant (vines, canopied branches), tall Jungle Canopy Tree |
-| Savannas | Grand Acacia (double canopy), Umbrella Acacia |
-| Dark Forest | Ancient Dark Oak with roofed side canopies, fallen logs |
-| Pale Garden | Ancient Pale Oak |
-| Cherry Grove | Grand Cherry with two or three branches |
-| Mangrove Swamp | Grand Mangrove with bigger roots and hanging propagules |
-| Swamp | Old Swamp Oak covered in vines |
-| Dappled Forest | Grand Poplars (yellow, orange and red) |
+| Forest, Flower Forest, Windswept Forest, rare in Plains | Oak (5 of them are old 2×2 oaks), plus fallen oak logs |
+| Birch Forests | Birch, plus fallen birch logs |
+| Taiga, Snowy Taiga, Grove | Layered Spruce (4 of them are 2×2 giants), plus fallen spruce logs |
+| Old Growth Taiga | Redwood: 2×2 or 3×3 trunk, 28–38 blocks, root flares on podzol |
+| Jungles | Jungle trees and 2×2 jungle giants covered in vines |
+| Savannas | Acacia with 2–3 forked limbs and flat canopies |
+| Dark Forest | 2×2 / 3×3 Dark Oak with a wide dome, plus fallen logs |
+| Pale Garden | Pale Oak with hanging pale moss |
+| Cherry Grove | Cherry with curved branches and hanging blossoms |
+| Mangrove Swamp | Mangrove raised on arching prop roots |
+| Swamp | Swamp Oak dripping with vines |
+| Dappled Forest | Poplar in yellow, orange and red |
 
 ### Limits
 - In Bedrock, vanilla trees and sapling growth are built into the game and
@@ -123,5 +125,7 @@ BEDROCK_BLOCKS_JSON=path/to/mojang-blocks.json python3 build.py
 ## Notes
 - No Man's Land clears about 41,000 blocks per chunk while generating, so
   chunks in that biome may load a little slower on low-end devices.
+- Trees use a fixed orientation so vines stay attached; the 20 variations
+  per species give the variety instead of rotation.
 - If something does not generate, open **Settings → Creator → Content Log**
   to see the error.

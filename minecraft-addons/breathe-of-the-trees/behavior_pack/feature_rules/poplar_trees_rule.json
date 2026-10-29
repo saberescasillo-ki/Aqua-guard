@@ -21,21 +21,21 @@
       ]
     },
     "distribution": {
-      "iterations": 1,
+      "iterations": 2,
       "coordinate_eval_order": "xzy",
       "x": {
         "distribution": "uniform",
         "extent": [
-          0,
-          15
+          2,
+          13
         ]
       },
       "y": "query.heightmap(variable.worldx, variable.worldz)",
       "z": {
         "distribution": "uniform",
         "extent": [
-          0,
-          15
+          2,
+          13
         ]
       }
     }

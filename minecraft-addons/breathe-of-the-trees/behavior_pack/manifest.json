@@ -5,8 +5,8 @@
     "description": "pack.description",
     "uuid": "5769b0cd-7e54-4be4-815f-a9f5de97db85",
     "version": [
-      1,
       2,
+      0,
       0
     ],
     "min_engine_version": [
@@ -20,8 +20,8 @@
       "type": "data",
       "uuid": "17abb3fe-0c0e-421c-9f18-c2f784460d8f",
       "version": [
-        1,
         2,
+        0,
         0
       ]
     }

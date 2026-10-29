@@ -6,15 +6,83 @@
     },
     "features": [
       [
-        "botw:mighty_birch_tree_feature",
-        5
+        "botw:mighty_birch_01_feature",
+        1
       ],
       [
-        "botw:mighty_birch_fancy_feature",
-        3
+        "botw:mighty_birch_02_feature",
+        1
       ],
       [
-        "botw:ancient_birch_feature",
+        "botw:mighty_birch_03_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_04_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_05_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_06_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_07_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_08_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_09_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_10_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_11_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_12_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_13_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_14_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_15_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_16_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_17_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_18_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_19_feature",
+        1
+      ],
+      [
+        "botw:mighty_birch_20_feature",
         1
       ]
     ]

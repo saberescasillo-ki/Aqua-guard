@@ -6,6 +6,9 @@ Generates and packages the two Minecraft Bedrock add-ons:
                            Mighty Birch Forest, No Man's Land).
   * BREATHE OF THE TREES - bigger, branchier versions of every vanilla tree.
 
+Trees are designed in treegen.py and shipped as .mcstructure files
+(20 variants per species).
+
 Everything is built from vanilla blocks only. Run:
 
     python3 build.py
@@ -23,6 +26,8 @@ import sys
 import zipfile
 import zlib
 
+import treegen
+
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
 
@@ -33,7 +38,7 @@ NEW_FEATURE_FMT = "1.26.40"
 BIOME_FMT = "1.26.0"
 CLIENT_BIOME_FMT = "1.21.120"
 
-VERSION = [1, 2, 0]
+VERSION = [2, 0, 0]
 
 UUIDS = {
     "botw_bp": "399882bf-3a8d-46bd-ad24-5283eb4ea059",
@@ -114,9 +119,6 @@ TERRAIN = [
     *PLANTS,
 ]
 
-# The pit also drains its own aquifers so no water/lava blobs float mid-air.
-CARVABLE = [*TERRAIN, "water", "flowing_water", "lava", "flowing_lava"]
-
 
 # ---------------------------------------------------------------------------
 # File helpers
@@ -174,14 +176,15 @@ def tag(value, op="=="):
     return {"test": "has_biome_tag", "operator": op, "value": value}
 
 
-def surface_scatter(iterations, chance_=None):
+def surface_scatter(iterations, chance_=None, margin=0):
     """Rule distribution: random columns in the chunk, on the surface."""
+    extent = [margin, 15 - margin]
     dist = {
         "iterations": iterations,
         "coordinate_eval_order": "xzy",
-        "x": {"distribution": "uniform", "extent": [0, 15]},
+        "x": {"distribution": "uniform", "extent": extent},
         "y": "query.heightmap(variable.worldx, variable.worldz)",
-        "z": {"distribution": "uniform", "extent": [0, 15]},
+        "z": {"distribution": "uniform", "extent": extent},
     }
     if chance_:
         dist["scatter_chance"] = chance_
@@ -238,23 +241,38 @@ def fallen_log(pack, ident, log, length, decoration):
     })
 
 
-# Canopy shortcuts --------------------------------------------------------
+# Structure trees ---------------------------------------------------------
 
-def fancy_canopy(leaf, height, radius):
-    return {"height": height, "radius": radius, "leaf_block": b(leaf)}
-
-
-def spread_canopy(leaf, height, radius, attempts):
-    """Irregular, fluffy crown (no stepped pyramid layers)."""
-    return {"canopy_height": height, "canopy_radius": radius,
-            "leaf_placement_attempts": attempts,
-            "leaf_blocks": [[b(leaf), 1]]}
+VARIANTS = 20
+# Blocks a tree structure may overwrite. Leaves and logs are left out on
+# purpose so a tree never lands on top of (or inside) another tree.
+TREE_ALLOW = [*PLANTS, *SOILS, "air"]
 
 
-def vines_on_trunk(chance_den, steps=3):
-    return {"decoration_chance": chance(1, chance_den),
-            "decoration_block": b("vine"), "num_steps": steps,
-            "step_direction": "down"}
+def structure_trees(pack, ns, species, extra_allow=()):
+    """VARIANTS designed trees of one species, picked at random."""
+    allow = blocks(*TREE_ALLOW, *extra_allow)
+    entries = []
+    for i in range(VARIANTS):
+        t = treegen.generate(species, i, ns)
+        data, _, ground = t.to_mcstructure()
+        for name in t.block_names():
+            b(name)
+        name = f"{species}_{i + 1:02d}"
+        pack.put(f"structures/{ns}/{name}.mcstructure", data)
+        entries.append((pack.feature(
+            f"{ns}:{name}_feature", "minecraft:structure_template_feature", {
+                "structure_name": f"{ns}:{name}",
+                "adjustment_radius": 4,
+                "facing_direction": "south",
+                "rotate_around_center": True,
+                "ground_level": ground,
+                "constraints": {"block_intersection": {
+                    "block_allowlist": allow,
+                    "only_check_intersection_for_motion_blocking_blocks": True,
+                }},
+            }), 1))
+    return weighted(pack, f"{ns}:{species}_trees_feature", entries)
 
 
 # ---------------------------------------------------------------------------
@@ -460,49 +478,7 @@ def mystic_forest(bp, rp, shelf):
     })
 
     oak, leaf = "oak_log", "oak_leaves"
-    elder = tree(bp, "botw:mystic_elder_oak_feature", "fancy_trunk", {
-        "trunk_height": {"base": 20, "variance": 10, "scale": 1.0},
-        "trunk_width": 2,
-        "branches": {"slope": 0.32, "density": 1.6,
-                     "min_altitude_factor": 0.25},
-        "trunk_block": b(oak),
-        "width_scale": 1.4,
-        "foliage_altitude_factor": 0.3,
-    }, "fancy_canopy", fancy_canopy(leaf, 5, 3))
-
-    great = tree(bp, "botw:mystic_great_oak_feature", "mega_trunk", {
-        "trunk_width": 2,
-        "trunk_height": {"base": 18, "intervals": [6, 6]},
-        "trunk_block": b(oak),
-        "trunk_decoration": vines_on_trunk(5),
-        "branches": {
-            "branch_length": 7,
-            "branch_slope": 0.35,
-            "branch_interval": rng(2, 4),
-            "branch_altitude_factor": {"min": 0.3, "max": 0.9},
-            "branch_canopy": {"fancy_canopy": fancy_canopy(leaf, 4, 3)},
-        },
-    }, "random_spread_canopy", spread_canopy(leaf, 4, 4, 160))
-
-    crooked = tree(bp, "botw:mystic_crooked_oak_feature", "acacia_trunk", {
-        "trunk_width": 1,
-        "trunk_height": {"base": 9, "intervals": [4, 3],
-                         "min_height_for_canopy": 6},
-        "trunk_lean": {"allow_diagonal_growth": True,
-                       "lean_height": rng(2, 4), "lean_steps": rng(2, 4),
-                       "lean_length": rng(1, 3)},
-        "trunk_block": b(oak),
-        "branches": {
-            "branch_length": rng(2, 4),
-            "branch_position": rng(3, 6),
-            "branch_chance": chance(1, 1),
-            "branch_canopy": {"fancy_canopy": fancy_canopy(leaf, 4, 2)},
-        },
-        "trunk_decoration": vines_on_trunk(6),
-    }, "fancy_canopy", fancy_canopy(leaf, 4, 3))
-
-    trees = weighted(bp, "botw:mystic_forest_trees_feature",
-                     [(great, 4), (elder, 3), (crooked, 2)])
+    trees = structure_trees(bp, "botw", "mystic_oak")
 
     bush = tree(bp, "botw:mystic_oak_bush_feature", "trunk", {
         "trunk_height": 1,
@@ -516,7 +492,7 @@ def mystic_forest(bp, rp, shelf):
 
     f = [tag("botw_mystic_forest")]
     bp.rule("botw:mystic_forest_trees_rule", trees, f,
-            surface_scatter(3), "before_surface_pass")
+            surface_scatter(3, margin=2), "before_surface_pass")
     bp.rule("botw:mystic_forest_bushes_rule", bush, f,
             surface_scatter(3), "surface_pass")
     bp.rule("botw:mystic_forest_fallen_oak_rule", fallen, f,
@@ -558,52 +534,14 @@ def mighty_birch(bp, rp, shelf):
         "minecraft:foliage_appearance": {"color": "#80a755"},
     })
 
-    log, leaf = "birch_log", "birch_leaves"
     # Vanilla birch trunks are 5-7 blocks; these are 15 blocks taller (20-22).
-    mighty = tree(bp, "botw:mighty_birch_tree_feature", "mega_trunk", {
-        "trunk_width": 1,
-        "trunk_height": {"base": 20, "intervals": [3]},
-        "trunk_block": b(log),
-        "branches": {
-            "branch_length": 4,
-            "branch_slope": 0.45,
-            "branch_interval": rng(3, 5),
-            "branch_altitude_factor": {"min": 0.45, "max": 0.85},
-            "branch_canopy": {"fancy_canopy": fancy_canopy(leaf, 3, 2)},
-        },
-    }, "fancy_canopy", fancy_canopy(leaf, 4, 2))
-
-    fancy = tree(bp, "botw:mighty_birch_fancy_feature", "fancy_trunk", {
-        "trunk_height": {"base": 20, "variance": 3, "scale": 1.0},
-        "trunk_width": 1,
-        "branches": {"slope": 0.3, "density": 1.0,
-                     "min_altitude_factor": 0.45},
-        "trunk_block": b(log),
-        "width_scale": 1.0,
-        "foliage_altitude_factor": 0.45,
-    }, "fancy_canopy", fancy_canopy(leaf, 4, 2))
-
-    ancient = tree(bp, "botw:ancient_birch_feature", "mega_trunk", {
-        "trunk_width": 2,
-        "trunk_height": {"base": 24, "intervals": [6]},
-        "trunk_block": b(log),
-        "branches": {
-            "branch_length": 6,
-            "branch_slope": 0.4,
-            "branch_interval": rng(2, 4),
-            "branch_altitude_factor": {"min": 0.4, "max": 0.9},
-            "branch_canopy": {"fancy_canopy": fancy_canopy(leaf, 4, 3)},
-        },
-    }, "random_spread_canopy", spread_canopy(leaf, 4, 4, 140))
-
-    trees = weighted(bp, "botw:mighty_birch_trees_feature",
-                     [(mighty, 5), (fancy, 3), (ancient, 1)])
-    fallen = fallen_log(bp, "botw:mighty_fallen_birch_feature", log,
+    trees = structure_trees(bp, "botw", "mighty_birch")
+    fallen = fallen_log(bp, "botw:mighty_fallen_birch_feature", "birch_log",
                         rng(5, 9), shelf)
 
     f = [tag("botw_mighty_birch")]
     bp.rule("botw:mighty_birch_trees_rule", trees, f,
-            surface_scatter(4), "before_surface_pass")
+            surface_scatter(4, margin=2), "before_surface_pass")
     bp.rule("botw:mighty_birch_fallen_rule", fallen, f,
             surface_scatter(1, chance(1, 3)), "surface_pass")
 
@@ -624,6 +562,7 @@ def mighty_birch(bp, rp, shelf):
 # No Man's Land: the whole biome area is hollowed out down to the deepslate.
 PIT_FLOOR_Y = -33       # top solid layer of the pit floor
 PIT_TOP_Y = 127         # highest block that gets removed
+PIT_SLICE = 32          # height of one air slice structure
 
 
 def grid_scatter(pack, ident, places, axis, extent, iterations=None):
@@ -667,20 +606,32 @@ def no_mans_land(bp, rp):
     })
     f = [tag("botw_no_mans_land")]
 
-    # 1) Hollow out every column of the chunk from the floor up to the sky.
-    air = bp.feature("botw:no_mans_land_air_feature",
-                     "minecraft:single_block_feature", {
-                         "places_block": b("air"),
-                         "enforce_placement_rules": False,
-                         "enforce_survivability_rules": False,
-                         "may_replace": blocks(*CARVABLE),
-                     }, fmt=BLOCK_FEATURE_FMT)
-    column = grid_scatter(bp, "botw:no_mans_land_carve_column_feature", air,
-                          "y", [0, PIT_TOP_Y - PIT_FLOOR_Y - 1])
-    row = grid_scatter(bp, "botw:no_mans_land_carve_row_feature", column,
-                       "z", [0, 15])
-    chunk_grid_rule(bp, "botw:no_mans_land_carve_rule", row,
-                    PIT_FLOOR_Y + 1, f, "first_pass")
+    # 1) Hollow out the whole chunk from the floor up to the sky by stamping
+    #    stacked 16x32x16 slices of air (structures overwrite every block,
+    #    water and lava included).
+    bp.put("structures/botw/pit_slice.mcstructure",
+           treegen.solid_structure(b("air"), (16, PIT_SLICE, 16)))
+    pit_slice = bp.feature("botw:no_mans_land_pit_slice_feature",
+                           "minecraft:structure_template_feature", {
+                               "structure_name": "botw:pit_slice",
+                               "facing_direction": "south",
+                               "rotate_around_center": False,
+                               "constraints": {},
+                           })
+    slices = (PIT_TOP_Y - PIT_FLOOR_Y) // PIT_SLICE
+    column = bp.feature("botw:no_mans_land_carve_column_feature",
+                        "minecraft:scatter_feature", {
+                            "places_feature": pit_slice,
+                            "iterations": slices,
+                            "x": 0,
+                            "y": {"distribution": "fixed_grid",
+                                  "extent": [0, (slices - 1) * PIT_SLICE],
+                                  "step_size": PIT_SLICE},
+                            "z": 0,
+                        })
+    bp.rule("botw:no_mans_land_carve_rule", column, f, {
+        "iterations": 1, "x": 0, "y": PIT_FLOOR_Y + 1, "z": 0,
+    }, "first_pass")
 
     # 2) Repaint the exposed floor with a rough, scorched mix.
     floor_block = bp.feature("botw:no_mans_land_floor_block_feature",
@@ -818,302 +769,58 @@ def build_bott():
     def rule(name_, feature, filt, iterations, chance_=None,
              placement_pass="before_surface_pass"):
         bp.rule(f"bott:{name_}_rule", feature, [*filt, not_botw],
-                surface_scatter(iterations, chance_), placement_pass)
+                surface_scatter(iterations, chance_, margin=2),
+                placement_pass)
+
+    def trees(species, **kw):
+        return structure_trees(bp, "bott", species, **kw)
 
     # --- Oak ---------------------------------------------------------------
-    grand_oak = tree(bp, "bott:grand_oak_feature", "fancy_trunk", {
-        "trunk_height": {"base": 10, "variance": 8, "scale": 1.0},
-        "trunk_width": 1,
-        "branches": {"slope": 0.35, "density": 1.25,
-                     "min_altitude_factor": 0.3},
-        "trunk_block": b("oak_log"),
-        "width_scale": 1.2,
-        "foliage_altitude_factor": 0.3,
-    }, "fancy_canopy", fancy_canopy("oak_leaves", 4, 2))
-    branching_oak = tree(bp, "bott:branching_oak_feature", "mega_trunk", {
-        "trunk_width": 1,
-        "trunk_height": {"base": 9, "intervals": [4]},
-        "trunk_block": b("oak_log"),
-        "branches": {
-            "branch_length": 4, "branch_slope": 0.4,
-            "branch_interval": rng(2, 3),
-            "branch_altitude_factor": {"min": 0.5, "max": 0.9},
-            "branch_canopy": {"fancy_canopy": fancy_canopy("oak_leaves", 3, 2)},
-        },
-    }, "fancy_canopy", fancy_canopy("oak_leaves", 4, 2))
-    old_oak = tree(bp, "bott:old_oak_feature", "mega_trunk", {
-        "trunk_width": 2,
-        "trunk_height": {"base": 12, "intervals": [5]},
-        "trunk_block": b("oak_log"),
-        "branches": {
-            "branch_length": 5, "branch_slope": 0.35,
-            "branch_interval": rng(2, 4),
-            "branch_altitude_factor": {"min": 0.4, "max": 0.9},
-            "branch_canopy": {"fancy_canopy": fancy_canopy("oak_leaves", 3, 3)},
-        },
-    }, "random_spread_canopy", spread_canopy("oak_leaves", 4, 4, 150))
-    oaks = weighted(bp, "bott:oak_trees_feature",
-                    [(branching_oak, 4), (grand_oak, 3), (old_oak, 1)])
+    oaks = trees("oak")
     oak_biomes = [{"any_of": [tag("oak_forest"), tag("flower_forest"),
                               {"all_of": [tag("forest"),
                                           tag("extreme_hills")]}]}]
     rule("oak_trees", oaks, oak_biomes, 2)
-    rule("plains_lone_oak", weighted(bp, "bott:lone_oak_feature",
-                                     [(grand_oak, 2), (old_oak, 1)]),
-         [tag("plains")], 1, chance(1, 8))
+    rule("plains_lone_oak", oaks, [tag("plains")], 1, chance(1, 8))
     rule("fallen_oak", fallen_log(bp, "bott:fallen_oak_feature", "oak_log",
                                   rng(4, 7), shelf),
          oak_biomes, 1, chance(1, 3), "surface_pass")
 
     # --- Birch -------------------------------------------------------------
-    tall_birch = tree(bp, "bott:tall_branching_birch_feature", "mega_trunk", {
-        "trunk_width": 1,
-        "trunk_height": {"base": 9, "intervals": [5]},
-        "trunk_block": b("birch_log"),
-        "branches": {
-            "branch_length": 3, "branch_slope": 0.45,
-            "branch_interval": rng(2, 4),
-            "branch_altitude_factor": {"min": 0.5, "max": 0.85},
-            "branch_canopy": {"fancy_canopy": fancy_canopy("birch_leaves", 3, 2)},
-        },
-    }, "fancy_canopy", fancy_canopy("birch_leaves", 4, 2))
-    grand_birch = tree(bp, "bott:grand_birch_feature", "fancy_trunk", {
-        "trunk_height": {"base": 11, "variance": 4, "scale": 1.0},
-        "trunk_width": 1,
-        "branches": {"slope": 0.35, "density": 0.9,
-                     "min_altitude_factor": 0.45},
-        "trunk_block": b("birch_log"),
-        "width_scale": 1.0,
-        "foliage_altitude_factor": 0.45,
-    }, "fancy_canopy", fancy_canopy("birch_leaves", 4, 2))
     birch_biomes = [tag("birch")]
-    rule("birch_trees", weighted(bp, "bott:birch_trees_feature",
-                                 [(tall_birch, 3), (grand_birch, 2)]),
-         birch_biomes, 2)
+    rule("birch_trees", trees("birch"), birch_biomes, 2)
     rule("fallen_birch", fallen_log(bp, "bott:fallen_birch_feature",
                                     "birch_log", rng(4, 7), shelf),
          birch_biomes, 1, chance(1, 3), "surface_pass")
 
     # --- Spruce (taiga, snowy taiga, grove) ----------------------------------
-    # Tiered conifers: whorls of short branches, each with its own leaf
-    # cluster, instead of the vanilla cone ("pyramid") canopy.
-    def conifer(ident, width, height, branch_length, tier_radius, **kw):
-        return tree(bp, ident, "mega_trunk", {
-            "trunk_width": width,
-            "trunk_height": height,
-            "trunk_block": b("spruce_log"),
-            "branches": {
-                "branch_length": branch_length, "branch_slope": 0.15,
-                "branch_interval": rng(2, 3),
-                "branch_altitude_factor": {"min": 0.3, "max": 0.95},
-                "branch_canopy": {"fancy_canopy": fancy_canopy(
-                    "spruce_leaves", 2, tier_radius)},
-            },
-        }, "fancy_canopy", fancy_canopy("spruce_leaves", 3, 2), **kw)
-    towering = conifer("bott:towering_spruce_feature", 1,
-                       {"base": 16, "intervals": [6]}, 3, 2)
-    giant = conifer("bott:giant_spruce_feature", 2,
-                    {"base": 20, "intervals": [8]}, 4, 2)
     spruce_biomes = [{"any_of": [{"all_of": [tag("taiga"), tag("mega", "!=")]},
                                  tag("grove")]}]
-    rule("spruce_trees", weighted(bp, "bott:spruce_trees_feature",
-                                  [(towering, 5), (giant, 1)]),
-         spruce_biomes, 2)
+    rule("spruce_trees", trees("spruce"), spruce_biomes, 2)
     rule("fallen_spruce", fallen_log(bp, "bott:fallen_spruce_feature",
                                      "spruce_log", rng(5, 8), shelf),
          spruce_biomes, 1, chance(1, 3), "surface_pass")
 
     # --- Old growth (mega) taiga -------------------------------------------
-    redwood = conifer("bott:ancient_redwood_feature", 2,
-                      {"base": 26, "intervals": [8, 6]}, 5, 3,
-                      base_block="podzol", extra={"base_cluster": {
-                          "may_replace": blocks("grass_block", "dirt",
-                                                "coarse_dirt"),
-                          "num_clusters": 3, "cluster_radius": 2,
-                      }})
-    rule("ancient_redwood", redwood, [tag("taiga"), tag("mega")], 1,
+    rule("ancient_redwood", trees("redwood"), [tag("taiga"), tag("mega")], 1,
          chance(1, 2))
 
-    # --- Jungle --------------------------------------------------------------
-    jungle_giant = tree(bp, "bott:jungle_giant_feature", "mega_trunk", {
-        "trunk_width": 2,
-        "trunk_height": {"base": 24, "intervals": [10]},
-        "trunk_block": b("jungle_log"),
-        "trunk_decoration": vines_on_trunk(3, steps=4),
-        "branches": {
-            "branch_length": 6, "branch_slope": 0.3,
-            "branch_interval": rng(3, 5),
-            "branch_altitude_factor": {"min": 0.4, "max": 0.85},
-            "branch_canopy": {"fancy_canopy": fancy_canopy("jungle_leaves", 3, 3)},
-        },
-    }, "random_spread_canopy", spread_canopy("jungle_leaves", 4, 4, 170))
-    jungle_tall = tree(bp, "bott:jungle_canopy_tree_feature", "fancy_trunk", {
-        "trunk_height": {"base": 14, "variance": 6, "scale": 1.0},
-        "trunk_width": 1,
-        "branches": {"slope": 0.25, "density": 1.0,
-                     "min_altitude_factor": 0.5},
-        "trunk_block": b("jungle_log"),
-        "width_scale": 1.3,
-        "foliage_altitude_factor": 0.5,
-    }, "fancy_canopy", fancy_canopy("jungle_leaves", 4, 3))
-    rule("jungle_trees", weighted(bp, "bott:jungle_trees_feature",
-                                  [(jungle_tall, 2), (jungle_giant, 1)]),
-         [tag("jungle")], 1)
-
-    # --- Acacia (savanna) ----------------------------------------------------
-    grand_acacia = tree(bp, "bott:grand_acacia_feature", "acacia_trunk", {
-        "trunk_width": 1,
-        "trunk_height": {"base": 7, "intervals": [3, 3],
-                         "min_height_for_canopy": 5},
-        "trunk_lean": {"allow_diagonal_growth": True,
-                       "lean_height": rng(3, 4), "lean_steps": rng(3, 5),
-                       "lean_length": rng(1, 3)},
-        "trunk_block": b("acacia_log"),
-        "branches": {
-            "branch_length": rng(2, 4),
-            "branch_position": rng(3, 5),
-            "branch_chance": chance(1, 1),
-            "branch_canopy": {"acacia_canopy": {
-                "canopy_size": 2, "leaf_block": b("acacia_leaves"),
-                "simplify_canopy": True}},
-        },
-    }, "acacia_canopy", {"canopy_size": 3, "leaf_block": b("acacia_leaves"),
-                         "simplify_canopy": False})
-    umbrella_acacia = tree(bp, "bott:umbrella_acacia_feature", "fancy_trunk", {
-        "trunk_height": {"base": 8, "variance": 4, "scale": 1.0},
-        "trunk_width": 1,
-        "branches": {"slope": 0.12, "density": 0.8,
-                     "min_altitude_factor": 0.6},
-        "trunk_block": b("acacia_log"),
-        "width_scale": 1.5,
-        "foliage_altitude_factor": 0.65,
-    }, "fancy_canopy", fancy_canopy("acacia_leaves", 2, 3))
-    rule("acacia_trees", weighted(bp, "bott:acacia_trees_feature",
-                                  [(grand_acacia, 3), (umbrella_acacia, 2)]),
-         [tag("savanna")], 1, chance(1, 2))
-
-    # --- Dark oak (roofed forest) -------------------------------------------
-    def roofed(leaf, height, core, outer, inner):
-        return {"canopy_height": height, "core_width": core,
-                "outer_radius": outer, "inner_radius": inner,
-                "leaf_block": b(leaf)}
-    dark_oak = tree(bp, "bott:ancient_dark_oak_feature", "mega_trunk", {
-        "trunk_width": 2,
-        "trunk_height": {"base": 10, "intervals": [4]},
-        "trunk_block": b("dark_oak_log"),
-        "branches": {
-            "branch_length": 5, "branch_slope": 0.25,
-            "branch_interval": rng(2, 3),
-            "branch_altitude_factor": {"min": 0.5, "max": 0.85},
-            "branch_canopy": {"roofed_canopy": roofed("dark_oak_leaves",
-                                                      3, 1, 3, 2)},
-        },
-    }, "roofed_canopy", roofed("dark_oak_leaves", 4, 2, 4, 3))
-    rule("dark_oak_trees", dark_oak, [tag("roofed")], 1)
+    # --- Other forests ------------------------------------------------------
+    rule("jungle_trees", trees("jungle"), [tag("jungle")], 2)
+    rule("acacia_trees", trees("acacia"), [tag("savanna")], 1, chance(1, 2))
+    rule("dark_oak_trees", trees("dark_oak"), [tag("roofed")], 2)
     rule("fallen_dark_oak", fallen_log(bp, "bott:fallen_dark_oak_feature",
                                        "dark_oak_log", rng(4, 7), shelf),
          [tag("roofed")], 1, chance(1, 4), "surface_pass")
-
-    # --- Pale oak (pale garden) ---------------------------------------------
-    pale_oak = tree(bp, "bott:ancient_pale_oak_feature", "mega_trunk", {
-        "trunk_width": 2,
-        "trunk_height": {"base": 9, "intervals": [4]},
-        "trunk_block": b("pale_oak_log"),
-        "branches": {
-            "branch_length": 4, "branch_slope": 0.3,
-            "branch_interval": rng(2, 3),
-            "branch_altitude_factor": {"min": 0.5, "max": 0.85},
-            "branch_canopy": {"roofed_canopy": roofed("pale_oak_leaves",
-                                                      3, 1, 3, 2)},
-        },
-    }, "roofed_canopy", roofed("pale_oak_leaves", 4, 2, 4, 3))
-    rule("pale_oak_trees", pale_oak, [tag("pale_garden")], 1)
-
-    # --- Cherry --------------------------------------------------------------
-    def cherry_canopy(height, radius):
-        return {"leaf_block": b("cherry_leaves"), "height": height,
-                "radius": radius, "trunk_width": 1,
-                "wide_bottom_layer_hole_chance": chance(1, 4),
-                "corner_hole_chance": chance(1, 4),
-                "hanging_leaves_chance": chance(1, 6),
-                "hanging_leaves_extension_chance": chance(1, 3)}
-    cherry = tree(bp, "bott:grand_cherry_feature", "cherry_trunk", {
-        "trunk_block": b("cherry_log"),
-        "trunk_height": {"base": 8, "intervals": [3, 2]},
-        "branches": {
-            "tree_type_weights": {"one_branch": 0, "two_branches": 2,
-                                  "two_branches_and_trunk": 3},
-            "branch_horizontal_length": rng(3, 5),
-            "branch_start_offset_from_top": rng(-5, -3),
-            "branch_end_offset_from_top": rng(-1, 1),
-            "branch_canopy": {"cherry_canopy": cherry_canopy(rng(5, 6),
-                                                             rng(4, 5))},
-        },
-    }, "cherry_canopy", cherry_canopy(rng(5, 6), rng(4, 5)))
-    rule("cherry_trees", cherry, [tag("cherry_grove")], 1, chance(1, 2))
-
-    # --- Mangrove ------------------------------------------------------------
-    mangrove = tree(bp, "bott:grand_mangrove_feature", "mangrove_trunk", {
-        "trunk_width": 1,
-        "trunk_height": {"base": 6, "height_rand_a": 3, "height_rand_b": 4},
-        "trunk_block": b("mangrove_log"),
-        "branches": {"branch_length": rng(2, 4), "branch_steps": rng(2, 4),
-                     "branch_chance": chance(1, 2)},
-    }, "mangrove_canopy", {
-        "canopy_height": rng(3, 4), "canopy_radius": rng(3, 4),
-        "leaf_placement_attempts": 80,
-        "leaf_blocks": [[b("mangrove_leaves"), 1]],
-        "canopy_decoration": {"decoration_chance": chance(1, 4),
-                              "decoration_block": b("vine"),
-                              "num_steps": 4, "step_direction": "down"},
-        "hanging_block": b("mangrove_propagule", hanging=True,
-                           propagule_stage=4),
-        "hanging_block_placement_chance": chance(1, 12),
-    }, base_block="mud", extra={"mangrove_roots": {
-        "max_root_width": 8,
-        "max_root_length": 16,
-        "root_block": b("mangrove_roots"),
-        "above_root": {"above_root_chance": chance(1, 2),
-                       "above_root_block": b("moss_carpet")},
-        "muddy_root_block": b("muddy_mangrove_roots"),
-        "mud_block": b("mud"),
-        "y_offset": rng(3, 7),
-        "roots_may_grow_through": blocks(
-            "mud", "muddy_mangrove_roots", "mangrove_roots", "water",
-            "flowing_water", "air", "mangrove_leaves", "moss_carpet", "vine",
-            "short_grass", "grass_block", "dirt", "clay"),
-    }})
-    rule("mangrove_trees", mangrove, [tag("mangrove_swamp")], 1, chance(1, 2))
-
-    # --- Swamp oak -----------------------------------------------------------
-    swamp_oak = tree(bp, "bott:old_swamp_oak_feature", "trunk", {
-        "trunk_height": rng(6, 9),
-        "can_be_submerged": {"max_depth": 2},
-        "trunk_block": b("oak_log"),
-        "trunk_decoration": vines_on_trunk(3, steps=3),
-    }, "fancy_canopy", fancy_canopy("oak_leaves", 3, 3))
-    rule("swamp_oak_trees", swamp_oak, [tag("swamp")], 1)
-
-    # --- Poplar (dappled forest) ---------------------------------------------
-    def poplar(color):
-        leaf = f"{color}_poplar_leaves"
-        return tree(bp, f"bott:grand_{color}_poplar_feature", "poplar_trunk", {
-            "trunk_height": rng(12, 16),
-            "remaining_trunk_height_above_branches": rng(2, 3),
-            "amount_of_foliage_support_branches": rng(3, 5),
-            "trunk_block": b("poplar_log"),
-        }, "poplar_canopy", {
-            "leaf_block": b(leaf),
-            "branch_block": b("poplar_log"),
-            "radius": [{"value": 3, "weight": 2}, {"value": 4, "weight": 1}],
-            "height": rng(8, 11),
-            "side_hole_chance": 0.2,
-            "trunk_width": 1,
-        })
-    poplars = weighted(bp, "bott:poplar_trees_feature",
-                       [(poplar("yellow"), 2), (poplar("orange"), 2),
-                        (poplar("red"), 1)])
-    rule("poplar_trees", poplars, [tag("dappled_forest")], 1)
+    rule("pale_oak_trees", trees("pale_oak"), [tag("pale_garden")], 1)
+    rule("cherry_trees", trees("cherry"), [tag("cherry_grove")], 1,
+         chance(1, 2))
+    rule("mangrove_trees", trees("mangrove",
+                                 extra_allow=("water", "flowing_water")),
+         [tag("mangrove_swamp")], 1)
+    rule("swamp_oak_trees", trees("swamp_oak", extra_allow=("water",)),
+         [tag("swamp")], 1)
+    rule("poplar_trees", trees("poplar"), [tag("dappled_forest")], 2)
 
     return bp
 
@@ -1157,6 +864,10 @@ def validate_references(packs):
                         for k in ("places_feature", "log_decoration_feature"):
                             if k in body:
                                 refs.append((rel, body[k]))
+                        if "structure_name" in body:
+                            ns, path = body["structure_name"].split(":", 1)
+                            assert f"structures/{ns}/{path}.mcstructure" in \
+                                pack.files, body["structure_name"]
                         for k in ("fallen_trunk",):
                             if k in body and "log_decoration_feature" in body[k]:
                                 refs.append((rel, body[k]["log_decoration_feature"]))
