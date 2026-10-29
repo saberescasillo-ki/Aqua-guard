@@ -32,8 +32,8 @@
           {
             "dimension": "minecraft:overworld",
             "targets": [
-              "savanna",
-              "desert"
+              "minecraft:savanna",
+              "minecraft:desert"
             ],
             "amount": 0.3,
             "noise_frequency_scale": 20

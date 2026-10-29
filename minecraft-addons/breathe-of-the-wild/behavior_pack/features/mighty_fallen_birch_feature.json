@@ -122,8 +122,8 @@
         "range_max": 9
       },
       "stump_height": {
-        "range_min": 0,
-        "range_max": 1
+        "range_min": 1,
+        "range_max": 2
       },
       "trunk_block": "minecraft:birch_log",
       "log_decoration_feature": "botw:shelf_mushroom_log_decoration_feature"

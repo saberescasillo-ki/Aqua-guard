@@ -32,8 +32,8 @@
           {
             "dimension": "minecraft:overworld",
             "targets": [
-              "birch_forest",
-              "birch_forest_mutated"
+              "minecraft:birch_forest",
+              "minecraft:birch_forest_mutated"
             ],
             "amount": 0.5,
             "noise_frequency_scale": 25

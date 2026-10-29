@@ -5,17 +5,15 @@
       "identifier": "botw:no_mans_land_floor_row_feature"
     },
     "places_feature": "botw:no_mans_land_floor_block_feature",
-    "distribution": {
-      "iterations": 16,
-      "x": 0,
-      "y": 0,
-      "z": {
-        "distribution": "fixed_grid",
-        "extent": [
-          0,
-          15
-        ]
-      }
+    "iterations": 16,
+    "x": 0,
+    "y": 0,
+    "z": {
+      "distribution": "fixed_grid",
+      "extent": [
+        0,
+        15
+      ]
     }
   }
 }

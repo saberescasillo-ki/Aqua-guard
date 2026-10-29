@@ -33,7 +33,7 @@ NEW_FEATURE_FMT = "1.26.40"
 BIOME_FMT = "1.26.0"
 CLIENT_BIOME_FMT = "1.21.120"
 
-VERSION = [1, 1, 0]
+VERSION = [1, 2, 0]
 
 UUIDS = {
     "botw_bp": "399882bf-3a8d-46bd-ad24-5283eb4ea059",
@@ -232,7 +232,7 @@ def shelf_mushrooms(pack, ns):
 def fallen_log(pack, ident, log, length, decoration):
     return tree(pack, ident, "fallen_trunk", {
         "log_length": length,
-        "stump_height": rng(0, 1),
+        "stump_height": rng(1, 2),
         "trunk_block": b(log),
         "log_decoration_feature": decoration,
     })
@@ -430,7 +430,8 @@ def overworld_surface(top, mid="dirt", foundation="stone"):
 
 
 def replacement(targets, amount, scale):
-    return {"dimension": "minecraft:overworld", "targets": targets,
+    return {"dimension": "minecraft:overworld",
+            "targets": [f"minecraft:{t}" for t in targets],
             "amount": amount, "noise_frequency_scale": scale}
 
 
@@ -631,10 +632,8 @@ def grid_scatter(pack, ident, places, axis, extent, iterations=None):
     coords[axis] = {"distribution": "fixed_grid", "extent": extent}
     return pack.feature(ident, "minecraft:scatter_feature", {
         "places_feature": places,
-        "distribution": {
-            "iterations": iterations or (extent[1] - extent[0] + 1),
-            **coords,
-        },
+        "iterations": iterations or (extent[1] - extent[0] + 1),
+        **coords,
     })
 
 
@@ -741,13 +740,11 @@ def no_mans_land(bp, rp):
     pillar = bp.feature("botw:no_mans_land_pillar_feature",
                         "minecraft:scatter_feature", {
                             "places_feature": pillar_block,
-                            "distribution": {
-                                "iterations": "math.random_integer(4, 16)",
-                                "x": 0,
-                                "y": {"distribution": "fixed_grid",
-                                      "extent": [0, 15]},
-                                "z": 0,
-                            },
+                            "iterations": "math.random_integer(4, 16)",
+                            "x": 0,
+                            "y": {"distribution": "fixed_grid",
+                                  "extent": [0, 15]},
+                            "z": 0,
                         })
     bp.rule("botw:no_mans_land_pillar_rule", pillar, f, {
         "iterations": 2,

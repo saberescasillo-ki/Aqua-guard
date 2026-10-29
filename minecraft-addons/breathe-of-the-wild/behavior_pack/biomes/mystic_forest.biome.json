@@ -32,8 +32,8 @@
           {
             "dimension": "minecraft:overworld",
             "targets": [
-              "forest",
-              "flower_forest"
+              "minecraft:forest",
+              "minecraft:flower_forest"
             ],
             "amount": 0.4,
             "noise_frequency_scale": 25
