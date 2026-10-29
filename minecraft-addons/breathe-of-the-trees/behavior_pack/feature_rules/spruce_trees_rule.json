@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "bott:spruce_trees_rule",
-      "places_feature": "bott:spruce_trees_feature"
+      "places_feature": "bott:tall_spruce_feature"
     },
     "conditions": {
       "placement_pass": "before_surface_pass",
@@ -44,16 +44,16 @@
       "x": {
         "distribution": "uniform",
         "extent": [
-          2,
-          13
+          0,
+          15
         ]
       },
       "y": "query.heightmap(variable.worldx, variable.worldz)",
       "z": {
         "distribution": "uniform",
         "extent": [
-          2,
-          13
+          0,
+          15
         ]
       }
     }

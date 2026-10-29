@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "bott:dark_oak_trees_rule",
-      "places_feature": "bott:dark_oak_trees_feature"
+      "places_feature": "bott:big_dark_oak_feature"
     },
     "conditions": {
       "placement_pass": "before_surface_pass",
@@ -21,21 +21,21 @@
       ]
     },
     "distribution": {
-      "iterations": 2,
+      "iterations": 1,
       "coordinate_eval_order": "xzy",
       "x": {
         "distribution": "uniform",
         "extent": [
-          2,
-          13
+          0,
+          15
         ]
       },
       "y": "query.heightmap(variable.worldx, variable.worldz)",
       "z": {
         "distribution": "uniform",
         "extent": [
-          2,
-          13
+          0,
+          15
         ]
       }
     }

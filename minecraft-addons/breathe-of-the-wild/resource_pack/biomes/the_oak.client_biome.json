@@ -1,0 +1,16 @@
+{
+  "format_version": "1.21.120",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "botw:the_oak"
+    },
+    "components": {
+      "minecraft:grass_appearance": {
+        "color": "#79c05a"
+      },
+      "minecraft:foliage_appearance": {
+        "color": "#59ae30"
+      }
+    }
+  }
+}

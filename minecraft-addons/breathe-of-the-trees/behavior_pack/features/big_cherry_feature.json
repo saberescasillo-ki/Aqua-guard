@@ -1,0 +1,206 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:tree_feature": {
+    "description": {
+      "identifier": "bott:big_cherry_feature"
+    },
+    "base_block": [
+      "minecraft:dirt"
+    ],
+    "may_grow_on": [
+      "minecraft:grass_block",
+      "minecraft:dirt",
+      "minecraft:podzol",
+      "minecraft:coarse_dirt",
+      "minecraft:dirt_with_roots",
+      "minecraft:moss_block",
+      "minecraft:mud"
+    ],
+    "may_replace": [
+      "minecraft:air",
+      "minecraft:oak_leaves",
+      "minecraft:spruce_leaves",
+      "minecraft:birch_leaves",
+      "minecraft:jungle_leaves",
+      "minecraft:acacia_leaves",
+      "minecraft:dark_oak_leaves",
+      "minecraft:mangrove_leaves",
+      "minecraft:cherry_leaves",
+      "minecraft:pale_oak_leaves",
+      "minecraft:azalea_leaves",
+      "minecraft:azalea_leaves_flowered",
+      "minecraft:orange_poplar_leaves",
+      "minecraft:red_poplar_leaves",
+      "minecraft:yellow_poplar_leaves",
+      "minecraft:short_grass",
+      "minecraft:tall_grass",
+      "minecraft:fern",
+      "minecraft:large_fern",
+      "minecraft:vine",
+      "minecraft:snow_layer",
+      "minecraft:leaf_litter",
+      "minecraft:wildflowers",
+      "minecraft:pink_petals",
+      "minecraft:moss_carpet",
+      "minecraft:pale_moss_carpet",
+      "minecraft:firefly_bush",
+      "minecraft:bush",
+      "minecraft:deadbush",
+      "minecraft:short_dry_grass",
+      "minecraft:tall_dry_grass",
+      "minecraft:dandelion",
+      "minecraft:poppy",
+      "minecraft:blue_orchid",
+      "minecraft:allium",
+      "minecraft:azure_bluet",
+      "minecraft:red_tulip",
+      "minecraft:orange_tulip",
+      "minecraft:white_tulip",
+      "minecraft:pink_tulip",
+      "minecraft:oxeye_daisy",
+      "minecraft:cornflower",
+      "minecraft:lily_of_the_valley",
+      "minecraft:sunflower",
+      "minecraft:lilac",
+      "minecraft:rose_bush",
+      "minecraft:peony",
+      "minecraft:brown_mushroom",
+      "minecraft:red_mushroom",
+      "minecraft:sweet_berry_bush",
+      "minecraft:open_eyeblossom",
+      "minecraft:closed_eyeblossom"
+    ],
+    "may_grow_through": [
+      "minecraft:grass_block",
+      "minecraft:dirt",
+      "minecraft:podzol",
+      "minecraft:coarse_dirt",
+      "minecraft:dirt_with_roots",
+      "minecraft:moss_block",
+      "minecraft:mud",
+      "minecraft:short_grass",
+      "minecraft:tall_grass",
+      "minecraft:fern",
+      "minecraft:large_fern",
+      "minecraft:vine",
+      "minecraft:snow_layer",
+      "minecraft:leaf_litter",
+      "minecraft:wildflowers",
+      "minecraft:pink_petals",
+      "minecraft:moss_carpet",
+      "minecraft:pale_moss_carpet",
+      "minecraft:firefly_bush",
+      "minecraft:bush",
+      "minecraft:deadbush",
+      "minecraft:short_dry_grass",
+      "minecraft:tall_dry_grass",
+      "minecraft:dandelion",
+      "minecraft:poppy",
+      "minecraft:blue_orchid",
+      "minecraft:allium",
+      "minecraft:azure_bluet",
+      "minecraft:red_tulip",
+      "minecraft:orange_tulip",
+      "minecraft:white_tulip",
+      "minecraft:pink_tulip",
+      "minecraft:oxeye_daisy",
+      "minecraft:cornflower",
+      "minecraft:lily_of_the_valley",
+      "minecraft:sunflower",
+      "minecraft:lilac",
+      "minecraft:rose_bush",
+      "minecraft:peony",
+      "minecraft:brown_mushroom",
+      "minecraft:red_mushroom",
+      "minecraft:sweet_berry_bush",
+      "minecraft:open_eyeblossom",
+      "minecraft:closed_eyeblossom"
+    ],
+    "cherry_trunk": {
+      "trunk_block": "minecraft:cherry_log",
+      "trunk_height": {
+        "base": 8,
+        "intervals": [
+          3
+        ]
+      },
+      "branches": {
+        "tree_type_weights": {
+          "one_branch": 0,
+          "two_branches": 2,
+          "two_branches_and_trunk": 3
+        },
+        "branch_horizontal_length": {
+          "range_min": 3,
+          "range_max": 5
+        },
+        "branch_start_offset_from_top": {
+          "range_min": -5,
+          "range_max": -3
+        },
+        "branch_end_offset_from_top": {
+          "range_min": -1,
+          "range_max": 1
+        },
+        "branch_canopy": {
+          "cherry_canopy": {
+            "leaf_block": "minecraft:cherry_leaves",
+            "height": {
+              "range_min": 5,
+              "range_max": 6
+            },
+            "radius": {
+              "range_min": 4,
+              "range_max": 5
+            },
+            "trunk_width": 1,
+            "wide_bottom_layer_hole_chance": {
+              "numerator": 1,
+              "denominator": 4
+            },
+            "corner_hole_chance": {
+              "numerator": 1,
+              "denominator": 4
+            },
+            "hanging_leaves_chance": {
+              "numerator": 1,
+              "denominator": 6
+            },
+            "hanging_leaves_extension_chance": {
+              "numerator": 1,
+              "denominator": 3
+            }
+          }
+        }
+      }
+    },
+    "cherry_canopy": {
+      "leaf_block": "minecraft:cherry_leaves",
+      "height": {
+        "range_min": 5,
+        "range_max": 6
+      },
+      "radius": {
+        "range_min": 4,
+        "range_max": 5
+      },
+      "trunk_width": 1,
+      "wide_bottom_layer_hole_chance": {
+        "numerator": 1,
+        "denominator": 4
+      },
+      "corner_hole_chance": {
+        "numerator": 1,
+        "denominator": 4
+      },
+      "hanging_leaves_chance": {
+        "numerator": 1,
+        "denominator": 6
+      },
+      "hanging_leaves_extension_chance": {
+        "numerator": 1,
+        "denominator": 3
+      }
+    }
+  }
+}

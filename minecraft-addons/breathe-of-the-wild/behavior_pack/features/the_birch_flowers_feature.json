@@ -1,0 +1,36 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "botw:the_birch_flowers_feature"
+    },
+    "places_block": [
+      {
+        "block": {
+          "name": "minecraft:wildflowers",
+          "states": {
+            "growth": 3
+          }
+        },
+        "weight": 3
+      },
+      {
+        "block": "minecraft:lily_of_the_valley",
+        "weight": 1
+      },
+      {
+        "block": "minecraft:dandelion",
+        "weight": 1
+      },
+      {
+        "block": "minecraft:cornflower",
+        "weight": 1
+      }
+    ],
+    "enforce_placement_rules": true,
+    "enforce_survivability_rules": true,
+    "may_replace": [
+      "minecraft:air"
+    ]
+  }
+}

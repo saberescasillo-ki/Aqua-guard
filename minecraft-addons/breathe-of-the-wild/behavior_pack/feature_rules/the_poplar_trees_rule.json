@@ -1,0 +1,38 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "botw:the_poplar_trees_rule",
+      "places_feature": "botw:poplar_trees_feature"
+    },
+    "conditions": {
+      "placement_pass": "before_surface_pass",
+      "minecraft:biome_filter": [
+        {
+          "test": "has_biome_tag",
+          "operator": "==",
+          "value": "botw_the_poplar"
+        }
+      ]
+    },
+    "distribution": {
+      "iterations": 4,
+      "coordinate_eval_order": "xzy",
+      "x": {
+        "distribution": "uniform",
+        "extent": [
+          2,
+          13
+        ]
+      },
+      "y": "query.heightmap(variable.worldx, variable.worldz)",
+      "z": {
+        "distribution": "uniform",
+        "extent": [
+          2,
+          13
+        ]
+      }
+    }
+  }
+}

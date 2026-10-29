@@ -5,8 +5,8 @@ Two Minecraft **Bedrock Edition** add-ons that change world generation using
 
 | Add-on | File | What it does |
 | --- | --- | --- |
-| BREATHE OF THE WILD | `dist/BREATHE_OF_THE_WILD.mcaddon` | Adds 3 new overworld biomes |
-| BREATHE OF THE TREES | `dist/BREATHE_OF_THE_TREES.mcaddon` | Adds bigger, branchier versions of every vanilla tree |
+| BREATHE OF THE WILD | `dist/BREATHE_OF_THE_WILD.mcaddon` | Adds 6 new overworld biomes |
+| BREATHE OF THE TREES | `dist/BREATHE_OF_THE_TREES.mcaddon` | Adds bigger, branchier procedural versions of the vanilla trees |
 
 Built for Minecraft Bedrock **1.26.40 or newer**.
 
@@ -29,17 +29,19 @@ Find the new biomes with:
 /locate biome botw:mystic_forest
 /locate biome botw:mighty_birch_forest
 /locate biome botw:no_mans_land
+/locate biome botw:the_oak
+/locate biome botw:the_birch
+/locate biome botw:the_poplar
 ```
 
 ## Tree shapes
-Every big tree is a hand-shaped **structure** (`.mcstructure`), not the
-game's built-in tree generator. `treegen.py` designs each species from a
-seed and saves **20 variations per tree type** (280 trees in total), and the
-game picks one at random each time.
+The big trees of *BREATHE OF THE WILD* are hand-shaped **structures**
+(`.mcstructure`), not the game's built-in tree generator. `treegen.py`
+designs each species from a seed and saves **20 variations per tree type**;
+the game picks one at random each time.
 
 - Broadleaf trees have a real trunk, root flares, branches that fork, and a
   fluffy leaf cluster at the end of every branch. No pyramid canopies.
-- Conifers are layered: uneven drooping whorls with gaps, not a clean cone.
 - A tree is never placed on top of, or inside, another tree.
 
 ## BREATHE OF THE WILD
@@ -78,26 +80,35 @@ Replaces part of the Savanna and Desert biomes with an enormous open pit.
 **Be careful:** walking into this biome from outside means a fall of up to
 150 blocks.
 
+### The Oak, The Birch, The Poplar
+Variants of the vanilla Forest, Birch Forest and Dappled Forest. Each one
+grows **only** the 20 structure trees of its species (the same designs that
+*BREATHE OF THE TREES* 2.0 used), with no vanilla trees mixed in.
+
+| Biome | Replaces part of | Trees |
+| --- | --- | --- |
+| The Oak (`botw:the_oak`) | Forest | 20 oak designs (5 are old 2×2 oaks), fallen oak logs |
+| The Birch (`botw:the_birch`) | Birch Forest, Old Growth Birch Forest | 20 birch designs, fallen birch logs |
+| The Poplar (`botw:the_poplar`) | Dappled Forest | 20 poplar designs in yellow, orange and red |
+
 ## BREATHE OF THE TREES
 
-Adds 20 designed variations of every vanilla tree type to the biomes where
-it grows. The big trees are placed before vanilla trees, so they take the
-best spots and vanilla trees fill the gaps.
+Rebuilt from scratch as a small, simple procedural pack: the game grows each
+tree from `tree_feature` data, so every tree is different. There is one
+improved design per tree type, and none of them uses the stepped, pyramid
+canopies. The big trees are placed before vanilla trees, which fill the gaps.
 
-| Biome | New trees (20 variations each) |
+| Biome | New tree |
 | --- | --- |
-| Forest, Flower Forest, Windswept Forest, rare in Plains | Oak (5 of them are old 2×2 oaks), plus fallen oak logs |
-| Birch Forests | Birch, plus fallen birch logs |
-| Taiga, Snowy Taiga, Grove | Layered Spruce (4 of them are 2×2 giants), plus fallen spruce logs |
-| Old Growth Taiga | Redwood: 2×2 or 3×3 trunk, 28–38 blocks, root flares on podzol |
-| Jungles | Jungle trees and 2×2 jungle giants covered in vines |
-| Savannas | Acacia with 2–3 forked limbs and flat canopies |
-| Dark Forest | 2×2 / 3×3 Dark Oak with a wide dome, plus fallen logs |
-| Pale Garden | Pale Oak with hanging pale moss |
-| Cherry Grove | Cherry with curved branches and hanging blossoms |
-| Mangrove Swamp | Mangrove raised on arching prop roots |
-| Swamp | Swamp Oak dripping with vines |
-| Dappled Forest | Poplar in yellow, orange and red |
+| Forest, Flower Forest, Plains (rare) | Big Oak (many branches) and Branching Oak |
+| Birch Forests | Tall Birch, 11–15 blocks with side crowns |
+| Taiga, Snowy Taiga, Grove | Tall Spruce with layered side crowns |
+| Old Growth Taiga | Giant 2×2 Spruce, 24–31 blocks |
+| Jungles | Big 2×2 Jungle tree with wide branches |
+| Savannas | Big leaning Acacia |
+| Dark Forest / Pale Garden | Big 2×2 Dark Oak / Pale Oak |
+| Cherry Grove | Big Cherry with two or three branches |
+| Swamp | Big Swamp Oak |
 
 ### Limits
 - In Bedrock, vanilla trees and sapling growth are built into the game and

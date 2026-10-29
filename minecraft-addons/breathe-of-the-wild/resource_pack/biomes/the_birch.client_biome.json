@@ -1,0 +1,16 @@
+{
+  "format_version": "1.21.120",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "botw:the_birch"
+    },
+    "components": {
+      "minecraft:grass_appearance": {
+        "color": "#88bb67"
+      },
+      "minecraft:foliage_appearance": {
+        "color": "#6ba941"
+      }
+    }
+  }
+}
