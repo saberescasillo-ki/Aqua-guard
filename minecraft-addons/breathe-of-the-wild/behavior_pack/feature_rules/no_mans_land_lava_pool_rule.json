@@ -21,6 +21,7 @@
         "numerator": 1,
         "denominator": 3
       },
+      "coordinate_eval_order": "xzy",
       "x": {
         "distribution": "uniform",
         "extent": [
@@ -28,7 +29,7 @@
           13
         ]
       },
-      "y": -34,
+      "y": "query.heightmap(variable.worldx, variable.worldz) - 1",
       "z": {
         "distribution": "uniform",
         "extent": [

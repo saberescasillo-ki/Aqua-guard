@@ -1,0 +1,15 @@
+{
+  "format_version": "1.26.50",
+  "minecraft:conditional_list": {
+    "description": {
+      "identifier": "botw:no_mans_land_carve_check_feature"
+    },
+    "conditional_features": [
+      {
+        "places_feature": "botw:no_mans_land_carve_stack_feature",
+        "condition": "query.has_biome_tag('botw_no_mans_land', variable.worldx, 70, variable.worldz)"
+      }
+    ],
+    "early_out_scheme": "condition_success"
+  }
+}

@@ -34,7 +34,7 @@
             "targets": [
               "minecraft:forest"
             ],
-            "amount": 0.175,
+            "amount": 0.13,
             "noise_frequency_scale": 25
           }
         ]

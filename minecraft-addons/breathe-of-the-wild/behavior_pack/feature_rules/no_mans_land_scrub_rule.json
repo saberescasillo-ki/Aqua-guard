@@ -17,6 +17,7 @@
     },
     "distribution": {
       "iterations": 12,
+      "coordinate_eval_order": "xzy",
       "x": {
         "distribution": "uniform",
         "extent": [
@@ -24,7 +25,7 @@
           15
         ]
       },
-      "y": -32,
+      "y": "query.heightmap(variable.worldx, variable.worldz)",
       "z": {
         "distribution": "uniform",
         "extent": [

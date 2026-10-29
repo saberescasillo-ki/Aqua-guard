@@ -5,7 +5,7 @@ Two Minecraft **Bedrock Edition** add-ons that change world generation using
 
 | Add-on | File | What it does |
 | --- | --- | --- |
-| BREATHE OF THE WILD | `dist/BREATHE_OF_THE_WILD.mcaddon` | Adds 6 new overworld biomes |
+| BREATHE OF THE WILD | `dist/BREATHE_OF_THE_WILD.mcaddon` | Adds 4 new overworld biomes |
 | BREATHE OF THE TREES | `dist/BREATHE_OF_THE_TREES.mcaddon` | Adds bigger, branchier procedural versions of the vanilla trees |
 
 Built for Minecraft Bedrock **1.26.60** (the latest version).
@@ -26,8 +26,6 @@ Built for Minecraft Bedrock **1.26.60** (the latest version).
 Find the new biomes with:
 
 ```
-/locate biome botw:mystic_forest
-/locate biome botw:mighty_birch_forest
 /locate biome botw:no_mans_land
 /locate biome botw:the_oak
 /locate biome botw:the_birch
@@ -47,46 +45,26 @@ the game picks one at random each time.
   and uneven ground it never hangs half in the air.
 - Trees, plants and fallen logs check the biome at their exact position, so
   they only appear inside their own biome.
-- Each new biome takes half as much of its vanilla biome as before, so they
-  are 50% less common.
+- The biomes are deliberately rare: each one replaces only a small share of
+  its vanilla biome.
 
 ## BREATHE OF THE WILD
-
-### Mystic Forest (`botw:mystic_forest`)
-Replaces part of the Forest and Flower Forest biomes. Its trees are all oak:
-
-- **30 Mystic Oaks**: 2×2 or 3×3 trunks 18–29 blocks tall, buttress roots
-  over a podzol patch, 6–9 thick branches that fork, a crown on every
-  branch, and hanging vines. Some of them lean. Ten are spreading giants
-  with long, low limbs.
-- Oak bushes, fallen oak logs with shelf mushrooms, ferns, moss, leaf
-  litter, firefly bushes, mushrooms and lily of the valley.
-- Podzol and moss patches, deep green grass, and a misty teal fog.
-
-### Mighty Birch Forest (`botw:mighty_birch_forest`)
-Replaces part of the Birch Forest and Old Growth Birch Forest biomes.
-
-- **30 Mighty Birches**: trunks 20–22 blocks tall (vanilla birch trunks are
-  5–7, so 15 blocks taller), bare lower trunk, side branches with their own
-  crowns. Three are rare 2×2 **Ancient Birches** (26–30) and ten are **Twin
-  Birches** with two trunks.
-- Fallen birch logs, wildflowers, lily of the valley and dandelions.
 
 ### No Man's Land (`botw:no_mans_land`)
 Replaces part of the Savanna and Desert biomes with an enormous open pit.
 
-- Every block in the biome is removed from **Y 127 down to Y −32** by
-  stacked air structures, so the
-  biome becomes a canyon whose cliff walls drop straight into the deepslate
-  layer. The walls show ore veins and cave cross-sections.
-- The floor (Y −33) is a scorched mix of deepslate, tuff, cobbled deepslate,
-  coarse dirt, gravel, smooth basalt, blackstone and magma.
+- The biome is hollowed out into a huge bowl that reaches **Y −32**, deep in
+  the deepslate layer. The pit does not drop straight down: every column's
+  depth depends on how far it is from the biome's edge, so the ground slopes
+  and terraces down over roughly 40 blocks before reaching the bottom.
+  The slopes show ore veins and cave cross-sections.
+- The slopes and the floor are a scorched mix of deepslate, tuff, cobbled
+  deepslate, coarse dirt, gravel, smooth basalt, blackstone and magma.
 - Lava pools, jagged basalt/deepslate/tuff pillars, dead bushes, dry grass,
   glow lichen on the walls and extra-wide caves under the floor.
 - Dusty fog, a pale ochre sky, falling white ash, no rain and no animal spawns.
 
-**Be careful:** walking into this biome from outside means a fall of up to
-150 blocks.
+**Be careful:** the slopes get steep toward the middle of the pit.
 
 ### The Oak, The Birch, The Poplar
 Variants of the vanilla Forest, Birch Forest and Dappled Forest. Each one
@@ -143,7 +121,7 @@ BEDROCK_BLOCKS_JSON=path/to/mojang-blocks.json python3 build.py
 ```
 
 ## Notes
-- No Man's Land clears about 41,000 blocks per chunk while generating, so
+- No Man's Land checks the biome around every column while generating, so
   chunks in that biome may load a little slower on low-end devices.
 - Trees use a fixed orientation so vines stay attached; the 20 variations
   per species give the variety instead of rotation.

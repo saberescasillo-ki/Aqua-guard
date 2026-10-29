@@ -3,7 +3,7 @@
   "minecraft:feature_rules": {
     "description": {
       "identifier": "botw:no_mans_land_floor_rule",
-      "places_feature": "botw:no_mans_land_floor_biome_check_feature"
+      "places_feature": "botw:no_mans_land_floor_row_feature"
     },
     "conditions": {
       "placement_pass": "after_underground_pass",
@@ -24,7 +24,7 @@
           15
         ]
       },
-      "y": -33,
+      "y": 0,
       "z": 0
     }
   }
