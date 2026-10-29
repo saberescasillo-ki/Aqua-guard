@@ -1,10 +1,6 @@
-/* =========================================================
-   Aqua Guard Beta — Estilos
-   Diseño simple: esquinas rectas, bordes finos, sin sombras.
-   Los colores se cambian desde el menú (tres rayas > Color de app / Tema).
-   ========================================================= */
+/* Estilos: rectos y simples */
 :root {
-  --primary: #0a1f44;          /* color principal (cambia con "Color de app") */
+  --primary: #0a1f44;          /* color principal */
   --primary-soft: #e6ebf4;
   --accent: #3b8fe8;
   --bg: #ffffff;
@@ -19,13 +15,13 @@
   --info: #1e63b8;
 }
 
-/* ---- Colores de app ---- */
+/* Colores de app */
 :root[data-color="petroleo"] { --primary: #0b4f5c; --primary-soft: #e3f0f2; }
 :root[data-color="morado"]   { --primary: #3b1f5c; --primary-soft: #eee8f5; }
 :root[data-color="vino"]     { --primary: #5c1f2a; --primary-soft: #f5e8ea; }
 :root[data-color="grafito"]  { --primary: #2b2b2b; --primary-soft: #ececec; }
 
-/* ---- Tema oscuro ---- */
+/* Tema oscuro */
 :root[data-theme="oscuro"] {
   --bg: #0b1120;
   --surface: #111a2e;
@@ -58,7 +54,7 @@ code { background: var(--primary-soft); padding: 0 4px; }
 .big { font-size: 1.8rem; font-weight: 800; margin: 6px 0 2px; }
 .row-between { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 
-/* ---------- Barra superior ---------- */
+/* Barra superior */
 .topbar {
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; gap: 10px;
@@ -81,7 +77,7 @@ code { background: var(--primary-soft); padding: 0 4px; }
 .topbar .status { color: #fff; }
 .topbar .status.on { background: rgba(255,255,255,.15); }
 
-/* ---------- Layout ---------- */
+/* Layout */
 main { max-width: 960px; margin: 0 auto; padding: 12px; }
 .view { display: none; flex-direction: column; gap: 12px; }
 .view.active { display: flex; }
@@ -95,7 +91,7 @@ main { max-width: 960px; margin: 0 auto; padding: 12px; }
 .box { background: var(--surface); border: 1px solid var(--border); padding: 14px; display: flex; flex-direction: column; gap: 8px; }
 .source { flex-direction: row; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary); }
 
-/* ---------- Botones ---------- */
+/* Botones */
 .btn {
   appearance: none; cursor: pointer; font: inherit; font-weight: 600; font-size: .9rem;
   padding: 9px 14px; border: 1px solid var(--primary); background: var(--primary); color: #fff;
@@ -108,11 +104,11 @@ main { max-width: 960px; margin: 0 auto; padding: 12px; }
 .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn-row .btn { flex: 1; }
 
-/* ---------- Barras de nivel ---------- */
+/* Barras de nivel */
 .bar { height: 18px; border: 1px solid var(--border); background: var(--primary-soft); }
 .bar div { height: 100%; width: 0; background: var(--water); transition: width .6s; }
 
-/* ---------- Alertas ---------- */
+/* Alertas */
 .alerts { display: flex; flex-direction: column; gap: 8px; }
 .alert { border: 1px solid var(--border); border-left: 4px solid var(--info); padding: 10px 12px; background: var(--surface); display: flex; gap: 10px; align-items: flex-start; }
 .alert.warn { border-left-color: var(--warn); }
@@ -121,7 +117,7 @@ main { max-width: 960px; margin: 0 auto; padding: 12px; }
 .alert strong { display: block; }
 .alert .btn { padding: 5px 10px; font-size: .78rem; }
 
-/* ---------- Segmentado (modo noche) ---------- */
+/* Segmentado (modo noche) */
 .segmented { display: flex; border: 1px solid var(--border); }
 .segmented label { flex: 1; text-align: center; cursor: pointer; }
 .segmented input { position: absolute; opacity: 0; pointer-events: none; }
@@ -133,7 +129,7 @@ main { max-width: 960px; margin: 0 auto; padding: 12px; }
 .log li { padding: 5px 0; border-bottom: 1px solid var(--border); color: var(--muted); }
 .log time { color: var(--text); font-weight: 600; margin-right: 6px; }
 
-/* ---------- Formulario ---------- */
+/* Formulario */
 .form label, .field-row label { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; font-weight: 600; }
 input[type="text"], input[type="number"] {
   font: inherit; padding: 8px 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text);
@@ -141,12 +137,12 @@ input[type="text"], input[type="number"] {
 input:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
 .steps { margin: 0; padding-left: 20px; line-height: 1.6; font-size: .9rem; }
 
-/* ---------- Créditos ---------- */
+/* Créditos */
 .credits ul { list-style: none; margin: 0; padding: 0; }
 .credits li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
 .credits li span:last-child { color: var(--muted); }
 
-/* ---------- Pestañas ---------- */
+/* Pestañas */
 .tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
   display: flex; background: var(--surface); border-top: 1px solid var(--border);
@@ -158,7 +154,7 @@ input:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
 }
 .tab.active { color: var(--text); border-top-color: var(--primary); }
 
-/* ---------- Menú lateral ---------- */
+/* Menú lateral */
 .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 30; }
 .drawer {
   position: fixed; top: 0; bottom: 0; left: 0; z-index: 31;
@@ -189,19 +185,19 @@ input:focus { outline: 2px solid var(--primary); outline-offset: -1px; }
 .kv dt { color: var(--muted); }
 .kv dd { margin: 0; font-weight: 600; }
 
-/* Acerca de: solo un "?" en el medio */
-.about-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px; text-align: center; }
-.about-q { font-size: 6rem; font-weight: 800; line-height: 1; color: var(--primary); }
-:root[data-theme="oscuro"] .about-q { color: var(--text); }
+/* Acerca de */
+.about-body { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; padding: 24px; text-align: center; }
+.about-mark { font-size: 5rem; font-weight: 800; line-height: 1; color: var(--primary); }
+:root[data-theme="oscuro"] .about-mark { color: var(--text); }
+/* texto centrado */
+.about-text { position: absolute; top: 50%; left: 24px; right: 24px; transform: translateY(-50%); margin: 0; font-size: 1.05rem; line-height: 1.5; }
 
-/* Opciones de "...": texto en el centro */
+/* Opciones de "..." */
 .center-body { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; }
 .center-body p { font-size: 1.05rem; line-height: 1.5; }
 
-/* Yailywai: texto arriba a la izquierda */
-.yailywai-text { padding: 12px 16px; text-align: left; font-weight: 700; }
 
-/* ---------- Simulación ---------- */
+/* Simulación */
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { appearance: none; font: inherit; font-size: .82rem; padding: 6px 10px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
 .chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }

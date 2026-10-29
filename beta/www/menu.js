@@ -1,7 +1,5 @@
-/* =========================================================
-   Aqua Guard Beta — Menú de tres rayas y enlace de los ajustes
-   ========================================================= */
-const APP_VERSION = '0.2.0-beta';
+/* Menú y ajustes */
+const APP_VERSION = '0.3.0-beta';
 
 (() => {
   const drawer = document.getElementById('drawer');
@@ -28,15 +26,15 @@ const APP_VERSION = '0.2.0-beta';
   document.getElementById('btn-menu').addEventListener('click', open);
   backdrop.addEventListener('click', close);
   drawer.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', close));
-  // data-back sin valor vuelve a la lista principal; con valor, a esa página (ej. las subopciones de "...")
+  // Atrás: menú o página
   drawer.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', () => showPage(b.dataset.back || 'menu')));
   drawer.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => showPage(b.dataset.open)));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 
-  /* ---- Enlaza cualquier control con data-setting a Settings ---- */
+  // Controles a ajustes
   const parse = (el, v) => (el.dataset.type === 'number' ? Number(v) : v);
 
-  // Grupos de radio: el contenedor lleva data-setting
+  // Grupos de radio
   document.querySelectorAll('[data-setting]:not(input)').forEach((group) => {
     const key = group.dataset.setting;
     const radios = group.querySelectorAll('input[type="radio"]');
@@ -46,7 +44,7 @@ const APP_VERSION = '0.2.0-beta';
     sync();
   });
 
-  // Casillas y campos sueltos
+  // Casillas y campos
   document.querySelectorAll('input[data-setting]').forEach((input) => {
     const key = input.dataset.setting;
     if (input.type === 'checkbox') {
@@ -62,11 +60,13 @@ const APP_VERSION = '0.2.0-beta';
     }
   });
 
-  /* ---- Versión ---- */
-  const cap = window.Capacitor;
-  const platform = cap && cap.isNativePlatform && cap.isNativePlatform()
-    ? (cap.getPlatform() === 'ios' ? 'iPhone / iPad' : 'Android')
-    : (navigator.userAgent.includes('Electron') ? 'Ordenador (escritorio)' : 'Navegador web');
+  // Versión y plataforma
+  function plataforma() {
+    const cap = window.Capacitor;
+    if (cap && cap.isNativePlatform && cap.isNativePlatform()) return cap.getPlatform() === 'ios' ? 'iPhone / iPad' : 'Android';
+    return t(navigator.userAgent.includes('Electron') ? 'platform.desktop' : 'platform.web');
+  }
   document.getElementById('app-version').textContent = APP_VERSION;
-  document.getElementById('app-platform').textContent = platform;
+  document.getElementById('app-platform').textContent = plataforma();
+  Settings.onChange((k) => { if (k === 'idioma') document.getElementById('app-platform').textContent = plataforma(); });
 })();

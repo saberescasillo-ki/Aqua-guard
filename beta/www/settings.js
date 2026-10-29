@@ -1,28 +1,27 @@
-/* =========================================================
-   Aqua Guard Beta — Ajustes (se guardan en el dispositivo)
-   ========================================================= */
+/* Ajustes guardados */
 const Settings = (() => {
   const KEY = 'aquaguard-beta.settings';
   const DEFAULTS = {
     // Apariencia
+    idioma: 'es',            // es | pt | en
     fontSize: 'normal',      // pequena | normal | grande | muy-grande
     color: 'marino',         // marino | petroleo | morado | vino | grafito
     theme: 'claro',          // claro | oscuro
     // Simulación
     simSpeed: 1,             // 0.5 | 1 | 2 | 4
-    simPausa: true,          // pausar un momento en cada paso para leer
-    simLoop: false,          // repetir el escenario al terminar
-    simNotifs: true,         // mostrar las notificaciones del móvil simulado
+    simPausa: true,          // pausa para leer
+    simLoop: false,          // repetir al final
+    simNotifs: true,         // ver notificaciones
     // Forma de leer los datos
     unidad: 'porcentaje',    // porcentaje | litros | centimetros
-    capCisterna: 5000,       // litros del aljibe (depósito de abajo)
-    capTinaco: 1100,         // litros de la cisterna (depósito de arriba)
+    capCisterna: 5000,       // litros aljibe
+    capTinaco: 1100,         // litros cisterna
     intervalo: 2000,         // ms entre lecturas
     fuente: 'auto',          // auto | cisterna | bomba
     // Conexión y operación
     ipCisterna: '',
     ipBomba: '',
-    modoNoche: 'auto',       // apagado | encendido | auto (22:00 – 06:00)
+    modoNoche: 'auto',       // apagado | encendido | auto
   };
 
   const FONT_PX = { pequena: 14, normal: 16, grande: 18, 'muy-grande': 20 };

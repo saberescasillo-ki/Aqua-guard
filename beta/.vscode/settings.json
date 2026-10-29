@@ -1,0 +1,8 @@
+{
+  // Live Server abre www
+  "liveServer.settings.root": "/www",
+  "liveServer.settings.port": 5500,
+  "files.exclude": {
+    "**/node_modules": true
+  }
+}

@@ -1,0 +1,18 @@
+{
+  // F5 para ejecutar
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Aqua Guard en Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "file": "${workspaceFolder}/www/index.html"
+    },
+    {
+      "name": "Aqua Guard en Edge",
+      "type": "msedge",
+      "request": "launch",
+      "file": "${workspaceFolder}/www/index.html"
+    }
+  ]
+}

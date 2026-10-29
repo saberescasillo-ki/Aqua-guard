@@ -1,5 +1,4 @@
-// Aqua Guard Beta — ventana de escritorio (Electron).
-// Carga la misma app que usan los celulares (carpeta ../www, copiada a ./www al compilar).
+// Ventana de escritorio
 const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
 
@@ -16,7 +15,7 @@ function crearVentana() {
   });
   win.removeMenu();
   win.loadFile(path.join(__dirname, 'www', 'index.html'));
-  // Los enlaces externos se abren en el navegador, no dentro de la app
+  // Enlaces al navegador
   win.webContents.setWindowOpenHandler(({ url }) => { shell.openExternal(url); return { action: 'deny' }; });
 }
 

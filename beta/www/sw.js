@@ -1,7 +1,6 @@
-// Service worker: guarda la interfaz para que abra sin internet.
-// Las peticiones a los ESP32 nunca se guardan en caché.
-const CACHE = 'aquaguard-beta-v1';
-const FILES = ['./', 'index.html', 'styles.css', 'settings.js', 'engine.js', 'scenarios.js', 'menu.js', 'app.js', 'sim.js', 'manifest.json', 'icons/icon.svg'];
+// Caché sin internet
+const CACHE = 'aquaguard-beta-v2';
+const FILES = ['./', 'index.html', 'styles.css', 'settings.js', 'i18n.js', 'engine.js', 'scenarios.js', 'menu.js', 'app.js', 'sim.js', 'manifest.json', 'icons/icon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)));
@@ -14,6 +13,6 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (new URL(e.request.url).origin !== location.origin) return;
-  // Primero la red (así tus cambios se ven al recargar); si falla, la caché
+  // Red, luego caché
   e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });

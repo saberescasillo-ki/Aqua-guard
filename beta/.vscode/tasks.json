@@ -1,0 +1,21 @@
+{
+  // Terminal > Ejecutar tarea
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Instalar escritorio",
+      "type": "shell",
+      "command": "npm install",
+      "options": { "cwd": "${workspaceFolder}/desktop" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Abrir app de escritorio",
+      "type": "shell",
+      "command": "npm start",
+      "options": { "cwd": "${workspaceFolder}/desktop" },
+      "dependsOn": "Instalar escritorio",
+      "problemMatcher": []
+    }
+  ]
+}

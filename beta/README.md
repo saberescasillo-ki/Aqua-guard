@@ -19,7 +19,8 @@ Los nombres internos del código no se han cambiado para no romper la comunicaci
 - Interfaz más simple: esquinas rectas y bordes finos.
 - **Menú de tres rayas** con: tamaño de letra, color de app, acerca de este proyecto, tema claro/oscuro,
   opciones de la simulación, forma de leer los datos (%, litros o cm; cada cuánto; desde qué ESP32),
-  versión de la app, Yailywai y «...» (Vincular al WhatsApp, Tutorial y Aqua guard, aún sin funcionar).
+  versión de la app, **idioma** (español, portugués e inglés) y «...» (Vincular al WhatsApp, Tutorial
+  y Aqua guard, aún sin funcionar).
 - Sin emojis y con vocabulario de España (móvil, ordenador, fontanero, pulsar…).
 - **Detección automática** de: fuga de agua, sensor averiado, aljibe lleno, aljibe vacío
   y bomba averiada (con bloqueo de la bomba cuando hace falta).
@@ -37,6 +38,7 @@ beta/
     styles.css         ← diseño y colores (claro/oscuro, colores de app)
     settings.js        ← ajustes guardados en el dispositivo
     menu.js            ← menú de tres rayas y versión de la app
+    i18n.js            ← todos los textos en español, portugués e inglés
     engine.js          ← motor de detección (fugas, sensores, aljibe, bomba)
     scenarios.js       ← escenarios de la simulación (textos y eventos)
     sim.js             ← dibujo y controles de la simulación
@@ -47,15 +49,26 @@ beta/
 
 ### Qué archivo tocar para…
 
-- **Textos o pasos de una situación de la simulación** → `www/scenarios.js`
+- **Cualquier texto de la app (en los tres idiomas)** → `www/i18n.js`
+- **Pasos de una situación de la simulación** → `www/scenarios.js` (y sus textos en `www/i18n.js`)
 - **Sensibilidad de las alertas** (ej. cuánto debe bajar la cisterna para considerarlo fuga) → `DEFAULTS` en `www/engine.js`
-- **Créditos, «Acerca de», «Yailywai» o las opciones de «...»** → `www/index.html`
+- **Créditos** → `www/index.html`
 - **Colores** → `www/styles.css` (al inicio)
 - **Número de versión** → `APP_VERSION` en `www/menu.js`
 
+## Abrir y ejecutar en Visual Studio Code
+
+1. En VS Code: **Archivo → Abrir carpeta…** y elige la carpeta **`beta`** (no la del repositorio entero).
+2. Acepta instalar la extensión recomendada (**Live Server**).
+3. Para ejecutarla, cualquiera de estas:
+   - **F5** → se abre la app en Chrome (o elige «Aqua Guard en Edge» en el panel Ejecutar).
+   - Botón **Go Live** (abajo a la derecha) → se abre en el navegador y se recarga sola al guardar.
+   - **Terminal → Ejecutar tarea… → Abrir app de escritorio** → la abre como programa de ordenador
+     (necesita [Node.js](https://nodejs.org) instalado).
+
 ## Probar en tu ordenador
 
-- **Navegador:** abre `beta/www/index.html` con Live Server en VS Code.
+- **Navegador:** abre `beta/www/index.html` (doble clic) o usa Live Server.
 - **Como app de escritorio:**
   ```bash
   cd beta/desktop

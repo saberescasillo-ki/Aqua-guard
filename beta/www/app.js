@@ -1,12 +1,7 @@
-/* =========================================================
-   Aqua Guard Beta — Panel y conexión con los ESP32
-   ---------------------------------------------------------
-   Cada ESP32 expone (ver carpeta /firmware del repositorio):
-     GET http://<IP>/api/status                 -> JSON con sus datos
-     GET http://<IP>/api/bomba?modo=on|off|auto -> solo ESP32 Bomba
-   ========================================================= */
+/* Panel y conexión ESP32 */
+// API: /api/status y /api/bomba?modo=on|off|auto
 const REQUEST_TIMEOUT_MS = 1500;
-const DEFAULT_AP_IP = '192.168.4.1';  // IP de un ESP32 en modo punto de acceso
+const DEFAULT_AP_IP = '192.168.4.1';  // IP modo punto acceso
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -14,17 +9,19 @@ const devices = {
   cisterna: { online: false, data: {} },
   bomba: { online: false, data: {} },
 };
-// En el código el ESP32 "cisterna" es el del depósito de abajo; en pantalla se llama Aljibe
-const NOMBRES = { cisterna: 'Aljibe', bomba: 'Bomba' };
+// "cisterna" = depósito de abajo
+const NOMBRES = { cisterna: 'tank.lower', bomba: 'pump' };
 const engine = AquaEngine.create();
 let pollTimer = null;
 let polling = false;
 let bloqueoUsuario = false;
-let bloqueoAplicado = false;   // la aplicación apagó la bomba por un bloqueo
+let bloqueoAplicado = false;   // bloqueo ya enviado
 let nocheAnterior = null;
 let alertasPrevias = new Set();
 
-/* ---------------- Red ---------------- */
+const nombreEsp = (id) => t(NOMBRES[id]);
+
+// Red
 function baseUrl(ip) {
   return ip.startsWith('http') ? ip.replace(/\/$/, '') : `http://${ip}`;
 }
@@ -32,8 +29,7 @@ function baseUrl(ip) {
 async function fetchJson(ip, path) {
   const ctrl = new AbortController();
   let timer;
-  // En la app nativa fetch va por HTTP nativo y puede ignorar la cancelación,
-  // así que el tiempo límite también se aplica aquí.
+  // Límite también en nativo
   const timeout = new Promise((_, reject) => {
     timer = setTimeout(() => { ctrl.abort(); reject(new Error('timeout')); }, REQUEST_TIMEOUT_MS);
   });
@@ -62,15 +58,15 @@ async function pollDevice(nombre) {
   try {
     dev.data = await fetchJson(ip, '/api/status');
     dev.online = true;
-    if (!estaba) log(`ESP32 ${NOMBRES[nombre]} conectado (${ip})`);
+    if (!estaba) log(t('log.connected', { name: nombreEsp(nombre), ip }));
   } catch {
     dev.online = false;
-    if (estaba) log(`ESP32 ${NOMBRES[nombre]} ha dejado de responder`);
+    if (estaba) log(t('log.lost', { name: nombreEsp(nombre) }));
   }
 }
 
 async function pollAll() {
-  if (polling) return;  // evita acumular peticiones si un ESP32 tarda
+  if (polling) return;  // sin peticiones acumuladas
   polling = true;
   try {
     await Promise.all([pollDevice('cisterna'), pollDevice('bomba')]);
@@ -92,32 +88,32 @@ function stopPolling() {
   pollTimer = null;
 }
 
-/** Prueba las IPs y asigna cada una según el "device" que responde el ESP32. */
+// Detecta qué ESP32 responde
 async function scan(candidates) {
   const found = {};
   await Promise.all([...new Set(candidates.filter(Boolean))].map(async (ip) => {
     try {
       const data = await fetchJson(ip, '/api/status');
       if (data.device === 'cisterna' || data.device === 'bomba') found[data.device] = ip;
-    } catch { /* no responde */ }
+    } catch { /* sin respuesta */ }
   }));
   return found;
 }
 
 async function setPump(modo, motivo) {
   const ip = Settings.get('ipBomba');
-  if (!ip) { log('Configura primero la IP del ESP32 Bomba'); return false; }
+  if (!ip) { log(t('log.needIp')); return false; }
   try {
     await fetchJson(ip, `/api/bomba?modo=${modo}`);
-    log(`Bomba → ${modo.toUpperCase()}${motivo ? ` (${motivo})` : ''}`);
+    log(t('log.pump', { mode: modo.toUpperCase() }) + (motivo ? ` (${motivo})` : ''));
     return true;
   } catch {
-    log('No se pudo enviar la orden a la bomba');
+    log(t('log.sendFail'));
     return false;
   }
 }
 
-/* ---------------- Modo noche y protecciones ---------------- */
+// Modo noche y protecciones
 function esNoche() {
   const modo = Settings.get('modoNoche');
   if (modo === 'encendido') return true;
@@ -132,8 +128,8 @@ function revisar() {
   const b = devices.bomba;
 
   if (noche !== nocheAnterior) {
-    if (nocheAnterior !== null) log(noche ? 'Modo noche activado: la aplicación actúa sola' : 'Modo noche desactivado');
-    if (noche && b.online && b.data.modo !== 'auto' && !bloqueoUsuario) setPump('auto', 'modo noche');
+    if (nocheAnterior !== null) log(t(noche ? 'log.nightOn' : 'log.nightOff'));
+    if (noche && b.online && b.data.modo !== 'auto' && !bloqueoUsuario) setPump('auto', t('reason.night'));
     nocheAnterior = noche;
   }
 
@@ -145,30 +141,31 @@ function revisar() {
     noche,
   });
 
-  // Avisos nuevos → registro (de noche, los leves se guardan en silencio)
+  // Avisos nuevos al registro
   const ids = new Set(res.alerts.map((a) => a.id));
   res.alerts.filter((a) => !alertasPrevias.has(a.id)).forEach((a) => {
     const silencio = noche && a.level === 'info';
-    log(`${silencio ? '[en silencio] ' : 'Aviso: '}${a.title}`);
+    log(t(silencio ? 'log.alertSilent' : 'log.alert', { title: t(`alert.${a.id}.title`) }));
     if (!silencio && a.level === 'danger' && navigator.vibrate) navigator.vibrate([300, 150, 300]);
   });
   alertasPrevias = ids;
 
-  // Aplica o libera el bloqueo de la bomba
+  // Bloquear o liberar bomba
   const bloquear = res.lock.length > 0 || bloqueoUsuario;
   if (b.online) {
     if (bloquear && (b.data.bomba || !bloqueoAplicado)) {
-      setPump('off', `bloqueo: ${res.lock.concat(bloqueoUsuario ? ['usuario'] : []).join(', ')}`);
+      const motivos = res.lock.concat(bloqueoUsuario ? ['usuario'] : []).map((m) => t(`lock.${m}`));
+      setPump('off', t('reason.lock', { list: motivos.join(', ') }));
       bloqueoAplicado = true;
     } else if (!bloquear && bloqueoAplicado) {
-      setPump('auto', 'bloqueo liberado');
+      setPump('auto', t('reason.unlock'));
       bloqueoAplicado = false;
     }
   }
 }
 
-/* ---------------- Interfaz ---------------- */
-function setStatus(el, online, on = 'Conectado', off = 'Desconectado') {
+// Interfaz
+function setStatus(el, online, on = t('status.connected'), off = t('status.disconnected')) {
   el.classList.toggle('on', online);
   el.classList.toggle('off', !online);
   el.textContent = online ? on : off;
@@ -177,7 +174,7 @@ function setStatus(el, online, on = 'Conectado', off = 'Desconectado') {
 function nivelTexto(pct, cm, capacidad) {
   if (typeof pct !== 'number') return '--';
   switch (Settings.get('unidad')) {
-    case 'litros': return `${Math.round((pct / 100) * capacidad).toLocaleString()} L`;
+    case 'litros': return `${Math.round((pct / 100) * capacidad).toLocaleString(I18N.lang())} L`;
     case 'centimetros': return typeof cm === 'number' && cm >= 0 ? `${cm.toFixed(1)} cm` : '-- cm';
     default: return `${Math.round(pct)} %`;
   }
@@ -188,9 +185,9 @@ function dbm(v) { return typeof v === 'number' ? `${v} dBm` : '-- dBm'; }
 function render() {
   const c = devices.cisterna;
   const b = devices.bomba;
-  const fuentes = [c.online && 'Aljibe', b.online && 'Bomba'].filter(Boolean);
-  $('#active-source').textContent = fuentes.length ? `ESP32 ${fuentes.join(' + ')}` : 'Ningún ESP32';
-  setStatus($('#link-status'), fuentes.length > 0, 'Conectado', 'Sin conexión');
+  const fuentes = [c.online && nombreEsp('cisterna'), b.online && nombreEsp('bomba')].filter(Boolean);
+  $('#active-source').textContent = fuentes.length ? `ESP32 ${fuentes.join(' + ')}` : t('panel.noEsp');
+  setStatus($('#link-status'), fuentes.length > 0, t('status.connected'), t('status.none'));
   setStatus(document.querySelector('[data-status="cisterna"]'), c.online);
   setStatus(document.querySelector('[data-status="bomba"]'), b.online);
 
@@ -206,15 +203,15 @@ function render() {
 
   $('#tinaco-bar').style.width = `${pctT ?? 0}%`;
   $('#tinaco-value').textContent = nivelTexto(pctT, bd.distancia_cm, Settings.get('capTinaco'));
-  $('#pump-text').textContent = b.online ? (bd.bomba ? 'Encendida' : 'Apagada') : 'Sin datos';
+  $('#pump-text').textContent = b.online ? t(bd.bomba ? 'panel.on' : 'panel.off') : t('panel.noData');
   $('#pump-mode').textContent = bd.modo ? bd.modo.toUpperCase() : '--';
   $('#bomba-rssi').textContent = dbm(bd.rssi);
 
   const lockBtn = $('#btn-lock');
-  lockBtn.textContent = bloqueoUsuario ? 'Desbloquear bomba' : 'Bloquear bomba';
+  lockBtn.textContent = t(bloqueoUsuario ? 'panel.unlock' : 'panel.lock');
   lockBtn.classList.toggle('danger', bloqueoUsuario);
 
-  setStatus($('#night-state'), esNoche(), 'Activo', 'Inactivo');
+  setStatus($('#night-state'), esNoche(), t('night.active'), t('night.inactive'));
   renderAlerts();
 }
 
@@ -223,18 +220,19 @@ function renderAlerts() {
   cont.replaceChildren();
   const noche = esNoche();
   for (const a of engine.state.alerts) {
+    const titulo = t(`alert.${a.id}.title`);
     const div = document.createElement('div');
     div.className = `alert ${a.level}`;
     const body = document.createElement('div');
     const title = document.createElement('strong');
-    title.textContent = a.title;
+    title.textContent = titulo;
     const msg = document.createElement('span');
     msg.className = 'small muted';
-    msg.textContent = a.msg;
+    msg.textContent = t(`alert.${a.id}.msg`);
     body.append(title, msg);
     div.append(body);
-    if (a.id === 'fuga' && !noche && !bloqueoUsuario) div.append(button('Bloquear bomba', () => { bloqueoUsuario = true; revisar(); render(); }));
-    if (['fuga', 'fugaNoche', 'bomba'].includes(a.id)) div.append(button('Revisado', () => { engine.clear(a.id); log(`${a.title}: revisado`); revisar(); render(); }));
+    if (a.id === 'fuga' && !noche && !bloqueoUsuario) div.append(button(t('panel.lock'), () => { bloqueoUsuario = true; revisar(); render(); }));
+    if (['fuga', 'fugaNoche', 'bomba'].includes(a.id)) div.append(button(t('panel.checked'), () => { engine.clear(a.id); log(t('log.checked', { title: titulo })); revisar(); render(); }));
     cont.append(div);
   }
 }
@@ -259,19 +257,19 @@ function log(msg) {
 
 function showView(name) {
   document.querySelectorAll('.view').forEach((v) => v.classList.toggle('active', v.id === `view-${name}`));
-  document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === name));
+  document.querySelectorAll('.tab').forEach((tab) => tab.classList.toggle('active', tab.dataset.view === name));
   window.scrollTo(0, 0);
 }
 
-/* ---------------- Eventos ---------------- */
+// Eventos
 document.querySelectorAll('.tab').forEach((tab) => tab.addEventListener('click', () => showView(tab.dataset.view)));
 document.querySelectorAll('[data-pump]').forEach((btn) => btn.addEventListener('click', async () => {
-  if (bloqueoUsuario || engine.state.lock.length) { log('La bomba está bloqueada: revisa los avisos'); return; }
+  if (bloqueoUsuario || engine.state.lock.length) { log(t('log.pumpLocked')); return; }
   if (await setPump(btn.dataset.pump)) pollAll();
 }));
 $('#btn-lock').addEventListener('click', () => {
   bloqueoUsuario = !bloqueoUsuario;
-  log(bloqueoUsuario ? 'Has bloqueado la bomba' : 'Has desbloqueado la bomba');
+  log(t(bloqueoUsuario ? 'log.locked' : 'log.unlocked'));
   revisar();
   render();
 });
@@ -282,7 +280,7 @@ $('#form-conexion').addEventListener('submit', async (e) => {
   const ipC = $('#ip-cisterna').value.trim();
   const ipB = $('#ip-bomba').value.trim();
   const result = $('#scan-result');
-  result.textContent = 'Buscando ESP32…';
+  result.textContent = t('conn.searching');
   const found = await scan([ipC, ipB, DEFAULT_AP_IP]);
   Settings.set('ipCisterna', found.cisterna || ipC);
   Settings.set('ipBomba', found.bomba || ipB);
@@ -290,8 +288,8 @@ $('#form-conexion').addEventListener('submit', async (e) => {
   $('#ip-bomba').value = Settings.get('ipBomba');
   const names = Object.keys(found);
   result.textContent = names.length
-    ? `Conectado a: ${names.map((n) => `ESP32 ${NOMBRES[n]} (${found[n]})`).join(', ')}`
-    : 'No se encontró ningún ESP32. Revisa la red wifi y las IP.';
+    ? t('conn.found', { list: names.map((n) => `ESP32 ${nombreEsp(n)} (${found[n]})`).join(', ') })
+    : t('conn.notFound');
   log(result.textContent);
   startPolling();
   if (names.length) showView('panel');
@@ -301,21 +299,22 @@ $('#btn-disconnect').addEventListener('click', () => {
   stopPolling();
   devices.cisterna.online = devices.bomba.online = false;
   render();
-  $('#scan-result').textContent = 'Desconectado.';
-  log('Desconectado por el usuario');
+  $('#scan-result').textContent = t('conn.disconnected');
+  log(t('log.userDisconnect'));
 });
 
 Settings.onChange((key) => {
   if (key === 'intervalo' || key === 'fuente') { if (pollTimer) startPolling(); }
   if (['unidad', 'capCisterna', 'capTinaco', 'modoNoche'].includes(key)) { revisar(); render(); }
+  if (key === 'idioma') render();
 });
 
-/* ---------------- Inicio ---------------- */
+// Inicio
 $('#ip-cisterna').value = Settings.get('ipCisterna');
 $('#ip-bomba').value = Settings.get('ipBomba');
 render();
 if (Settings.get('ipCisterna') || Settings.get('ipBomba')) startPolling();
-setInterval(render, 60000);  // el modo noche automático cambia con la hora
+setInterval(render, 60000);  // revisa modo noche
 
 const isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 if (!isNativeApp && 'serviceWorker' in navigator && location.protocol.startsWith('http')) {
