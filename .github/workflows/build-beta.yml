@@ -1,5 +1,5 @@
 # Compila Aqua Guard BETA para celulares (Android/iPhone) y computadoras (Windows/macOS/Linux).
-# Los archivos quedan en GitHub → Releases → "Aqua Guard Beta (última versión)".
+# Cada instalador se sube a Releases al terminar.
 name: Compilar beta
 
 on:
@@ -39,6 +39,20 @@ jobs:
         with:
           name: beta-android
           path: beta/AquaGuardBeta.apk
+      - name: Publicar en Releases
+        if: github.ref_name == 'ccr-82416552-hpdgnz' || github.ref_name == 'main'
+        shell: bash
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          shopt -s nullglob
+          files=(beta/AquaGuardBeta.apk)
+          gh release view beta-latest >/dev/null 2>&1 || gh release create beta-latest --prerelease \
+            --title "Aqua Guard Beta (última versión)" \
+            --notes "Versión BETA. Cada archivo se actualiza en cuanto termina su compilación." || true
+          gh release upload beta-latest "${files[@]}" --clobber
 
   ios:
     runs-on: macos-15
@@ -68,6 +82,20 @@ jobs:
         with:
           name: beta-ios
           path: beta/AquaGuardBeta-sin-firmar.ipa
+      - name: Publicar en Releases
+        if: github.ref_name == 'ccr-82416552-hpdgnz' || github.ref_name == 'main'
+        shell: bash
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          shopt -s nullglob
+          files=(beta/AquaGuardBeta-sin-firmar.ipa)
+          gh release view beta-latest >/dev/null 2>&1 || gh release create beta-latest --prerelease \
+            --title "Aqua Guard Beta (última versión)" \
+            --notes "Versión BETA. Cada archivo se actualiza en cuanto termina su compilación." || true
+          gh release upload beta-latest "${files[@]}" --clobber
 
   escritorio:
     strategy:
@@ -101,34 +129,17 @@ jobs:
             beta/desktop/dist/*.exe
             beta/desktop/dist/*.zip
             beta/desktop/dist/*.AppImage
-
-  publicar:
-    needs: [android, ios, escritorio]
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: .
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-          path: archivos
       - name: Publicar en Releases
+        if: github.ref_name == 'ccr-82416552-hpdgnz' || github.ref_name == 'main'
+        shell: bash
+        working-directory: .
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          ls -la archivos
-          gh release delete beta-latest --cleanup-tag -y || true
-          gh release create beta-latest archivos/* \
-            --prerelease --target "$GITHUB_SHA" \
+          shopt -s nullglob
+          files=(beta/desktop/dist/AquaGuardBeta-*.exe beta/desktop/dist/AquaGuardBeta-*.zip beta/desktop/dist/AquaGuardBeta-*.AppImage)
+          gh release view beta-latest >/dev/null 2>&1 || gh release create beta-latest --prerelease \
             --title "Aqua Guard Beta (última versión)" \
-            --notes "Versión BETA compilada automáticamente desde la rama ${GITHUB_REF_NAME} (${GITHUB_SHA::7}).
-
-          | Archivo | Para |
-          |---|---|
-          | AquaGuardBeta.apk | Android |
-          | AquaGuardBeta-sin-firmar.ipa | iPhone (hay que firmarlo) |
-          | AquaGuardBeta-win.exe | Windows (portable, no se instala: solo ábrelo) |
-          | AquaGuardBeta-mac.zip | macOS |
-          | AquaGuardBeta-linux.AppImage | Linux |"
+            --notes "Versión BETA. Cada archivo se actualiza en cuanto termina su compilación." || true
+          gh release upload beta-latest "${files[@]}" --clobber
