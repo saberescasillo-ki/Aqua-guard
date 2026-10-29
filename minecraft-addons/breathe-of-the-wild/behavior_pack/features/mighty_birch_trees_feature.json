@@ -1,0 +1,22 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:weighted_random_feature": {
+    "description": {
+      "identifier": "botw:mighty_birch_trees_feature"
+    },
+    "features": [
+      [
+        "botw:mighty_birch_tree_feature",
+        5
+      ],
+      [
+        "botw:mighty_birch_fancy_feature",
+        3
+      ],
+      [
+        "botw:ancient_birch_feature",
+        1
+      ]
+    ]
+  }
+}

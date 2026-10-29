@@ -1,0 +1,19 @@
+{
+  "format_version": "1.21.120",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "botw:mighty_birch_forest"
+    },
+    "components": {
+      "minecraft:water_appearance": {
+        "surface_color": "#0677ce"
+      },
+      "minecraft:grass_appearance": {
+        "color": "#8ab66a"
+      },
+      "minecraft:foliage_appearance": {
+        "color": "#80a755"
+      }
+    }
+  }
+}

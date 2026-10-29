@@ -1,0 +1,18 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:weighted_random_feature": {
+    "description": {
+      "identifier": "bott:birch_trees_feature"
+    },
+    "features": [
+      [
+        "bott:tall_branching_birch_feature",
+        3
+      ],
+      [
+        "bott:grand_birch_feature",
+        2
+      ]
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:multiface_feature": {
+    "description": {
+      "identifier": "botw:no_mans_land_lichen_feature"
+    },
+    "places_block": "minecraft:glow_lichen",
+    "search_range": 6,
+    "can_place_on_floor": false,
+    "can_place_on_ceiling": true,
+    "can_place_on_wall": true,
+    "chance_of_spreading": 0.6,
+    "can_place_on": [
+      "minecraft:stone",
+      "minecraft:deepslate",
+      "minecraft:tuff",
+      "minecraft:granite",
+      "minecraft:diorite",
+      "minecraft:andesite",
+      "minecraft:cobbled_deepslate"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "botw:mystic_forest_flowers_feature"
+    },
+    "places_block": [
+      {
+        "block": "minecraft:lily_of_the_valley",
+        "weight": 3
+      },
+      {
+        "block": "minecraft:azure_bluet",
+        "weight": 2
+      },
+      {
+        "block": "minecraft:oxeye_daisy",
+        "weight": 1
+      },
+      {
+        "block": "minecraft:allium",
+        "weight": 1
+      },
+      {
+        "block": "minecraft:blue_orchid",
+        "weight": 1
+      }
+    ],
+    "enforce_placement_rules": true,
+    "enforce_survivability_rules": true,
+    "may_replace": [
+      "minecraft:air"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:weighted_random_feature": {
+    "description": {
+      "identifier": "botw:mystic_forest_trees_feature"
+    },
+    "features": [
+      [
+        "botw:mystic_great_oak_feature",
+        4
+      ],
+      [
+        "botw:mystic_elder_oak_feature",
+        3
+      ],
+      [
+        "botw:mystic_crooked_oak_feature",
+        2
+      ]
+    ]
+  }
+}

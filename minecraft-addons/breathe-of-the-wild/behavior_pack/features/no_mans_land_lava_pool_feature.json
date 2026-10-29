@@ -1,0 +1,24 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:ore_feature": {
+    "description": {
+      "identifier": "botw:no_mans_land_lava_pool_feature"
+    },
+    "count": 28,
+    "replace_rules": [
+      {
+        "places_block": "minecraft:lava",
+        "may_replace": [
+          "minecraft:deepslate",
+          "minecraft:tuff",
+          "minecraft:cobbled_deepslate",
+          "minecraft:coarse_dirt",
+          "minecraft:gravel",
+          "minecraft:smooth_basalt",
+          "minecraft:blackstone",
+          "minecraft:magma"
+        ]
+      }
+    ]
+  }
+}

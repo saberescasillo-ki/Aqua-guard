@@ -1,0 +1,21 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:scatter_feature": {
+    "description": {
+      "identifier": "botw:no_mans_land_pillar_feature"
+    },
+    "places_feature": "botw:no_mans_land_pillar_block_feature",
+    "distribution": {
+      "iterations": "math.random_integer(4, 16)",
+      "x": 0,
+      "y": {
+        "distribution": "fixed_grid",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "z": 0
+    }
+  }
+}

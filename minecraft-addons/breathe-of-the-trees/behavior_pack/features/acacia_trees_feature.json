@@ -1,0 +1,18 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:weighted_random_feature": {
+    "description": {
+      "identifier": "bott:acacia_trees_feature"
+    },
+    "features": [
+      [
+        "bott:grand_acacia_feature",
+        3
+      ],
+      [
+        "bott:umbrella_acacia_feature",
+        2
+      ]
+    ]
+  }
+}

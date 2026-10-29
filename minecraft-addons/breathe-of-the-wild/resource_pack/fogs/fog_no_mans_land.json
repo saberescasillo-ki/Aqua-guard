@@ -1,0 +1,22 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:fog_settings": {
+    "description": {
+      "identifier": "botw:fog_no_mans_land"
+    },
+    "distance": {
+      "air": {
+        "fog_start": 0.25,
+        "fog_end": 0.85,
+        "fog_color": "#9c876a",
+        "render_distance_type": "render"
+      },
+      "water": {
+        "fog_start": 0.0,
+        "fog_end": 60.0,
+        "fog_color": "#3f3a2c",
+        "render_distance_type": "fixed"
+      }
+    }
+  }
+}

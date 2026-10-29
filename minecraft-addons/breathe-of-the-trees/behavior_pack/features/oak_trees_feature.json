@@ -1,0 +1,22 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:weighted_random_feature": {
+    "description": {
+      "identifier": "bott:oak_trees_feature"
+    },
+    "features": [
+      [
+        "bott:branching_oak_feature",
+        4
+      ],
+      [
+        "bott:grand_oak_feature",
+        3
+      ],
+      [
+        "bott:old_oak_feature",
+        1
+      ]
+    ]
+  }
+}

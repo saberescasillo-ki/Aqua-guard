@@ -1,0 +1,18 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:weighted_random_feature": {
+    "description": {
+      "identifier": "bott:lone_oak_feature"
+    },
+    "features": [
+      [
+        "bott:grand_oak_feature",
+        2
+      ],
+      [
+        "bott:old_oak_feature",
+        1
+      ]
+    ]
+  }
+}

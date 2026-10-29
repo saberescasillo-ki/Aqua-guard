@@ -1,0 +1,27 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "botw:no_mans_land_scrub_feature"
+    },
+    "places_block": [
+      {
+        "block": "minecraft:deadbush",
+        "weight": 3
+      },
+      {
+        "block": "minecraft:short_dry_grass",
+        "weight": 3
+      },
+      {
+        "block": "minecraft:tall_dry_grass",
+        "weight": 1
+      }
+    ],
+    "enforce_placement_rules": true,
+    "enforce_survivability_rules": true,
+    "may_replace": [
+      "minecraft:air"
+    ]
+  }
+}

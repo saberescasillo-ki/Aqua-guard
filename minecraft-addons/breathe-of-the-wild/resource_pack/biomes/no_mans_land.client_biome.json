@@ -1,0 +1,28 @@
+{
+  "format_version": "1.21.120",
+  "minecraft:client_biome": {
+    "description": {
+      "identifier": "botw:no_mans_land"
+    },
+    "components": {
+      "minecraft:sky_color": {
+        "sky_color": "#c2a983"
+      },
+      "minecraft:fog_appearance": {
+        "fog_identifier": "botw:fog_no_mans_land"
+      },
+      "minecraft:water_appearance": {
+        "surface_color": "#5b5a3a"
+      },
+      "minecraft:grass_appearance": {
+        "color": "#9a8f5a"
+      },
+      "minecraft:foliage_appearance": {
+        "color": "#8d8250"
+      },
+      "minecraft:precipitation": {
+        "white_ash": 0.15
+      }
+    }
+  }
+}

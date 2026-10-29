@@ -1,0 +1,31 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "botw:no_mans_land_carve_rule",
+      "places_feature": "botw:no_mans_land_carve_row_feature"
+    },
+    "conditions": {
+      "placement_pass": "first_pass",
+      "minecraft:biome_filter": [
+        {
+          "test": "has_biome_tag",
+          "operator": "==",
+          "value": "botw_no_mans_land"
+        }
+      ]
+    },
+    "distribution": {
+      "iterations": 16,
+      "x": {
+        "distribution": "fixed_grid",
+        "extent": [
+          0,
+          15
+        ]
+      },
+      "y": -32,
+      "z": 0
+    }
+  }
+}

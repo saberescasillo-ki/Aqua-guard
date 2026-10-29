@@ -1,0 +1,25 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "botw:no_mans_land_cave_carver_rule",
+      "places_feature": "botw:no_mans_land_cave_carver_feature"
+    },
+    "conditions": {
+      "placement_pass": "pregeneration_pass",
+      "minecraft:biome_filter": [
+        {
+          "test": "has_biome_tag",
+          "operator": "==",
+          "value": "botw_no_mans_land"
+        }
+      ]
+    },
+    "distribution": {
+      "iterations": 1,
+      "x": 0,
+      "y": 0,
+      "z": 0
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "botw:no_mans_land_lava_pool_rule",
+      "places_feature": "botw:no_mans_land_lava_pool_feature"
+    },
+    "conditions": {
+      "placement_pass": "surface_pass",
+      "minecraft:biome_filter": [
+        {
+          "test": "has_biome_tag",
+          "operator": "==",
+          "value": "botw_no_mans_land"
+        }
+      ]
+    },
+    "distribution": {
+      "iterations": 1,
+      "scatter_chance": {
+        "numerator": 1,
+        "denominator": 3
+      },
+      "x": {
+        "distribution": "uniform",
+        "extent": [
+          2,
+          13
+        ]
+      },
+      "y": -34,
+      "z": {
+        "distribution": "uniform",
+        "extent": [
+          2,
+          13
+        ]
+      }
+    }
+  }
+}

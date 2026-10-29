@@ -1,0 +1,11 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:cave_carver_feature": {
+    "description": {
+      "identifier": "botw:no_mans_land_cave_carver_feature"
+    },
+    "fill_with": "minecraft:air",
+    "width_modifier": 2.5,
+    "skip_carve_chance": 3
+  }
+}

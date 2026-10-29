@@ -1,0 +1,213 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:tree_feature": {
+    "description": {
+      "identifier": "bott:grand_mangrove_feature"
+    },
+    "base_block": [
+      "minecraft:mud"
+    ],
+    "may_grow_on": [
+      "minecraft:grass_block",
+      "minecraft:dirt",
+      "minecraft:podzol",
+      "minecraft:coarse_dirt",
+      "minecraft:dirt_with_roots",
+      "minecraft:moss_block",
+      "minecraft:mud"
+    ],
+    "may_replace": [
+      "minecraft:air",
+      "minecraft:oak_leaves",
+      "minecraft:spruce_leaves",
+      "minecraft:birch_leaves",
+      "minecraft:jungle_leaves",
+      "minecraft:acacia_leaves",
+      "minecraft:dark_oak_leaves",
+      "minecraft:mangrove_leaves",
+      "minecraft:cherry_leaves",
+      "minecraft:pale_oak_leaves",
+      "minecraft:azalea_leaves",
+      "minecraft:azalea_leaves_flowered",
+      "minecraft:orange_poplar_leaves",
+      "minecraft:red_poplar_leaves",
+      "minecraft:yellow_poplar_leaves",
+      "minecraft:short_grass",
+      "minecraft:tall_grass",
+      "minecraft:fern",
+      "minecraft:large_fern",
+      "minecraft:vine",
+      "minecraft:snow_layer",
+      "minecraft:leaf_litter",
+      "minecraft:wildflowers",
+      "minecraft:pink_petals",
+      "minecraft:moss_carpet",
+      "minecraft:pale_moss_carpet",
+      "minecraft:firefly_bush",
+      "minecraft:bush",
+      "minecraft:deadbush",
+      "minecraft:short_dry_grass",
+      "minecraft:tall_dry_grass",
+      "minecraft:dandelion",
+      "minecraft:poppy",
+      "minecraft:blue_orchid",
+      "minecraft:allium",
+      "minecraft:azure_bluet",
+      "minecraft:red_tulip",
+      "minecraft:orange_tulip",
+      "minecraft:white_tulip",
+      "minecraft:pink_tulip",
+      "minecraft:oxeye_daisy",
+      "minecraft:cornflower",
+      "minecraft:lily_of_the_valley",
+      "minecraft:sunflower",
+      "minecraft:lilac",
+      "minecraft:rose_bush",
+      "minecraft:peony",
+      "minecraft:brown_mushroom",
+      "minecraft:red_mushroom",
+      "minecraft:sweet_berry_bush",
+      "minecraft:open_eyeblossom",
+      "minecraft:closed_eyeblossom"
+    ],
+    "may_grow_through": [
+      "minecraft:grass_block",
+      "minecraft:dirt",
+      "minecraft:podzol",
+      "minecraft:coarse_dirt",
+      "minecraft:dirt_with_roots",
+      "minecraft:moss_block",
+      "minecraft:mud",
+      "minecraft:short_grass",
+      "minecraft:tall_grass",
+      "minecraft:fern",
+      "minecraft:large_fern",
+      "minecraft:vine",
+      "minecraft:snow_layer",
+      "minecraft:leaf_litter",
+      "minecraft:wildflowers",
+      "minecraft:pink_petals",
+      "minecraft:moss_carpet",
+      "minecraft:pale_moss_carpet",
+      "minecraft:firefly_bush",
+      "minecraft:bush",
+      "minecraft:deadbush",
+      "minecraft:short_dry_grass",
+      "minecraft:tall_dry_grass",
+      "minecraft:dandelion",
+      "minecraft:poppy",
+      "minecraft:blue_orchid",
+      "minecraft:allium",
+      "minecraft:azure_bluet",
+      "minecraft:red_tulip",
+      "minecraft:orange_tulip",
+      "minecraft:white_tulip",
+      "minecraft:pink_tulip",
+      "minecraft:oxeye_daisy",
+      "minecraft:cornflower",
+      "minecraft:lily_of_the_valley",
+      "minecraft:sunflower",
+      "minecraft:lilac",
+      "minecraft:rose_bush",
+      "minecraft:peony",
+      "minecraft:brown_mushroom",
+      "minecraft:red_mushroom",
+      "minecraft:sweet_berry_bush",
+      "minecraft:open_eyeblossom",
+      "minecraft:closed_eyeblossom"
+    ],
+    "mangrove_trunk": {
+      "trunk_width": 1,
+      "trunk_height": {
+        "base": 6,
+        "height_rand_a": 3,
+        "height_rand_b": 4
+      },
+      "trunk_block": "minecraft:mangrove_log",
+      "branches": {
+        "branch_length": {
+          "range_min": 2,
+          "range_max": 4
+        },
+        "branch_steps": {
+          "range_min": 2,
+          "range_max": 4
+        },
+        "branch_chance": {
+          "numerator": 1,
+          "denominator": 2
+        }
+      }
+    },
+    "mangrove_canopy": {
+      "canopy_height": {
+        "range_min": 3,
+        "range_max": 4
+      },
+      "canopy_radius": {
+        "range_min": 3,
+        "range_max": 4
+      },
+      "leaf_placement_attempts": 80,
+      "leaf_blocks": [
+        [
+          "minecraft:mangrove_leaves",
+          1
+        ]
+      ],
+      "canopy_decoration": {
+        "decoration_chance": {
+          "numerator": 1,
+          "denominator": 4
+        },
+        "decoration_block": "minecraft:vine",
+        "num_steps": 4,
+        "step_direction": "down"
+      },
+      "hanging_block": {
+        "name": "minecraft:mangrove_propagule",
+        "states": {
+          "hanging": true,
+          "propagule_stage": 4
+        }
+      },
+      "hanging_block_placement_chance": {
+        "numerator": 1,
+        "denominator": 12
+      }
+    },
+    "mangrove_roots": {
+      "max_root_width": 8,
+      "max_root_length": 16,
+      "root_block": "minecraft:mangrove_roots",
+      "above_root": {
+        "above_root_chance": {
+          "numerator": 1,
+          "denominator": 2
+        },
+        "above_root_block": "minecraft:moss_carpet"
+      },
+      "muddy_root_block": "minecraft:muddy_mangrove_roots",
+      "mud_block": "minecraft:mud",
+      "y_offset": {
+        "range_min": 3,
+        "range_max": 7
+      },
+      "roots_may_grow_through": [
+        "minecraft:mud",
+        "minecraft:muddy_mangrove_roots",
+        "minecraft:mangrove_roots",
+        "minecraft:water",
+        "minecraft:flowing_water",
+        "minecraft:air",
+        "minecraft:mangrove_leaves",
+        "minecraft:moss_carpet",
+        "minecraft:vine",
+        "minecraft:short_grass",
+        "minecraft:grass_block",
+        "minecraft:dirt",
+        "minecraft:clay"
+      ]
+    }
+  }
+}

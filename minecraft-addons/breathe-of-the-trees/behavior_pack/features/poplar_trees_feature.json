@@ -1,0 +1,22 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:weighted_random_feature": {
+    "description": {
+      "identifier": "bott:poplar_trees_feature"
+    },
+    "features": [
+      [
+        "bott:grand_yellow_poplar_feature",
+        2
+      ],
+      [
+        "bott:grand_orange_poplar_feature",
+        2
+      ],
+      [
+        "bott:grand_red_poplar_feature",
+        1
+      ]
+    ]
+  }
+}
