@@ -81,7 +81,7 @@
       }
     },
     "animation.netherite_relic_blade.attack": {
-      "loop": false,
+      "loop": "hold_on_last_frame",
       "animation_length": 1.7083,
       "bones": {
         "body": {
@@ -1066,7 +1066,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.netherite_relic_blade.attack1": {
-      "loop": false,
+      "loop": "hold_on_last_frame",
       "animation_length": 1.7917,
       "bones": {
         "body": {
@@ -1924,7 +1924,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.netherite_relic_blade.attack2": {
-      "loop": false,
+      "loop": "hold_on_last_frame",
       "animation_length": 2.125,
       "bones": {
         "body": {

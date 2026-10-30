@@ -263,6 +263,13 @@ function bufferNextAttack(player, state, setState9) {
   state.bufferedNext = true;
   setState9(player, state);
 }
+var RESET_ANIMATION = "animation.resonance.reset";
+function endAttackAnimation(player, cfg) {
+  try {
+    player.playAnimation(RESET_ANIMATION, { controller: cfg.animController, blendOutTime: 0 });
+  } catch {
+  }
+}
 function handleComboTransitionOrEnd(player, state, cfg, setState9) {
   const tick = system3.currentTick;
   const anim = cfg.anims[state.comboIndex % cfg.anims.length];
@@ -274,6 +281,7 @@ function handleComboTransitionOrEnd(player, state, cfg, setState9) {
     return "cancel";
   }
   if (state.frame >= anim.attackTime) {
+    endAttackAnimation(player, cfg);
     state.isAttacking = false;
     state.frame = 0;
     state.bufferedNext = false;
@@ -991,7 +999,7 @@ var ANIMS5 = [
   }
 ];
 var CONFIG = {
-  blendOutSeconds: 0.1,
+  blendOutSeconds: 0.05,
   anims: ANIMS5,
   animController: ANIM_CONTROLLER5,
   inputCooldownTicks: INPUT_COOLDOWN_TICKS5,

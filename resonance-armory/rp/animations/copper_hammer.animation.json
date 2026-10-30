@@ -81,7 +81,7 @@
       }
     },
     "animation.copper_hammer.attack": {
-      "loop": false,
+      "loop": "hold_on_last_frame",
       "animation_length": 1.9167,
       "bones": {
         "body": {
@@ -752,7 +752,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.copper_hammer.attack1": {
-      "loop": false,
+      "loop": "hold_on_last_frame",
       "animation_length": 1.9167,
       "bones": {
         "body": {
@@ -1441,7 +1441,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.copper_hammer.attack2": {
-      "loop": false,
+      "loop": "hold_on_last_frame",
       "animation_length": 1.9167,
       "bones": {
         "body": {

@@ -161,7 +161,7 @@
       }
     },
     "animation.golden_rapier.attack": {
-      "loop": false,
+      "loop": "hold_on_last_frame",
       "animation_length": 0.8125,
       "bones": {
         "root": {
@@ -638,7 +638,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.golden_rapier.attack1": {
-      "loop": false,
+      "loop": "hold_on_last_frame",
       "animation_length": 1,
       "bones": {
         "root": {
@@ -1132,7 +1132,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.golden_rapier.attack2": {
-      "loop": false,
+      "loop": "hold_on_last_frame",
       "animation_length": 0.75,
       "bones": {
         "root": {
@@ -1572,7 +1572,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.golden_rapier.attackbarrage": {
-      "loop": false,
+      "loop": "hold_on_last_frame",
       "animation_length": 1,
       "bones": {
         "root": {
@@ -2208,7 +2208,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.golden_rapier.attack2EXTRA": {
-      "loop": false,
+      "loop": "hold_on_last_frame",
       "animation_length": 1,
       "bones": {
         "root": {
