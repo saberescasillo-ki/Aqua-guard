@@ -7,7 +7,7 @@
     "places_feature": "botw:no_mans_land_floor_check_feature",
     "iterations": 1,
     "x": 0,
-    "y": "query.heightmap(variable.worldx, variable.worldz) - 1",
+    "y": -250,
     "z": 0
   }
 }

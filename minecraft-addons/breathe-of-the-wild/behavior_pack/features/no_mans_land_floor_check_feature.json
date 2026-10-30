@@ -6,7 +6,7 @@
     },
     "conditional_features": [
       {
-        "places_feature": "botw:no_mans_land_floor_block_feature",
+        "places_feature": "botw:no_mans_land_floor_levels_feature",
         "condition": "query.has_biome_tag('botw_no_mans_land', variable.worldx, 70, variable.worldz)"
       }
     ],

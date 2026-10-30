@@ -40,7 +40,7 @@ CONDITIONAL_FMT = "1.26.50"
 BIOME_FMT = "1.26.50"
 CLIENT_BIOME_FMT = "1.21.120"
 
-VERSION = [6, 0, 0]
+VERSION = [7, 0, 0]
 
 UUIDS = {
     "botw_bp": "399882bf-3a8d-46bd-ad24-5283eb4ea059",
@@ -155,7 +155,9 @@ class Pack:
         if (check and self.exact_biomes and len(biome_filter) == 1
                 and placement_pass != "pregeneration_pass"):
             biome_tag = biome_filter[0]["value"]
-            y = self.check_y.get(biome_tag, "variable.worldy")
+            # The biome is checked at a fixed height (variable.worldy does not
+            # exist in feature Molang); surface biomes reach up to Y 70.
+            y = self.check_y.get(biome_tag, 70)
             x = f"variable.worldx + {check_offset}" if check_offset else "variable.worldx"
             z = f"variable.worldz + {check_offset}" if check_offset else "variable.worldz"
             places = self.feature(
@@ -568,6 +570,11 @@ PIT_BOTTOM_Y = -32      # lowest air block in the middle of the pit
 PIT_SLICE = 32          # height of one air column structure
 PIT_SLICES = 6          # 6 x 32 blocks: from the floor up past the surface
 NML_TAG = "botw_no_mans_land"
+# Biomes are 3D: replace_biomes only swaps the surface layer, so deep down
+# the column is still savanna/desert and a rule placed at Y -32 never fires.
+# Every No Man's Land rule is therefore anchored high in the sky (which
+# belongs to the surface biome) and its features are dropped down from there.
+ANCHOR_Y = 250
 SURFACE = "query.heightmap(variable.worldx, variable.worldz)"
 
 
@@ -575,20 +582,84 @@ def nml_check(x="variable.worldx", z="variable.worldz"):
     return f"query.has_biome_tag('{NML_TAG}', {x}, 70, {z})"
 
 
-def pit_floor_expr():
-    """Molang: first air Y of this column of the pit."""
+PIT_RADII = (5, 10, 15, 20, 25)
+PIT_LEVELS = range(PIT_BOTTOM_Y, 65, 12)    # possible floor heights
+RIM_Y = 70                                  # typical surface height
+
+
+def pit_inside_count():
+    """Molang: how many of the nearby sample points belong to No Man's Land.
+
+    Note: query.has_biome_tag only works with offsets inside conditions;
+    in scatter coordinate expressions it always returns 0.
+    """
     samples = []
-    for r in (10, 20, 30, 40):
-        for k in range(8):
-            a = k * math.pi / 4
-            dx, dz = round(math.cos(a) * r), round(math.sin(a) * r)
+    for r in PIT_RADII:
+        for dx, dz in ((r, 0), (-r, 0), (0, r), (0, -r)):
             samples.append(nml_check(f"variable.worldx + ({dx})",
                                      f"variable.worldz + ({dz})"))
-    inside = f"(({' + '.join(samples)}) / {len(samples)})"
-    # Eased curve: gentle near the rim, steeper toward the middle.
-    depth = f"math.pow(math.clamp(({inside} - 0.45) / 0.55, 0, 1), 1.6)"
-    return (f"math.floor({SURFACE} + ({PIT_BOTTOM_Y} - {SURFACE}) * "
-            f"{depth})")
+    return "(" + " + ".join(samples) + ")"
+
+
+def pit_levels(pack, name, leaf):
+    """Pick the deepest floor this column has earned: the more of its
+    surroundings are No Man's Land, the deeper it goes. Columns near the
+    rim stay shallow, so the pit slopes down instead of dropping.
+
+    `leaf` is placed with its input at that floor level. The choice only
+    depends on biome lookups, so separate chains (carving, then the floor
+    decoration in a later pass) always agree on the floor height. The
+    heightmap cannot be used for this: it is not updated after carving.
+    """
+    count = pit_inside_count()
+    n = 4 * len(PIT_RADII)
+    options = []
+    for level in PIT_LEVELS:
+        # depth fraction needed for this floor, eased like a crater wall
+        depth = (RIM_Y - level) / (RIM_Y - PIT_BOTTOM_Y)
+        needed = math.ceil(n * (0.25 + 0.55 * depth ** (1 / 1.2)))
+        at_level = pack.feature(
+            f"botw:no_mans_land_{name}_{level + 64:03d}_feature",
+            "minecraft:scatter_feature", {
+                "places_feature": leaf, "iterations": 1,
+                "x": 0, "y": level, "z": 0,
+            })
+        options.append({"places_feature": at_level,
+                        "condition": f"{count} >= {needed}"})
+    return pack.feature(f"botw:no_mans_land_{name}_levels_feature",
+                        "minecraft:conditional_list", {
+                            "conditional_features": options,
+                            "early_out_scheme": "condition_success",
+                        }, fmt=CONDITIONAL_FMT)
+
+
+def offset(pack, ident, feature, y, chance_=None):
+    """Place `feature` y blocks above the input, optionally by chance."""
+    body = {"places_feature": feature, "iterations": 1, "x": 0, "y": y, "z": 0}
+    if chance_:
+        body["scatter_chance"] = chance_
+    return pack.feature(ident, "minecraft:scatter_feature", body)
+
+
+def below_anchor(y):
+    """Offset from ANCHOR_Y to y (a number, Molang string or distribution)."""
+    if isinstance(y, dict):
+        return {**y, "extent": [e - ANCHOR_Y for e in y["extent"]]}
+    if isinstance(y, str):
+        return f"({y}) - {ANCHOR_Y}"
+    return y - ANCHOR_Y
+
+
+def nml_rule(pack, name, feature, distribution, placement_pass):
+    """Rule anchored at ANCHOR_Y that drops `feature` to distribution["y"]."""
+    drop = pack.feature(f"botw:no_mans_land_{name}_drop_feature",
+                        "minecraft:scatter_feature", {
+                            "places_feature": feature, "iterations": 1,
+                            "x": 0, "y": below_anchor(distribution["y"]),
+                            "z": 0,
+                        })
+    pack.rule(f"botw:no_mans_land_{name}_rule", drop, [tag(NML_TAG)],
+              {**distribution, "y": ANCHOR_Y}, placement_pass)
 
 
 def column_chain(pack, name, y_expr, leaf_feature, placement_pass):
@@ -606,14 +677,14 @@ def column_chain(pack, name, y_expr, leaf_feature, placement_pass):
                          "minecraft:scatter_feature", {
                              "places_feature": checked,
                              "iterations": 1,
-                             "x": 0, "y": y_expr, "z": 0,
+                             "x": 0, "y": below_anchor(y_expr), "z": 0,
                          })
     row = grid_scatter(pack, f"botw:no_mans_land_{name}_row_feature", point,
                        "z", [0, 15])
     pack.rule(f"botw:no_mans_land_{name}_rule", row, [tag(NML_TAG)], {
         "iterations": 16,
         "x": {"distribution": "fixed_grid", "extent": [0, 15]},
-        "y": 0,
+        "y": ANCHOR_Y,
         "z": 0,
     }, placement_pass, check=False)
 
@@ -636,7 +707,7 @@ def no_mans_land(bp, rp):
                    "temperature": 2.0},
           surface=overworld_surface("coarse_dirt", mid="gravel"),
           tags=["monster", "overworld", "botw", "botw_no_mans_land"],
-          replacements=[replacement(["savanna", "desert"], 0.11)])
+          replacements=[replacement(["savanna", "desert"], 0.11, 0.5)])
     fog(rp, "botw:fog_no_mans_land", "#9c876a", 0.25, 0.85, "#3f3a2c")
     client_biome(rp, ident, {
         "minecraft:sky_color": {"sky_color": "#c2a983"},
@@ -672,15 +743,8 @@ def no_mans_land(bp, rp):
                                  "step_size": PIT_SLICE},
                            "z": 0,
                        })
-    column_chain(bp, "carve", pit_floor_expr(), stack, "first_pass")
-
-    # Test helper, not used by world generation:
-    #   /place feature botw:no_mans_land_debug_shaft_feature ~ -32 ~
-    # carves a 16x16 shaft from Y -32 up at the player, with no biome checks.
-    debug_row = grid_scatter(bp, "botw:no_mans_land_debug_row_feature", stack,
-                             "z", [0, 15])
-    grid_scatter(bp, "botw:no_mans_land_debug_shaft_feature", debug_row,
-                 "x", [0, 15])
+    column_chain(bp, "carve", 0, pit_levels(bp, "carve", stack),
+                 "before_surface_pass")
 
     # 2) Repaint the new ground (rim slopes and floor) with a scorched mix.
     floor_block = bp.feature("botw:no_mans_land_floor_block_feature",
@@ -699,8 +763,6 @@ def no_mans_land(bp, rp):
                                  "enforce_survivability_rules": False,
                                  "may_replace": blocks(*TERRAIN),
                              }, fmt=BLOCK_FEATURE_FMT)
-    column_chain(bp, "floor", f"{SURFACE} - 1", floor_block,
-                 "after_underground_pass")
 
     # 3) Lava pools sunk into the floor.
     lava = bp.feature("botw:no_mans_land_lava_pool_feature",
@@ -711,17 +773,9 @@ def no_mans_land(bp, rp):
                               "may_replace": blocks(
                                   "deepslate", "tuff", "cobbled_deepslate",
                                   "coarse_dirt", "gravel", "smooth_basalt",
-                                  "blackstone", "magma"),
+                                  "blackstone", "magma", "stone"),
                           }],
                       })
-    bp.rule("botw:no_mans_land_lava_pool_rule", lava, f, {
-        "iterations": 1,
-        "scatter_chance": chance(1, 3),
-        "coordinate_eval_order": "xzy",
-        "x": {"distribution": "uniform", "extent": [2, 13]},
-        "y": f"{SURFACE} - 1",
-        "z": {"distribution": "uniform", "extent": [2, 13]},
-    }, "surface_pass")
 
     # 4) Jagged stone pillars rising from the floor.
     pillar_block = bp.feature("botw:no_mans_land_pillar_block_feature",
@@ -745,23 +799,30 @@ def no_mans_land(bp, rp):
                                   "extent": [0, 15]},
                             "z": 0,
                         })
-    bp.rule("botw:no_mans_land_pillar_rule", pillar, f, {
-        "iterations": 2,
-        "scatter_chance": chance(1, 2),
-        "coordinate_eval_order": "xzy",
-        "x": {"distribution": "uniform", "extent": [1, 14]},
-        "y": SURFACE,
-        "z": {"distribution": "uniform", "extent": [1, 14]},
-    }, "surface_pass")
 
-    # 5) Dead scrub on the floor and glowing lichen on the cliff walls.
+    # 5) Dead scrub on the floor.
     scrub = plant(bp, "botw:no_mans_land_scrub_feature", [
         (b("deadbush"), 3), (b("short_dry_grass"), 3),
         (b("tall_dry_grass"), 1),
     ])
-    bp.rule("botw:no_mans_land_scrub_rule", scrub, f,
-            surface_scatter(12), "after_surface_pass")
 
+    # Everything sits on the floor the carve chose for that column; this
+    # runs in surface_pass, after the carve (before_surface_pass).
+    floor_decor = bp.feature("botw:no_mans_land_floor_decor_feature",
+                             "minecraft:aggregate_feature", {"features": [
+                                 offset(bp, "botw:no_mans_land_floor_paint_feature",
+                                        floor_block, -1),
+                                 offset(bp, "botw:no_mans_land_floor_scrub_feature",
+                                        scrub, 0, chance(1, 8)),
+                                 offset(bp, "botw:no_mans_land_floor_pillar_feature",
+                                        pillar, 0, chance(1, 300)),
+                                 offset(bp, "botw:no_mans_land_floor_lava_feature",
+                                        lava, -2, chance(1, 700)),
+                             ]})
+    column_chain(bp, "floor", 0, pit_levels(bp, "floor", floor_decor),
+                 "surface_pass")
+
+    # 6) Glowing lichen on the cliff walls.
     lichen = bp.feature("botw:no_mans_land_lichen_feature",
                         "minecraft:multiface_feature", {
                             "places_block": b("glow_lichen"),
@@ -774,14 +835,14 @@ def no_mans_land(bp, rp):
                                 "stone", "deepslate", "tuff", "granite",
                                 "diorite", "andesite", "cobbled_deepslate"),
                         })
-    bp.rule("botw:no_mans_land_lichen_rule", lichen, f, {
+    nml_rule(bp, "lichen", lichen, {
         "iterations": 24,
         "x": {"distribution": "uniform", "extent": [0, 15]},
         "y": {"distribution": "uniform", "extent": [PIT_BOTTOM_Y, 40]},
         "z": {"distribution": "uniform", "extent": [0, 15]},
     }, "after_surface_pass")
 
-    # 6) Extra-wide caves branching off under the pit floor.
+    # 7) Extra-wide caves branching off under the pit floor.
     caves = bp.feature("botw:no_mans_land_cave_carver_feature",
                        "minecraft:cave_carver_feature", {
                            "fill_with": b("air"),
@@ -789,7 +850,8 @@ def no_mans_land(bp, rp):
                            "skip_carve_chance": 3,
                        })
     bp.rule("botw:no_mans_land_cave_carver_rule", caves, f,
-            {"iterations": 1, "x": 0, "y": 0, "z": 0}, "pregeneration_pass")
+            {"iterations": 1, "x": 0, "y": ANCHOR_Y, "z": 0},
+            "pregeneration_pass")
 
 
 # ---------------------------------------------------------------------------
@@ -980,8 +1042,9 @@ def validate_references(packs):
                         for k in ("fallen_trunk",):
                             if k in body and "log_decoration_feature" in body[k]:
                                 refs.append((rel, body[k]["log_decoration_feature"]))
-                        for f, _ in body.get("features", []):
-                            refs.append((rel, f))
+                        for f in body.get("features", []):
+                            # weighted lists hold [id, weight] pairs
+                            refs.append((rel, f[0] if isinstance(f, list) else f))
             elif rel.startswith("feature_rules/"):
                 refs.append((rel, data["minecraft:feature_rules"]
                              ["description"]["places_feature"]))

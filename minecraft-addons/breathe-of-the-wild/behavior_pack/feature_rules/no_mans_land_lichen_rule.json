@@ -24,13 +24,7 @@
           15
         ]
       },
-      "y": {
-        "distribution": "uniform",
-        "extent": [
-          -32,
-          40
-        ]
-      },
+      "y": 250,
       "z": {
         "distribution": "uniform",
         "extent": [

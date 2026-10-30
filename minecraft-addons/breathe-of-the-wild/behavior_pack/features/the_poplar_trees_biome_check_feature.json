@@ -7,7 +7,7 @@
     "conditional_features": [
       {
         "places_feature": "botw:poplar_trees_feature",
-        "condition": "query.has_biome_tag('botw_the_poplar', variable.worldx, variable.worldy, variable.worldz)"
+        "condition": "query.has_biome_tag('botw_the_poplar', variable.worldx, 70, variable.worldz)"
       }
     ],
     "early_out_scheme": "condition_success"

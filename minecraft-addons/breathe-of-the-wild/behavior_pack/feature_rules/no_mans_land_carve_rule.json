@@ -6,7 +6,7 @@
       "places_feature": "botw:no_mans_land_carve_row_feature"
     },
     "conditions": {
-      "placement_pass": "first_pass",
+      "placement_pass": "before_surface_pass",
       "minecraft:biome_filter": [
         {
           "test": "has_biome_tag",
@@ -24,7 +24,7 @@
           15
         ]
       },
-      "y": 0,
+      "y": 250,
       "z": 0
     }
   }

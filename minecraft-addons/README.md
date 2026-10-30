@@ -56,8 +56,9 @@ Replaces part of the Savanna and Desert biomes with an enormous open pit.
 
 - The biome is hollowed out into a huge bowl that reaches **Y −32**, deep in
   the deepslate layer. The pit does not drop straight down: every column's
-  depth depends on how far it is from the biome's edge, so the ground slopes
-  and terraces down over roughly 40 blocks before reaching the bottom.
+  depth depends on how much of its surroundings (up to 25 blocks away) is
+  No Man's Land, so the ground terraces down from the rim to the bottom.
+- No Man's Land comes in large, rare patches (often 100+ blocks across).
   The slopes show ore veins and cave cross-sections.
 - The slopes and the floor are a scorched mix of deepslate, tuff, cobbled
   deepslate, coarse dirt, gravel, smooth basalt, blackstone and magma.
@@ -128,6 +129,6 @@ BEDROCK_BLOCKS_JSON=path/to/mojang-blocks.json python3 build.py
   per species give the variety instead of rotation.
 - If something does not generate, open **Settings → Creator → Content Log**
   to see the error.
-- To test No Man's Land carving by hand, run
-  `/place feature botw:no_mans_land_debug_shaft_feature ~ -32 ~`: it should
-  cut a 16×16 shaft from Y −32 up to the sky next to you.
+- `tools/bds_harness.py` runs a Bedrock Dedicated Server with both packs
+  and drives it with console commands (`/locate`, `/testforblock`, …). It is
+  how world generation is tested; see the file for details.

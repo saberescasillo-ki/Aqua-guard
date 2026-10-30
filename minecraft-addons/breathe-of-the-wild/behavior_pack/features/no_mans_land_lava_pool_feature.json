@@ -16,7 +16,8 @@
           "minecraft:gravel",
           "minecraft:smooth_basalt",
           "minecraft:blackstone",
-          "minecraft:magma"
+          "minecraft:magma",
+          "minecraft:stone"
         ]
       }
     ]
