@@ -64,7 +64,7 @@
       }
     },
     "animation.lunar_crescent.attack": {
-      "loop": true,
+      "loop": "hold_on_last_frame",
       "animation_length": 2.25,
       "bones": {
         "body": {
@@ -778,7 +778,8 @@
             0
           ]
         }
-      }
+      },
+      "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     }
   }
 }

@@ -26,6 +26,70 @@ function clearCooldowns(entity) {
   }
 }
 
+// scripts/systems/vanilla_hit.ts
+var RESONANCE_WEAPONS = [
+  "resonance:smoke_club",
+  "resonance:iron_halberd",
+  "resonance:golden_rapier",
+  "resonance:copper_hammer",
+  "resonance:diamond_greatsword",
+  "resonance:netherite_relic_blade",
+  "resonance:redstone_pulse_gauntlet",
+  "resonance:lunar_crescent"
+];
+var scriptedDamageDepth = 0;
+function dealDamage(target, amount, options) {
+  scriptedDamageDepth++;
+  try {
+    return target.applyDamage(amount, options);
+  } finally {
+    scriptedDamageDepth--;
+  }
+}
+function isHoldingResonanceWeapon(player) {
+  try {
+    const id = player.getComponent("minecraft:equippable")?.getEquipment("Mainhand")?.typeId;
+    return !!id && RESONANCE_WEAPONS.includes(id);
+  } catch {
+    return false;
+  }
+}
+var weaponHitHandlers = [];
+var lastHitDispatchTick = /* @__PURE__ */ new Map();
+function onWeaponHit(handler) {
+  weaponHitHandlers.push(handler);
+}
+function dispatchWeaponHit(ev) {
+  const attacker = ev.damagingEntity;
+  if (!attacker || !ev.hitEntity) return;
+  if (lastHitDispatchTick.get(attacker.id) === system.currentTick) return;
+  lastHitDispatchTick.set(attacker.id, system.currentTick);
+  for (const handler of weaponHitHandlers) {
+    try {
+      handler(ev);
+    } catch (e) {
+      console.warn(`[Resonance] hit: ${e}`);
+    }
+  }
+}
+world.afterEvents.entityHitEntity.subscribe(dispatchWeaponHit);
+world.beforeEvents.entityHurt.subscribe((ev) => {
+  if (scriptedDamageDepth > 0) return;
+  const attacker = ev.damageSource.damagingEntity;
+  if (!attacker || attacker.typeId !== "minecraft:player" || ev.damageSource.damagingProjectile) return;
+  if (!isHoldingResonanceWeapon(attacker)) return;
+  ev.cancel = true;
+  const hitEntity = ev.hurtEntity;
+  system.run(() => {
+    const last = lastHitDispatchTick.get(attacker.id);
+    if (last !== void 0 && system.currentTick - last <= 1) return;
+    try {
+      if (attacker.isValid && hitEntity.isValid) dispatchWeaponHit({ damagingEntity: attacker, hitEntity });
+    } catch {
+    }
+  });
+}, { allowedDamageCauses: [EntityDamageCause.entityAttack] });
+
 // scripts/utils/area_effect.ts
 function applyAreaEffect(dimension, center, radius, effects, source) {
   const entities = dimension.getEntities({
@@ -102,10 +166,6 @@ function lockInputAndSuppressVanilla(player, durationTicks, state) {
   activeInputLocks.set(player.id, Math.max(activeInputLocks.get(player.id) ?? 0, until));
   state.inputLockUntilTick = Math.max(state.inputLockUntilTick ?? 0, until);
   try {
-    player.addEffect("weakness", durationTicks, { amplifier: 100, showParticles: false });
-  } catch {
-  }
-  try {
     disableMovement(player);
     state.inputLocked = true;
   } catch {
@@ -177,6 +237,7 @@ function getTargetsInCone(player, range, coneDeg, maxTargets) {
 // scripts/systems/combo.ts
 import { system as system3 } from "@minecraft/server";
 var ATTACKING_FLAG = "attacking";
+var ATTACK_BLEND_OUT_SECONDS = 0.3;
 function resetAttackingFlagIfNeeded(player, state) {
   if (state.attackingFlagUntil > 0 && system3.currentTick >= state.attackingFlagUntil) {
     player.setDynamicProperty(ATTACKING_FLAG, 0);
@@ -195,7 +256,7 @@ function startAttack(player, state, cfg, setState9) {
   player.setDynamicProperty(ATTACKING_FLAG, 1);
   state.attackingFlagUntil = tick + cfg.attackLockTicks;
   lockInputAndSuppressVanilla(player, anim.attackTime + cfg.inputCooldownTicks + 2, state);
-  player.playAnimation(anim.animation, { controller: cfg.animController, blendOutTime: 0.05 });
+  player.playAnimation(anim.animation, { controller: cfg.animController, blendOutTime: ATTACK_BLEND_OUT_SECONDS });
   setState9(player, state);
 }
 function bufferNextAttack(player, state, setState9) {
@@ -307,7 +368,7 @@ function isHoldingWeapon(player) {
   return player.getComponent("minecraft:equippable")?.getEquipment?.("Mainhand")?.typeId === WEAPON_ID;
 }
 var calcDamage = (anim) => Math.floor(BASE_DAMAGE * anim.damageMultiplier);
-var applyHit = safeHit((player, target, dmg) => target.applyDamage(dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: player }));
+var applyHit = safeHit((player, target, dmg) => dealDamage(target, dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: player }));
 function triggerSmokeSpecial(attacker, primaryTarget) {
   withCooldown(attacker, "smoke_club_special", SPECIAL_COOLDOWN_TICKS, () => {
     spawnSmoke(primaryTarget.dimension, primaryTarget.location, SMOKE_PARTICLE_COUNT);
@@ -349,7 +410,7 @@ function tickWeapon(player) {
   }
   handleComboTransitionOrEnd(player, state, COMBO_CFG, setState);
 }
-world.afterEvents.entityHitEntity.subscribe((ev) => {
+onWeaponHit((ev) => {
   const { damagingEntity: attacker, hitEntity: victim } = ev;
   if (!attacker || attacker.typeId !== "minecraft:player" || !victim) return;
   if (!isHoldingWeapon(attacker)) return;
@@ -465,7 +526,7 @@ function calcDamage2(target, anim) {
   return Math.floor(dmg);
 }
 var applyHit2 = safeHit(function applyHit2(player, target, dmg) {
-  target.applyDamage(dmg, { cause: EntityDamageCause2.entityAttack, damagingEntity: player });
+  dealDamage(target, dmg, { cause: EntityDamageCause2.entityAttack, damagingEntity: player });
   const dir = player.getViewDirection();
   target.applyKnockback({ x: dir.x * KNOCKBACK_STRENGTH, z: dir.z * KNOCKBACK_STRENGTH }, KNOCKBACK_VERTICAL);
 });
@@ -497,7 +558,7 @@ function tickWeapon2(player) {
   }
   handleComboTransitionOrEnd(player, state, COMBO_CFG2, setState2);
 }
-world2.afterEvents.entityHitEntity.subscribe((ev) => {
+onWeaponHit((ev) => {
   const { damagingEntity: attacker, hitEntity: victim } = ev;
   if (!attacker || attacker.typeId !== "minecraft:player" || !victim) return;
   if (!isHoldingWeapon2(attacker)) return;
@@ -628,7 +689,7 @@ function damageDurabilityOnCrit(player, amount) {
 }
 var calcBaseDamage = (anim) => Math.floor(BASE_DAMAGE3 * anim.damageMultiplier);
 var rollCrit = () => Math.random() < CRIT_CHANCE;
-var applyHit3 = safeHit((player, target, dmg) => target.applyDamage(dmg, { cause: EntityDamageCause3.entityAttack, damagingEntity: player }));
+var applyHit3 = safeHit((player, target, dmg) => dealDamage(target, dmg, { cause: EntityDamageCause3.entityAttack, damagingEntity: player }));
 function tickWeapon3(player) {
   if (!isHoldingWeapon3(player)) return;
   const state = getState3(player);
@@ -651,7 +712,7 @@ function tickWeapon3(player) {
       for (const t of targets) {
         applyHit3(player, t, baseDmg);
         if (didCrit)
-          t.applyDamage(CRIT_BONUS_DAMAGE, { cause: EntityDamageCause3.entityAttack, damagingEntity: player });
+          dealDamage(t, CRIT_BONUS_DAMAGE, { cause: EntityDamageCause3.entityAttack, damagingEntity: player });
       }
       if (didCrit) {
         damageDurabilityOnCrit(player, EXTRA_DURABILITY_ON_CRIT);
@@ -664,7 +725,7 @@ function tickWeapon3(player) {
   }
   handleComboTransitionOrEnd(player, state, COMBO_CFG3, setState3);
 }
-world3.afterEvents.entityHitEntity.subscribe((ev) => {
+onWeaponHit((ev) => {
   const { damagingEntity: attacker, hitEntity: victim } = ev;
   if (!attacker || attacker.typeId !== "minecraft:player" || !victim) return;
   if (!isHoldingWeapon3(attacker)) return;
@@ -759,7 +820,7 @@ function isHoldingWeapon4(player) {
 }
 var calcDamage3 = (anim) => Math.floor(BASE_DAMAGE4 * anim.damageMultiplier);
 var applyHit4 = safeHit((player, target, dmg) => {
-  target.applyDamage(dmg, { cause: EntityDamageCause4.entityAttack, damagingEntity: player });
+  dealDamage(target, dmg, { cause: EntityDamageCause4.entityAttack, damagingEntity: player });
   const dir = player.getViewDirection();
   target.applyKnockback({ x: dir.x * 0.2, z: dir.z * 0.2 }, 0.02);
 });
@@ -795,7 +856,7 @@ function tryShock(player, primaryTarget, state) {
     if (!e.getComponent?.("minecraft:health")) continue;
     if (e.getComponent("minecraft:tameable")?.tamedToPlayerId === player.id) continue;
     try {
-      e.applyDamage(shockDamage, { cause: EntityDamageCause4.magic, damagingEntity: player });
+      dealDamage(e, shockDamage, { cause: EntityDamageCause4.magic, damagingEntity: player });
     } catch {
     }
   }
@@ -835,7 +896,7 @@ function tickWeapon4(player) {
   }
   handleComboTransitionOrEnd(player, state, COMBO_CFG4, setState4);
 }
-world4.afterEvents.entityHitEntity.subscribe((ev) => {
+onWeaponHit((ev) => {
   const { damagingEntity: attacker, hitEntity: victim } = ev;
   if (!attacker || attacker.typeId !== "minecraft:player" || !victim) return;
   if (!isHoldingWeapon4(attacker)) return;
@@ -899,20 +960,20 @@ var KNOCKBACK_VERTICAL2 = 0.3;
 var ANIMS5 = [
   {
     animation: "animation.diamond_greatsword.attack",
-    attackTime: 55,
-    nextAttackWindow: 10,
-    cancelIntoNextTick: 37,
-    hitFrames: [31, 32],
+    attackTime: 44,
+    nextAttackWindow: 8,
+    cancelIntoNextTick: 30,
+    hitFrames: [25, 26],
     range: 4,
     coneDeg: 80,
     damageMultiplier: 1
   },
   {
     animation: "animation.diamond_greatsword.attack1",
-    attackTime: 57,
-    nextAttackWindow: 10,
-    cancelIntoNextTick: 40,
-    hitFrames: [31, 32],
+    attackTime: 46,
+    nextAttackWindow: 8,
+    cancelIntoNextTick: 32,
+    hitFrames: [25, 26],
     range: 4.5,
     coneDeg: 85,
     damageMultiplier: 1.2
@@ -995,13 +1056,13 @@ function calcDamage4(anim, target, stackCount) {
   return Math.floor(base * (1 - effectiveReduction));
 }
 var applyHit5 = safeHit(function applyHit5(player, target, dmg) {
-  target.applyDamage(dmg, { cause: EntityDamageCause5.entityAttack, damagingEntity: player });
+  dealDamage(target, dmg, { cause: EntityDamageCause5.entityAttack, damagingEntity: player });
   const dir = player.getViewDirection();
   target.applyKnockback({ x: dir.x * KNOCKBACK_STRENGTH2, z: dir.z * KNOCKBACK_STRENGTH2 }, KNOCKBACK_VERTICAL2);
 });
 function triggerShatter(player, target) {
   withCooldown(player, "greatsword_shatter", SHATTER_COOLDOWN_TICKS, () => {
-    target.applyDamage(SHATTER_BONUS_DAMAGE, {
+    dealDamage(target, SHATTER_BONUS_DAMAGE, {
       cause: EntityDamageCause5.magic,
       damagingEntity: player
     });
@@ -1041,10 +1102,6 @@ function playFractureSound(target, stackCount) {
 }
 function tickGreatsword(player) {
   if (!isHoldingWeapon5(player)) return;
-  try {
-    player.addEffect("weakness", 10, { amplifier: 255, showParticles: false });
-  } catch {
-  }
   const state = getState5(player);
   resetAttackingFlagIfNeeded(player, state);
   maintainOrReleaseInputLock(player, state);
@@ -1093,7 +1150,7 @@ function tickGreatsword(player) {
   }
   handleComboTransitionOrEnd(player, state, CONFIG, setState5);
 }
-world5.afterEvents.entityHitEntity.subscribe((ev) => {
+onWeaponHit((ev) => {
   const attacker = ev.damagingEntity;
   if (!attacker || attacker.typeId !== "minecraft:player") return;
   if (!isHoldingWeapon5(attacker)) return;
@@ -1198,7 +1255,7 @@ function isHoldingWeapon6(player) {
 }
 var calcDamage5 = (anim) => Math.floor(BASE_DAMAGE6 * anim.damageMultiplier);
 var applyHit6 = safeHit(function applyHit6(player, target, dmg) {
-  target.applyDamage(dmg, {
+  dealDamage(target, dmg, {
     cause: EntityDamageCause6.entityAttack,
     damagingEntity: player
   });
@@ -1355,7 +1412,7 @@ function tickWeapon5(player) {
   }
   handleComboTransitionOrEnd(player, state, COMBO_CFG5, setState6);
 }
-world6.afterEvents.entityHitEntity.subscribe((ev) => {
+onWeaponHit((ev) => {
   const { damagingEntity: attacker, hitEntity: victim } = ev;
   if (!attacker || attacker.typeId !== "minecraft:player" || !victim) return;
   if (!isHoldingWeapon6(attacker)) return;
@@ -1569,7 +1626,7 @@ function getCurrentAnim(state) {
 }
 var calcDamage6 = (anim) => Math.floor(BASE_DAMAGE7 * anim.damageMultiplier);
 var applyHit7 = safeHit(function applyHit7(player, target, dmg) {
-  target.applyDamage(dmg, {
+  dealDamage(target, dmg, {
     cause: EntityDamageCause7.entityAttack,
     damagingEntity: player
   });
@@ -1636,7 +1693,7 @@ function isCapacitorReady(state) {
 }
 function triggerCapacitorBurst(player, primaryTarget) {
   withCooldown(player, "redstone_pulse_gauntlet_capacitor", CAPACITOR_PROC_COOLDOWN_TICKS, () => {
-    primaryTarget.applyDamage(CAPACITOR_BONUS_DAMAGE, {
+    dealDamage(primaryTarget, CAPACITOR_BONUS_DAMAGE, {
       cause: EntityDamageCause7.entityAttack,
       damagingEntity: player
     });
@@ -1746,7 +1803,7 @@ function tickWeapon6(player) {
   }
   setState7(player, state);
 }
-world7.afterEvents.entityHitEntity.subscribe((ev) => {
+onWeaponHit((ev) => {
   const { damagingEntity: attacker, hitEntity: victim } = ev;
   if (!attacker || attacker.typeId !== "minecraft:player" || !victim) return;
   if (!isHoldingWeapon7(attacker)) return;
@@ -1966,7 +2023,7 @@ function tickReturningTargets() {
 }
 var applyHit8 = safeHit(function applyHit8(player, target, anim) {
   const damage = calcDamage7(player, anim);
-  target.applyDamage(damage, {
+  dealDamage(target, damage, {
     cause: EntityDamageCause8.entityAttack,
     damagingEntity: player
   });
@@ -2035,7 +2092,7 @@ function tickWeapon7(player) {
   }
   handleComboTransitionOrEnd(player, state, CONFIG2, setState8);
 }
-world8.afterEvents.entityHitEntity.subscribe((ev) => {
+onWeaponHit((ev) => {
   const { damagingEntity: attacker, hitEntity: victim } = ev;
   if (!attacker || attacker.typeId !== "minecraft:player" || !victim) {
     return;
