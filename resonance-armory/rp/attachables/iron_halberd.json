@@ -21,18 +21,21 @@
       },
       "scripts": {
         "pre_animation": [
-          "variable.iron_halberd = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:iron_halberd');"
+          "variable.iron_halberd = (query.is_in_ui || (variable.is_paperdoll ?? 0)) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:iron_halberd');"
         ],
         "animate": [
           {
-            "iron_halberd.idle": "!c.is_first_person && variable.iron_halberd && !q.is_moving"
+            "iron_halberd.idle": "!c.is_first_person && (variable.iron_halberd ?? 0) && !q.is_moving"
           },
           {
-            "iron_halberd.walk": "!c.is_first_person && variable.iron_halberd && q.is_moving && !q.is_sprinting"
+            "iron_halberd.walk": "!c.is_first_person && (variable.iron_halberd ?? 0) && q.is_moving && !q.is_sprinting"
           },
           {
-            "iron_halberd.run": "!c.is_first_person && variable.iron_halberd && q.is_sprinting"
+            "iron_halberd.run": "!c.is_first_person && (variable.iron_halberd ?? 0) && q.is_sprinting"
           }
+        ],
+        "initialize": [
+          "variable.iron_halberd = 0.0;"
         ]
       },
       "render_controllers": [

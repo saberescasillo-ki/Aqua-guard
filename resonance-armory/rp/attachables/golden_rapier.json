@@ -19,12 +19,15 @@
       },
       "scripts": {
         "pre_animation": [
-          "variable.golden_rapier = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:golden_rapier');"
+          "variable.golden_rapier = (query.is_in_ui || (variable.is_paperdoll ?? 0)) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:golden_rapier');"
         ],
         "animate": [
           {
-            "golden_rapier.idle": "!c.is_first_person && variable.golden_rapier"
+            "golden_rapier.idle": "!c.is_first_person && (variable.golden_rapier ?? 0)"
           }
+        ],
+        "initialize": [
+          "variable.golden_rapier = 0.0;"
         ]
       },
       "render_controllers": [

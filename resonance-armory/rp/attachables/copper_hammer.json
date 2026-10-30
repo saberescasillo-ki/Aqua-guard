@@ -19,12 +19,15 @@
       },
       "scripts": {
         "pre_animation": [
-          "variable.copper_hammer = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:copper_hammer');"
+          "variable.copper_hammer = (query.is_in_ui || (variable.is_paperdoll ?? 0)) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:copper_hammer');"
         ],
         "animate": [
           {
-            "copper_hammer.idle": "!c.is_first_person && variable.copper_hammer"
+            "copper_hammer.idle": "!c.is_first_person && (variable.copper_hammer ?? 0)"
           }
+        ],
+        "initialize": [
+          "variable.copper_hammer = 0.0;"
         ]
       },
       "render_controllers": [

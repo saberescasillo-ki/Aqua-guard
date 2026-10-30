@@ -19,15 +19,20 @@
       },
       "scripts": {
         "pre_animation": [
-          "variable.diamond_greatsword = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:diamond_greatsword');"
+          "variable.diamond_greatsword = (query.is_in_ui || (variable.is_paperdoll ?? 0)) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:diamond_greatsword');"
         ],
         "animate": [
           {
-            "diamond_greatsword.idle": "!c.is_first_person && variable.diamond_greatsword"
+            "diamond_greatsword.idle": "!c.is_first_person && (variable.diamond_greatsword ?? 0)"
           }
+        ],
+        "initialize": [
+          "variable.diamond_greatsword = 0.0;"
         ]
       },
-      "render_controllers": ["controller.render.item_default"],
+      "render_controllers": [
+        "controller.render.item_default"
+      ],
       "item": {
         "resonance:diamond_greatsword": "(1.0)"
       }

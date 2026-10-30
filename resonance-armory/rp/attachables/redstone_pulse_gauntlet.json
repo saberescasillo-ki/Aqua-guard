@@ -19,15 +19,20 @@
       },
       "scripts": {
         "pre_animation": [
-          "variable.redstone_pulse_gauntlet = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:redstone_pulse_gauntlet');"
+          "variable.redstone_pulse_gauntlet = (query.is_in_ui || (variable.is_paperdoll ?? 0)) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:redstone_pulse_gauntlet');"
         ],
         "animate": [
           {
-            "redstone_pulse_gauntlet.idle": "!c.is_first_person && variable.redstone_pulse_gauntlet"
+            "redstone_pulse_gauntlet.idle": "!c.is_first_person && (variable.redstone_pulse_gauntlet ?? 0)"
           }
+        ],
+        "initialize": [
+          "variable.redstone_pulse_gauntlet = 0.0;"
         ]
       },
-      "render_controllers": ["controller.render.item_default"],
+      "render_controllers": [
+        "controller.render.item_default"
+      ],
       "item": {
         "resonance:redstone_pulse_gauntlet": "(1.0)"
       }

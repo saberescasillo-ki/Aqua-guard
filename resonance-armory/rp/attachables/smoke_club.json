@@ -22,12 +22,15 @@
       },
       "scripts": {
         "pre_animation": [
-          "variable.smoke_club = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:smoke_club');"
+          "variable.smoke_club = (query.is_in_ui || (variable.is_paperdoll ?? 0)) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:smoke_club');"
         ],
         "animate": [
           {
-            "smoke_club.idle": "!c.is_first_person && variable.smoke_club"
+            "smoke_club.idle": "!c.is_first_person && (variable.smoke_club ?? 0)"
           }
+        ],
+        "initialize": [
+          "variable.smoke_club = 0.0;"
         ]
       },
       "item": {

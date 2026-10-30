@@ -232,7 +232,7 @@
           ],
           "transitions": [
             {
-              "paperdoll": "variable.is_paperdoll"
+              "paperdoll": "(variable.is_paperdoll ?? 0)"
             },
             {
               "map_player": "variable.map_face_icon"
@@ -245,7 +245,7 @@
         "map_player": {
           "transitions": [
             {
-              "paperdoll": "variable.is_paperdoll"
+              "paperdoll": "(variable.is_paperdoll ?? 0)"
             },
             {
               "first_person": "variable.is_first_person"
@@ -265,13 +265,13 @@
           ],
           "transitions": [
             {
-              "first_person": "!variable.is_paperdoll && variable.is_first_person"
+              "first_person": "!(variable.is_paperdoll ?? 0) && variable.is_first_person"
             },
             {
               "map_player": "variable.map_face_icon"
             },
             {
-              "third_person": "!variable.is_paperdoll && !variable.is_first_person"
+              "third_person": "!(variable.is_paperdoll ?? 0) && !variable.is_first_person"
             }
           ]
         },
@@ -372,7 +372,7 @@
           ],
           "transitions": [
             {
-              "paperdoll": "variable.is_paperdoll"
+              "paperdoll": "(variable.is_paperdoll ?? 0)"
             },
             {
               "first_person": "variable.is_first_person"
