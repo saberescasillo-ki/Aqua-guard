@@ -551,7 +551,7 @@
       }
     },
     "animation.iron_halberd.attack2": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.5417,
       "bones": {
         "waist": {
@@ -1071,7 +1071,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.iron_halberd.attack": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.5417,
       "bones": {
         "waist": {
@@ -1515,7 +1515,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.iron_halberd.attack1": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.5,
       "bones": {
         "waist": {

@@ -256,7 +256,7 @@ function startAttack(player, state, cfg, setState9) {
   player.setDynamicProperty(ATTACKING_FLAG, 1);
   state.attackingFlagUntil = tick + cfg.attackLockTicks;
   lockInputAndSuppressVanilla(player, anim.attackTime + cfg.inputCooldownTicks + 2, state);
-  player.playAnimation(anim.animation, { controller: cfg.animController, blendOutTime: ATTACK_BLEND_OUT_SECONDS });
+  player.playAnimation(anim.animation, { controller: cfg.animController, blendOutTime: cfg.blendOutSeconds ?? ATTACK_BLEND_OUT_SECONDS });
   setState9(player, state);
 }
 function bufferNextAttack(player, state, setState9) {
@@ -305,7 +305,7 @@ var ANIMS = [
     nextAttackWindow: 6,
     cancelIntoNextTick: 14,
     hitFrames: [12, 13],
-    range: 2.3,
+    range: 2.8,
     coneDeg: 75,
     damageMultiplier: 1,
     specialFrame: 12
@@ -316,7 +316,7 @@ var ANIMS = [
     nextAttackWindow: 6,
     cancelIntoNextTick: 14,
     hitFrames: [12, 13],
-    range: 2.7,
+    range: 3.2,
     coneDeg: 80,
     damageMultiplier: 1.15,
     specialFrame: 12
@@ -327,7 +327,7 @@ var ANIMS = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 14,
     hitFrames: [12, 13],
-    range: 2.5,
+    range: 3,
     coneDeg: 85,
     damageMultiplier: 1.35,
     specialFrame: 12
@@ -445,7 +445,7 @@ var ANIMS2 = [
     nextAttackWindow: 6,
     cancelIntoNextTick: 20,
     hitFrames: [7, 8],
-    range: 3.2,
+    range: 3.7,
     coneDeg: 75,
     damageMultiplier: 1
   },
@@ -455,7 +455,7 @@ var ANIMS2 = [
     nextAttackWindow: 6,
     cancelIntoNextTick: 20,
     hitFrames: [6],
-    range: 2.8,
+    range: 3.3,
     coneDeg: 80,
     damageMultiplier: 1.15
   },
@@ -465,7 +465,7 @@ var ANIMS2 = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 20,
     hitFrames: [6, 7],
-    range: 3,
+    range: 3.5,
     coneDeg: 85,
     damageMultiplier: 1.35
   }
@@ -593,7 +593,7 @@ var ANIMS3 = [
     nextAttackWindow: 2,
     cancelIntoNextTick: 10,
     hitFrames: [4],
-    range: 5,
+    range: 5.5,
     coneDeg: 70,
     damageMultiplier: 1
   },
@@ -603,7 +603,7 @@ var ANIMS3 = [
     nextAttackWindow: 2,
     cancelIntoNextTick: 10,
     hitFrames: [2, 3],
-    range: 5,
+    range: 5.5,
     coneDeg: 75,
     damageMultiplier: 1.1
   },
@@ -613,7 +613,7 @@ var ANIMS3 = [
     nextAttackWindow: 3,
     cancelIntoNextTick: 5,
     hitFrames: [1, 2],
-    range: 5,
+    range: 5.5,
     coneDeg: 80,
     damageMultiplier: 1.25
   }
@@ -763,7 +763,7 @@ var ANIMS4 = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 18,
     hitFrames: [17],
-    range: 2.5,
+    range: 3,
     coneDeg: 75,
     damageMultiplier: 1
   },
@@ -773,7 +773,7 @@ var ANIMS4 = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 20,
     hitFrames: [15, 16],
-    range: 2.5,
+    range: 3,
     coneDeg: 80,
     damageMultiplier: 1.15
   },
@@ -783,7 +783,7 @@ var ANIMS4 = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 20,
     hitFrames: [17, 18],
-    range: 3,
+    range: 3.5,
     coneDeg: 85,
     damageMultiplier: 2
   }
@@ -964,7 +964,7 @@ var ANIMS5 = [
     nextAttackWindow: 8,
     cancelIntoNextTick: 30,
     hitFrames: [25, 26],
-    range: 4,
+    range: 4.5,
     coneDeg: 80,
     damageMultiplier: 1
   },
@@ -974,7 +974,7 @@ var ANIMS5 = [
     nextAttackWindow: 8,
     cancelIntoNextTick: 32,
     hitFrames: [25, 26],
-    range: 4.5,
+    range: 5,
     coneDeg: 85,
     damageMultiplier: 1.2
   },
@@ -985,12 +985,13 @@ var ANIMS5 = [
     cancelIntoNextTick: 44,
     hitFrames: [31, 32],
     // finisher — paling lambat, paling sakit
-    range: 4.8,
+    range: 5.3,
     coneDeg: 180,
     damageMultiplier: 1.5
   }
 ];
 var CONFIG = {
+  blendOutSeconds: 0.1,
   anims: ANIMS5,
   animController: ANIM_CONTROLLER5,
   inputCooldownTicks: INPUT_COOLDOWN_TICKS5,
@@ -1196,7 +1197,7 @@ var ANIMS6 = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 20,
     hitFrames: [14],
-    range: 3,
+    range: 3.5,
     coneDeg: 90,
     damageMultiplier: 1
   },
@@ -1206,7 +1207,7 @@ var ANIMS6 = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 25,
     hitFrames: [17],
-    range: 4,
+    range: 4.5,
     coneDeg: 70,
     damageMultiplier: 1.15
   },
@@ -1217,7 +1218,7 @@ var ANIMS6 = [
     cancelIntoNextTick: 20,
     hitFrames: [17],
     // finisher — sedikit lebih lambat, multiplier tertinggi
-    range: 3.5,
+    range: 4,
     coneDeg: 80,
     damageMultiplier: 1.4
   }
@@ -1461,7 +1462,7 @@ var NORMAL_ANIMS = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 22,
     hitFrames: [21],
-    range: 2,
+    range: 2.5,
     coneDeg: 76,
     damageMultiplier: 1
   },
@@ -1471,7 +1472,7 @@ var NORMAL_ANIMS = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 18,
     hitFrames: [17],
-    range: 2,
+    range: 2.5,
     coneDeg: 80,
     damageMultiplier: 1.1
   },
@@ -1481,7 +1482,7 @@ var NORMAL_ANIMS = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 17,
     hitFrames: [16],
-    range: 2.2,
+    range: 2.7,
     coneDeg: 84,
     damageMultiplier: 1.25
   }
@@ -1493,7 +1494,7 @@ var FAST_ANIMS = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 15,
     hitFrames: [14],
-    range: 2,
+    range: 2.5,
     coneDeg: 78,
     damageMultiplier: 1.05
   },
@@ -1503,7 +1504,7 @@ var FAST_ANIMS = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 12,
     hitFrames: [11],
-    range: 2,
+    range: 2.5,
     coneDeg: 82,
     damageMultiplier: 1.15
   },
@@ -1513,7 +1514,7 @@ var FAST_ANIMS = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 12,
     hitFrames: [11],
-    range: 2.2,
+    range: 2.7,
     coneDeg: 86,
     damageMultiplier: 1.3
   }
@@ -1525,7 +1526,7 @@ var MAX_ANIMS = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 12,
     hitFrames: [11],
-    range: 2.8,
+    range: 3.3,
     coneDeg: 80,
     damageMultiplier: 1.1
   },
@@ -1535,7 +1536,7 @@ var MAX_ANIMS = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 12,
     hitFrames: [11],
-    range: 2,
+    range: 2.5,
     coneDeg: 82,
     damageMultiplier: 1.15
   },
@@ -1545,7 +1546,7 @@ var MAX_ANIMS = [
     nextAttackWindow: 10,
     cancelIntoNextTick: 12,
     hitFrames: [11],
-    range: 2.2,
+    range: 2.7,
     coneDeg: 86,
     damageMultiplier: 1.3
   }
@@ -1861,7 +1862,7 @@ var ANIMS7 = [
      * receive damage twice from the same swing.
      */
     hitFrames: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
-    range: 5,
+    range: 5.5,
     coneDeg: 85,
     damageMultiplier: 1
   }

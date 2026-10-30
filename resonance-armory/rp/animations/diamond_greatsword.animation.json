@@ -71,7 +71,7 @@
       }
     },
     "animation.diamond_greatsword.attack": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 2.2,
       "bones": {
         "waist": {
@@ -821,11 +821,10 @@
             ]
           }
         }
-      },
-      "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
+      }
     },
     "animation.diamond_greatsword.attack1": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 2.3,
       "bones": {
         "waist": {
@@ -1811,11 +1810,10 @@
             0
           ]
         }
-      },
-      "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
+      }
     },
     "animation.diamond_greatsword.attack2": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 3,
       "bones": {
         "body": {
@@ -2789,14 +2787,21 @@
               391.1122,
               18.9068
             ],
-            "2.2917": [
-              8.1529,
-              393.4716,
-              18.1373
-            ],
+            "2.2917": {
+              "pre": [
+                8.1529,
+                393.4716,
+                18.1373
+              ],
+              "post": [
+                8.1529,
+                33.4716,
+                18.1373
+              ]
+            },
             "3.0": [
               0,
-              360,
+              0,
               0
             ]
           },
@@ -2861,8 +2866,7 @@
             ]
           }
         }
-      },
-      "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
+      }
     }
   }
 }

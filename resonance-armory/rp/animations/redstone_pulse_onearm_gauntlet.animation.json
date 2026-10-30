@@ -59,7 +59,7 @@
       }
     },
     "animation.redstone_pulse_gauntlet.attack": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.9167,
       "bones": {
         "waist": {
@@ -685,7 +685,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.redstone_pulse_gauntlet.fast_attack": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.9167,
       "bones": {
         "waist": {
@@ -936,7 +936,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.redstone_pulse_gauntlet.attack1": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.9167,
       "bones": {
         "waist": {
@@ -1625,7 +1625,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.redstone_pulse_gauntlet.fast_attack1": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.7917,
       "bones": {
         "waist": {
@@ -1876,7 +1876,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.redstone_pulse_gauntlet.fast_attack2": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.7917,
       "bones": {
         "waist": {
@@ -2117,7 +2117,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.redstone_pulse_gauntlet.fast_attack3": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.7917,
       "bones": {
         "waist": {
@@ -2368,7 +2368,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.redstone_pulse_gauntlet.attack2": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.7917,
       "bones": {
         "waist": {

@@ -64,7 +64,7 @@
       }
     },
     "animation.smoke_club.attack": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.625,
       "bones": {
         "body": {
@@ -638,7 +638,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.smoke_club.attack1": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 1.625,
       "bones": {
         "body": {
@@ -1272,7 +1272,7 @@
       "blend_weight": "math.clamp(query.anim_time / 0.15, 0.0, 1.0)"
     },
     "animation.smoke_club.attack2": {
-      "loop": "hold_on_last_frame",
+      "loop": false,
       "animation_length": 2,
       "bones": {
         "body": {
