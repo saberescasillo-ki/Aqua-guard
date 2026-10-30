@@ -23,9 +23,6 @@
     "resonance_redstone_pulse_gauntlet": {
       "textures": "textures/items/redstone_pulse_gauntlet"
     },
-    "resonance_redstone_pulse_onearm_gauntlet": {
-      "textures": "textures/items/redstone_pulse_onearm_gauntlet"
-    },
     "resonance_lunar_crescent": {
       "textures": "textures/items/lunar_crescent"
     }

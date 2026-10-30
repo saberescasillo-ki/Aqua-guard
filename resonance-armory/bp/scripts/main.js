@@ -3,29 +3,46 @@ import { world, system as system4, EntityDamageCause, EntityComponentTypes, Equi
 
 // scripts/systems/cooldown.ts
 import { system } from "@minecraft/server";
+var cooldowns = /* @__PURE__ */ new Map();
+function isOnCooldown(entity, key) {
+  const until = cooldowns.get(`${entity.id}:${key}`);
+  return until !== void 0 && system.currentTick < until;
+}
 function withCooldown(entity, key, ticks, action) {
-  const tag = `cd_${key}`;
-  if (entity.hasTag(tag)) return;
-  entity.addTag(tag);
-  action();
-  system.runTimeout(() => {
-    entity.removeTag(tag);
-  }, ticks);
+  if (isOnCooldown(entity, key)) return;
+  cooldowns.set(`${entity.id}:${key}`, system.currentTick + ticks);
+  try {
+    action();
+  } catch (e) {
+    console.warn(`[Resonance] ${key}: ${e}`);
+  }
+}
+function clearCooldowns(entity) {
+  const prefix = `${entity.id}:`;
+  for (const k of [...cooldowns.keys()]) if (k.startsWith(prefix)) cooldowns.delete(k);
+  try {
+    for (const tag of entity.getTags()) if (tag.startsWith("cd_")) entity.removeTag(tag);
+  } catch {
+  }
 }
 
 // scripts/utils/area_effect.ts
-function applyAreaEffect(dimension, center, radius, effects) {
+function applyAreaEffect(dimension, center, radius, effects, source) {
   const entities = dimension.getEntities({
     location: center,
     maxDistance: radius,
-    excludeTypes: ["item"]
+    excludeTypes: ["minecraft:item", "minecraft:xp_orb"]
   });
   for (const entity of entities) {
+    if (source && entity.id === source.id) continue;
     for (const effect of effects) {
-      entity.addEffect(effect.type, effect.duration, {
-        amplifier: effect.level ?? 0,
-        showParticles: false
-      });
+      try {
+        entity.addEffect(effect.type, effect.duration, {
+          amplifier: effect.level ?? 0,
+          showParticles: false
+        });
+      } catch {
+      }
     }
   }
 }
@@ -39,6 +56,17 @@ function spawnSmoke(dimension, center, count = 5) {
       z: center.z + Math.random() - 0.5
     });
   }
+}
+
+// scripts/utils/safe_tick.ts
+function safeTick(fn) {
+  return (player) => {
+    try {
+      fn(player);
+    } catch (e) {
+      console.warn(`[Resonance] ${fn.name}: ${e}`);
+    }
+  };
 }
 
 // scripts/utils/input_lock.ts
@@ -59,8 +87,19 @@ function enableMovement(player) {
   } catch {
   }
 }
+var activeInputLocks = /* @__PURE__ */ new Map();
+function releaseExpiredInputLocks() {
+  const tick = system2.currentTick;
+  for (const player of world.getPlayers()) {
+    const until = activeInputLocks.get(player.id);
+    if (until === void 0 || tick < until) continue;
+    activeInputLocks.delete(player.id);
+    enableMovement(player);
+  }
+}
 function lockInputAndSuppressVanilla(player, durationTicks, state) {
   const until = system2.currentTick + Math.max(1, durationTicks);
+  activeInputLocks.set(player.id, Math.max(activeInputLocks.get(player.id) ?? 0, until));
   state.inputLockUntilTick = Math.max(state.inputLockUntilTick ?? 0, until);
   try {
     player.addEffect("weakness", durationTicks, { amplifier: 100, showParticles: false });
@@ -93,17 +132,35 @@ function maintainOrReleaseInputLock(player, state) {
 }
 
 // scripts/systems/targeting.ts
+var NON_TARGET_TYPES = ["minecraft:item", "minecraft:xp_orb", "minecraft:arrow", "minecraft:armor_stand", "minecraft:painting", "minecraft:leash_knot"];
+function safeHit(fn) {
+  return (...args) => {
+    try {
+      return fn(...args);
+    } catch {
+    }
+  };
+}
 function getTargetsInCone(player, range, coneDeg, maxTargets) {
   const dim = player.dimension;
   if (!dim?.getEntities) return [];
   const origin = player.location;
-  const forward = player.getViewDirection();
+  const view = player.getViewDirection();
+  const flatLen = Math.sqrt(view.x * view.x + view.z * view.z);
+  const forward = flatLen > 1e-3 ? { x: view.x / flatLen, z: view.z / flatLen } : { x: 0, z: 1 };
   const cosThreshold = Math.cos(coneDeg * Math.PI / 180 / 2);
-  const list = dim.getEntities({ location: origin, maxDistance: range }) || [];
+  const list = dim.getEntities({ location: origin, maxDistance: range + 1, excludeTypes: NON_TARGET_TYPES }) || [];
   const results = [];
   for (const e of list) {
-    if (!e || e.id === player.id || !e.location) continue;
-    if (!e.getComponent?.("minecraft:health")) continue;
+    try {
+      if (!e || !e.isValid || e.id === player.id || !e.location) continue;
+      const health = e.getComponent("minecraft:health");
+      if (!health || health.currentValue <= 0) continue;
+      if (e.getComponent("minecraft:tameable")?.tamedToPlayerId === player.id) continue;
+      if (Math.abs(e.location.y - origin.y) > 2.5) continue;
+    } catch {
+      continue;
+    }
     const dx = e.location.x - origin.x;
     const dz = e.location.z - origin.z;
     const dist = Math.sqrt(dx * dx + dz * dz);
@@ -250,19 +307,11 @@ function isHoldingWeapon(player) {
   return player.getComponent("minecraft:equippable")?.getEquipment?.("Mainhand")?.typeId === WEAPON_ID;
 }
 var calcDamage = (anim) => Math.floor(BASE_DAMAGE * anim.damageMultiplier);
-var applyHit = (player, target, dmg) => target.applyDamage(dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: player });
+var applyHit = safeHit((player, target, dmg) => target.applyDamage(dmg, { cause: EntityDamageCause.entityAttack, damagingEntity: player }));
 function triggerSmokeSpecial(attacker, primaryTarget) {
-  try {
-    attacker.sendMessage(`SMOKE SPECIAL on ${system4.currentTick}`);
-  } catch {
-  }
   withCooldown(attacker, "smoke_club_special", SPECIAL_COOLDOWN_TICKS, () => {
-    try {
-      attacker.sendMessage(`COOLDOWN PASSED`);
-    } catch {
-    }
     spawnSmoke(primaryTarget.dimension, primaryTarget.location, SMOKE_PARTICLE_COUNT);
-    applyAreaEffect(primaryTarget.dimension, primaryTarget.location, SMOKE_RADIUS, [...SMOKE_EFFECTS]);
+    applyAreaEffect(primaryTarget.dimension, primaryTarget.location, SMOKE_RADIUS, [...SMOKE_EFFECTS], attacker);
   });
 }
 function tickWeapon(player) {
@@ -289,12 +338,6 @@ function tickWeapon(player) {
       const specialFrame = anim.specialFrame ?? anim.hitFrames[0];
       if (!state.specialTriggeredThisSwing && state.frame === specialFrame) {
         state.specialTriggeredThisSwing = true;
-        try {
-          player.sendMessage(
-            `frame=${state.frame} special=${state.specialTriggeredThisSwing} targets=${targets.length}`
-          );
-        } catch {
-        }
         triggerSmokeSpecial(player, targets[0]);
       }
       try {
@@ -320,7 +363,7 @@ world.afterEvents.entityHitEntity.subscribe((ev) => {
     startAttack(attacker, s, COMBO_CFG, setState);
   });
 });
-system4.runInterval(() => world.getPlayers().forEach(tickWeapon), 1);
+system4.runInterval(() => world.getPlayers().forEach(safeTick(tickWeapon)), 1);
 
 // scripts/armory/iron/iron_halberd.ts
 import { world as world2, system as system5, EntityDamageCause as EntityDamageCause2, EntityComponentTypes as EntityComponentTypes2, EquipmentSlot as EquipmentSlot2 } from "@minecraft/server";
@@ -421,11 +464,11 @@ function calcDamage2(target, anim) {
   }
   return Math.floor(dmg);
 }
-function applyHit2(player, target, dmg) {
+var applyHit2 = safeHit(function applyHit2(player, target, dmg) {
   target.applyDamage(dmg, { cause: EntityDamageCause2.entityAttack, damagingEntity: player });
   const dir = player.getViewDirection();
   target.applyKnockback({ x: dir.x * KNOCKBACK_STRENGTH, z: dir.z * KNOCKBACK_STRENGTH }, KNOCKBACK_VERTICAL);
-}
+});
 function tickWeapon2(player) {
   if (!isHoldingWeapon2(player)) return;
   const state = getState2(player);
@@ -468,7 +511,7 @@ world2.afterEvents.entityHitEntity.subscribe((ev) => {
     startAttack(attacker, s, COMBO_CFG2, setState2);
   });
 });
-system5.runInterval(() => world2.getPlayers().forEach(tickWeapon2), 1);
+system5.runInterval(() => world2.getPlayers().forEach(safeTick(tickWeapon2)), 1);
 
 // scripts/armory/gold/golden_rapier.ts
 import { world as world3, system as system6, EntityDamageCause as EntityDamageCause3, EntityComponentTypes as EntityComponentTypes3, EquipmentSlot as EquipmentSlot3, GameMode } from "@minecraft/server";
@@ -562,8 +605,16 @@ function damageDurabilityOnCrit(player, amount) {
   try {
     const durability = mh.getComponent("minecraft:durability");
     if (!durability) return;
-    durability.damage += amount;
     const eq = player.getComponent?.(EntityComponentTypes3.Equippable) ?? player.getComponent?.("minecraft:equippable");
+    if (durability.damage + amount >= durability.maxDurability) {
+      eq?.setEquipment(EquipmentSlot3.Mainhand, void 0);
+      try {
+        player.dimension.playSound("random.break", player.location);
+      } catch {
+      }
+      return;
+    }
+    durability.damage += amount;
     try {
       eq?.setEquipment(EquipmentSlot3.Mainhand, mh);
     } catch {
@@ -577,7 +628,7 @@ function damageDurabilityOnCrit(player, amount) {
 }
 var calcBaseDamage = (anim) => Math.floor(BASE_DAMAGE3 * anim.damageMultiplier);
 var rollCrit = () => Math.random() < CRIT_CHANCE;
-var applyHit3 = (player, target, dmg) => target.applyDamage(dmg, { cause: EntityDamageCause3.entityAttack, damagingEntity: player });
+var applyHit3 = safeHit((player, target, dmg) => target.applyDamage(dmg, { cause: EntityDamageCause3.entityAttack, damagingEntity: player }));
 function tickWeapon3(player) {
   if (!isHoldingWeapon3(player)) return;
   const state = getState3(player);
@@ -627,7 +678,7 @@ world3.afterEvents.entityHitEntity.subscribe((ev) => {
     startAttack(attacker, s, COMBO_CFG3, setState3);
   });
 });
-system6.runInterval(() => world3.getPlayers().forEach(tickWeapon3), 1);
+system6.runInterval(() => world3.getPlayers().forEach(safeTick(tickWeapon3)), 1);
 
 // scripts/armory/copper/copper_hammer.ts
 import { world as world4, system as system7, EntityDamageCause as EntityDamageCause4 } from "@minecraft/server";
@@ -707,11 +758,11 @@ function isHoldingWeapon4(player) {
   return !!eq && eq.getEquipment?.("Mainhand")?.typeId === WEAPON_ID4;
 }
 var calcDamage3 = (anim) => Math.floor(BASE_DAMAGE4 * anim.damageMultiplier);
-var applyHit4 = (player, target, dmg) => {
+var applyHit4 = safeHit((player, target, dmg) => {
   target.applyDamage(dmg, { cause: EntityDamageCause4.entityAttack, damagingEntity: player });
   const dir = player.getViewDirection();
   target.applyKnockback({ x: dir.x * 0.2, z: dir.z * 0.2 }, 0.02);
-};
+});
 function isWet(entity) {
   try {
     if (entity.isInWater) return true;
@@ -732,10 +783,9 @@ function tryShock(player, primaryTarget, state) {
   state.hitStreak = Math.min((state.hitStreak ?? 0) + 1, SHOCK_MAX_STREAK);
   state.lastHitTick = tick;
   if (state.hitStreak < SHOCK_THRESHOLD) return;
-  const cooldownTag = "cd_copper_hammer_shock";
-  if (player.hasTag(cooldownTag)) return;
-  player.addTag(cooldownTag);
-  system7.runTimeout(() => player.removeTag(cooldownTag), SHOCK_COOLDOWN_TICKS);
+  if (isOnCooldown(player, "copper_hammer_shock")) return;
+  withCooldown(player, "copper_hammer_shock", SHOCK_COOLDOWN_TICKS, () => {
+  });
   const wet = isWet(player) || isWet(primaryTarget);
   const shockDamage = wet ? SHOCK_DAMAGE_WET : SHOCK_DAMAGE_BASE;
   const radius = wet ? SHOCK_RADIUS_WET : SHOCK_RADIUS_BASE;
@@ -743,7 +793,11 @@ function tryShock(player, primaryTarget, state) {
   for (const e of nearby) {
     if (!e || e.id === player.id || e.id === primaryTarget.id) continue;
     if (!e.getComponent?.("minecraft:health")) continue;
-    e.applyDamage(shockDamage, { cause: EntityDamageCause4.magic, damagingEntity: player });
+    if (e.getComponent("minecraft:tameable")?.tamedToPlayerId === player.id) continue;
+    try {
+      e.applyDamage(shockDamage, { cause: EntityDamageCause4.magic, damagingEntity: player });
+    } catch {
+    }
   }
   try {
     world4.getDimension(player.dimension.id).playSound("random.orb", primaryTarget.location, {
@@ -795,7 +849,7 @@ world4.afterEvents.entityHitEntity.subscribe((ev) => {
     startAttack(attacker, s, COMBO_CFG4, setState4);
   });
 });
-system7.runInterval(() => world4.getPlayers().forEach(tickWeapon4), 1);
+system7.runInterval(() => world4.getPlayers().forEach(safeTick(tickWeapon4)), 1);
 
 // scripts/armory/diamond/diamond_greatsword.ts
 import { world as world5, system as system8, EntityDamageCause as EntityDamageCause5 } from "@minecraft/server";
@@ -940,11 +994,11 @@ function calcDamage4(anim, target, stackCount) {
   const effectiveReduction = armorReduction * Math.max(0, 1 - fractureBypass);
   return Math.floor(base * (1 - effectiveReduction));
 }
-function applyHit5(player, target, dmg) {
+var applyHit5 = safeHit(function applyHit5(player, target, dmg) {
   target.applyDamage(dmg, { cause: EntityDamageCause5.entityAttack, damagingEntity: player });
   const dir = player.getViewDirection();
   target.applyKnockback({ x: dir.x * KNOCKBACK_STRENGTH2, z: dir.z * KNOCKBACK_STRENGTH2 }, KNOCKBACK_VERTICAL2);
-}
+});
 function triggerShatter(player, target) {
   withCooldown(player, "greatsword_shatter", SHATTER_COOLDOWN_TICKS, () => {
     target.applyDamage(SHATTER_BONUS_DAMAGE, {
@@ -987,12 +1041,10 @@ function playFractureSound(target, stackCount) {
 }
 function tickGreatsword(player) {
   if (!isHoldingWeapon5(player)) return;
-  player.addEffect("weakness", 1e4, {
-    amplifier: 255,
-    // amplifier 1 = Weakness II (0-indexed)
-    showParticles: false
-    // efek partikel visible supaya target tahu mereka di-debuff
-  });
+  try {
+    player.addEffect("weakness", 10, { amplifier: 255, showParticles: false });
+  } catch {
+  }
   const state = getState5(player);
   resetAttackingFlagIfNeeded(player, state);
   maintainOrReleaseInputLock(player, state);
@@ -1059,7 +1111,7 @@ world5.afterEvents.entityHitEntity.subscribe((ev) => {
   });
 });
 system8.runInterval(() => {
-  for (const p of world5.getPlayers()) tickGreatsword(p);
+  for (const p of world5.getPlayers()) safeTick(tickGreatsword)(p);
 }, 1);
 
 // scripts/armory/netherite/netherite_relic_blade.ts
@@ -1145,14 +1197,14 @@ function isHoldingWeapon6(player) {
   return !!eq && eq.getEquipment?.("Mainhand")?.typeId === WEAPON_ID6;
 }
 var calcDamage5 = (anim) => Math.floor(BASE_DAMAGE6 * anim.damageMultiplier);
-function applyHit6(player, target, dmg) {
+var applyHit6 = safeHit(function applyHit6(player, target, dmg) {
   target.applyDamage(dmg, {
     cause: EntityDamageCause6.entityAttack,
     damagingEntity: player
   });
   const dir = player.getViewDirection();
   target.applyKnockback({ x: dir.x * KNOCKBACK_STRENGTH3, z: dir.z * KNOCKBACK_STRENGTH3 }, KNOCKBACK_VERTICAL3);
-}
+});
 function applySoulDrain(player, target, burdenStacks) {
   const regenAmp = Math.min(Math.max(burdenStacks - 1, 0), 2);
   const weaknessAmp = Math.min(Math.max(burdenStacks - 1, 0), 2);
@@ -1319,7 +1371,7 @@ world6.afterEvents.entityHitEntity.subscribe((ev) => {
   });
 });
 system9.runInterval(() => {
-  for (const p of world6.getPlayers()) tickWeapon5(p);
+  for (const p of world6.getPlayers()) safeTick(tickWeapon5)(p);
 }, 1);
 
 // scripts/armory/redstone/restone_pulse_gauntlet.ts
@@ -1516,14 +1568,14 @@ function getCurrentAnim(state) {
   return cfg.anims[state.comboIndex % cfg.anims.length];
 }
 var calcDamage6 = (anim) => Math.floor(BASE_DAMAGE7 * anim.damageMultiplier);
-function applyHit7(player, target, dmg) {
+var applyHit7 = safeHit(function applyHit7(player, target, dmg) {
   target.applyDamage(dmg, {
     cause: EntityDamageCause7.entityAttack,
     damagingEntity: player
   });
   const dir = player.getViewDirection();
   target.applyKnockback({ x: dir.x * KNOCKBACK_STRENGTH4, z: dir.z * KNOCKBACK_STRENGTH4 }, KNOCKBACK_VERTICAL4);
-}
+});
 function resetOverclock(state) {
   state.overclockTier = 0;
   state.cycleTierLocked = 0;
@@ -1714,7 +1766,7 @@ world7.afterEvents.entityHitEntity.subscribe((ev) => {
   });
 });
 system10.runInterval(() => {
-  for (const p of world7.getPlayers()) tickWeapon6(p);
+  for (const p of world7.getPlayers()) safeTick(tickWeapon6)(p);
 }, 1);
 
 // scripts/armory/quartz/lunar_crescent.ts
@@ -1912,14 +1964,14 @@ function tickReturningTargets() {
     }
   }
 }
-function applyHit8(player, target, anim) {
+var applyHit8 = safeHit(function applyHit8(player, target, anim) {
   const damage = calcDamage7(player, anim);
   target.applyDamage(damage, {
     cause: EntityDamageCause8.entityAttack,
     damagingEntity: player
   });
   startReturningCrescent(player, target);
-}
+});
 function playMoonlightHitSound(player, empowered) {
   try {
     const dimension = world8.getDimension(player.dimension.id);
@@ -1966,21 +2018,19 @@ function tickWeapon7(player) {
       applyHit8(player, target, anim);
       hitSomething = true;
     }
-    state.hitAppliedThisSwing = true;
-    playMoonlightHitSound(player, empowered);
-    const direction = player.getViewDirection();
-    player.applyKnockback(
-      {
-        x: direction.x * 0.35,
-        z: direction.z * 0.35
-      },
-      0
-    );
+    if (state.frame === anim.hitFrames[0]) {
+      const direction = player.getViewDirection();
+      player.applyKnockback({ x: direction.x * 0.35, z: direction.z * 0.35 }, 0);
+    }
     if (hitSomething) {
+      state.hitAppliedThisSwing = true;
+      playMoonlightHitSound(player, empowered);
       try {
         player.runCommand("execute as @s run camerashake add @s 0.2 0.2");
       } catch {
       }
+    } else if (state.frame === anim.hitFrames[anim.hitFrames.length - 1]) {
+      playMoonlightHitSound(player, false);
     }
   }
   handleComboTransitionOrEnd(player, state, CONFIG2, setState8);
@@ -2006,9 +2056,35 @@ world8.afterEvents.entityHitEntity.subscribe((ev) => {
 });
 system11.runInterval(() => {
   for (const player of world8.getPlayers()) {
-    tickWeapon7(player);
+    safeTick(tickWeapon7)(player);
   }
   tickReturningTargets();
 }, 1);
 
-//# sourceMappingURL=../debug/main.js.map
+// scripts/systems/session.ts
+var ALL_STATE_KEYS = [STATE_KEY, STATE_KEY2, STATE_KEY3, STATE_KEY4, STATE_KEY5, STATE_KEY6, STATE_KEY7, STATE_KEY8];
+function resetPlayerCombatState(player) {
+  for (const key of ALL_STATE_KEYS) {
+    try {
+      player.setDynamicProperty(key, void 0);
+    } catch {
+    }
+  }
+  try {
+    player.setDynamicProperty(ATTACKING_FLAG, 0);
+  } catch {
+  }
+  clearCooldowns(player);
+  activeInputLocks.delete(player.id);
+  enableMovement(player);
+}
+world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
+  if (initialSpawn) resetPlayerCombatState(player);
+});
+world.afterEvents.playerLeave.subscribe(({ playerId }) => {
+  activeInputLocks.delete(playerId);
+  const prefix = `${playerId}:`;
+  for (const k of [...cooldowns.keys()]) if (k.startsWith(prefix)) cooldowns.delete(k);
+});
+system.runInterval(releaseExpiredInputLocks, 1);
+

@@ -24,11 +24,15 @@
       "minecraft:repairable": {
         "repair_items": [
           {
-            "items": ["minecraft:iron_ingot"],
+            "items": [
+              "minecraft:quartz"
+            ],
             "repair_amount": "query.max_durability * 0.2"
           },
           {
-            "items": ["resonance:lunar_crescent"],
+            "items": [
+              "resonance:lunar_crescent"
+            ],
             "repair_amount": "context.other->query.remaining_durability + 0.1 * context.other->query.max_durability"
           }
         ]

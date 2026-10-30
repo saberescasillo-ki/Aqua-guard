@@ -15,19 +15,21 @@
         "default": "geometry.golden_rapier"
       },
       "animations": {
-        "smoke_club.idle": "animation.smoke_club.idle"
+        "golden_rapier.idle": "animation.golden_rapier.idle"
       },
       "scripts": {
         "pre_animation": [
-          "variable.smoke_club = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:smoke_club');"
+          "variable.golden_rapier = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:golden_rapier');"
         ],
         "animate": [
           {
-            "smoke_club.idle": "!c.is_first_person && variable.smoke_club"
+            "golden_rapier.idle": "!c.is_first_person && variable.golden_rapier"
           }
         ]
       },
-      "render_controllers": ["controller.render.item_default"],
+      "render_controllers": [
+        "controller.render.item_default"
+      ],
       "item": {
         "resonance:golden_rapier": "(1.0)"
       }

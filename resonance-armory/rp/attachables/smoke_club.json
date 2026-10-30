@@ -14,7 +14,25 @@
       "geometry": {
         "default": "geometry.smoke_club"
       },
-      "render_controllers": ["controller.render.item_default"]
+      "render_controllers": [
+        "controller.render.item_default"
+      ],
+      "animations": {
+        "smoke_club.idle": "animation.smoke_club.idle"
+      },
+      "scripts": {
+        "pre_animation": [
+          "variable.smoke_club = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:smoke_club');"
+        ],
+        "animate": [
+          {
+            "smoke_club.idle": "!c.is_first_person && variable.smoke_club"
+          }
+        ]
+      },
+      "item": {
+        "resonance:smoke_club": "(1.0)"
+      }
     }
   }
 }

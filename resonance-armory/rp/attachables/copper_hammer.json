@@ -27,7 +27,12 @@
           }
         ]
       },
-      "render_controllers": ["controller.render.item_default"]
+      "render_controllers": [
+        "controller.render.item_default"
+      ],
+      "item": {
+        "resonance:copper_hammer": "(1.0)"
+      }
     }
   }
 }
