@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "resonance:copper_hammer"
+    },
+    "tags": ["crafting_table"],
+    "pattern": ["CCC", " R ", " S "],
+    "key": {
+      "C": { "item": "minecraft:copper_ingot" },
+      "R": { "item": "minecraft:redstone" },
+      "S": { "item": "minecraft:stick" }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:copper_ingot"
+      },
+      {
+        "item": "minecraft:redstone"
+      }
+    ],
+    "result": {
+      "item": "resonance:copper_hammer",
+      "count": 1
+    }
+  }
+}

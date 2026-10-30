@@ -1,0 +1,33 @@
+{
+  "resource_pack_name": "Resonance Armory",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "resonance_smoke_club": {
+      "textures": "textures/items/smoke_club"
+    },
+    "resonance_iron_halberd": {
+      "textures": "textures/items/iron_halberd"
+    },
+    "resonance_golden_rapier": {
+      "textures": "textures/items/golden_rapier"
+    },
+    "resonance_copper_hammer": {
+      "textures": "textures/items/copper_hammer"
+    },
+    "resonance_diamond_greatsword": {
+      "textures": "textures/items/diamond_greatsword"
+    },
+    "resonance_netherite_relic_blade": {
+      "textures": "textures/items/netherite_relic_blade"
+    },
+    "resonance_redstone_pulse_gauntlet": {
+      "textures": "textures/items/redstone_pulse_gauntlet"
+    },
+    "resonance_redstone_pulse_onearm_gauntlet": {
+      "textures": "textures/items/redstone_pulse_onearm_gauntlet"
+    },
+    "resonance_lunar_crescent": {
+      "textures": "textures/items/lunar_crescent"
+    }
+  }
+}

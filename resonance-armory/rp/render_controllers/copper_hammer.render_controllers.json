@@ -1,0 +1,14 @@
+{
+  "format_version": "1.10.0",
+  "render_controllers": {
+    "controller.render.copper_hammer": {
+      "geometry": "geometry.copper_hammer",
+      "materials": [
+        {
+          "*": "material.default"
+        }
+      ],
+      "textures": ["texture.copper_hammer"]
+    }
+  }
+}

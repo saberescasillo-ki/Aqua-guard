@@ -1,0 +1,19 @@
+{
+    "format_version": "1.10.0",
+    "animation_controllers": {
+        "controller.animation.golden_rapier": {
+            "initial_state": "base",
+            "states": {
+                "base": {
+                    "animations": [
+                        {
+                            "golden_rapier.idle": "v.golden_rapier && query.ground_speed < 0.02",
+                            "golden_rapier.attack.position": "v.golden_rapier && v.attack_time > 0.0 && v.attack_time < 0.25",
+                            "golden_rapier.attack.rotation": "v.golden_rapier && v.attack_time > 0.0 && v.attack_time < 0.25"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

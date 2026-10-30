@@ -1,0 +1,36 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "resonance:diamond_greatsword",
+      "materials": {
+        "default": "entity_alphatest_glint",
+        "enchanted": "entity_alphatest_glint"
+      },
+      "textures": {
+        "default": "textures/models/diamond_greatsword",
+        "enchanted": "textures/misc/enchanted_item_glint"
+      },
+      "geometry": {
+        "default": "geometry.diamond_greatsword"
+      },
+      "animations": {
+        "diamond_greatsword.idle": "animation.diamond_greatsword.idle"
+      },
+      "scripts": {
+        "pre_animation": [
+          "variable.diamond_greatsword = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:diamond_greatsword');"
+        ],
+        "animate": [
+          {
+            "diamond_greatsword.idle": "!c.is_first_person && variable.diamond_greatsword"
+          }
+        ]
+      },
+      "render_controllers": ["controller.render.item_default"],
+      "item": {
+        "resonance:diamond_greatsword": "(1.0)"
+      }
+    }
+  }
+}

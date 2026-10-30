@@ -1,0 +1,46 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.iron_halberd": {
+      "initial_state": "idle",
+      "states": {
+        "idle": {
+          "animations": ["iron_halberd.idle"],
+          "transitions": [
+            {
+              "run": "query.is_sprinting"
+            },
+            {
+              "walk": "query.is_moving"
+            }
+          ],
+          "blend_transition": 0.2
+        },
+        "run": {
+          "animations": ["iron_halberd.run"],
+          "transitions": [
+            {
+              "idle": "!query.is_sprinting"
+            },
+            {
+              "walk": "query.is_moving"
+            }
+          ],
+          "blend_transition": 0.2
+        },
+        "walk": {
+          "animations": ["iron_halberd.walk"],
+          "transitions": [
+            {
+              "run": "query.is_sprinting"
+            },
+            {
+              "idle": "!query.is_moving"
+            }
+          ],
+          "blend_transition": 0.2
+        }
+      }
+    }
+  }
+}

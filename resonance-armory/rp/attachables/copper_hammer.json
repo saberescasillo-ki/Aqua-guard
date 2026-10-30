@@ -1,0 +1,33 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "resonance:copper_hammer",
+      "materials": {
+        "default": "entity_alphatest_glint",
+        "enchanted": "entity_alphatest_glint"
+      },
+      "textures": {
+        "default": "textures/models/copper_hammer",
+        "enchanted": "textures/misc/enchanted_item_glint"
+      },
+      "geometry": {
+        "default": "geometry.copper_hammer"
+      },
+      "animations": {
+        "copper_hammer.idle": "animation.copper_hammer.idle"
+      },
+      "scripts": {
+        "pre_animation": [
+          "variable.copper_hammer = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:copper_hammer');"
+        ],
+        "animate": [
+          {
+            "copper_hammer.idle": "!c.is_first_person && variable.copper_hammer"
+          }
+        ]
+      },
+      "render_controllers": ["controller.render.item_default"]
+    }
+  }
+}

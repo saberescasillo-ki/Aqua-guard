@@ -1,0 +1,16 @@
+{
+    "format_version": "1.10.0",
+    "render_controllers": {
+        "controller.render.golden_rapier": {
+            "geometry": "geometry.golden_rapier",
+            "materials": [
+                {
+                    "*": "material.default"
+                }
+            ],
+            "textures": [
+                "texture.golden_rapier"
+            ]
+        }
+    }
+}

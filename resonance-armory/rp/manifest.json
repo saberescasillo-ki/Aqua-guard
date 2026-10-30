@@ -1,0 +1,64 @@
+{
+    "format_version": 2,
+    "metadata": {
+        "authors": [
+            "The Nameless One"
+        ],
+        "generated_with": {
+            "bridge": [
+                "2.7.54"
+            ],
+            "dash": [
+                "0.11.7"
+            ]
+        }
+    },
+    "header": {
+        "name": "Resonance Armory",
+        "description": "Armory version from Resonance addon",
+        "min_engine_version": [
+            1,
+            21,
+            120
+        ],
+        "uuid": "5396c713-e58d-4c35-ba80-67b1499e5e13",
+        "version": [
+            1,
+            0,
+            0
+        ]
+    },
+    "modules": [
+        {
+            "type": "resources",
+            "uuid": "ccdca1f6-9c46-471f-b699-5d7cd5fc45b3",
+            "version": [
+                1,
+                0,
+                0
+            ]
+        }
+    ],
+    "dependencies": [
+        {
+            "uuid": "01650b3d-f8e4-4b22-b73e-0d121c7e6928",
+            "version": [
+                1,
+                0,
+                0
+            ]
+        }
+    ],
+    "subpacks": [
+        {
+            "folder_name": "3d",
+            "name": "3D Items",
+            "memory_tier": 0
+        },
+        {
+            "folder_name": "2d",
+            "name": "2D Items",
+            "memory_tier": 0
+        }
+    ]
+}

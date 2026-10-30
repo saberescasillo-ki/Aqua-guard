@@ -1,0 +1,41 @@
+{
+  "format_version": 2,
+  "metadata": {
+    "authors": ["The Nameless One"],
+    "generated_with": {
+      "bridge": ["2.7.54"],
+      "dash": ["0.11.7"]
+    }
+  },
+  "header": {
+    "name": "Resonance Armory",
+    "description": "Armory version from Resonance addon",
+    "min_engine_version": [1, 21, 120],
+    "uuid": "01650b3d-f8e4-4b22-b73e-0d121c7e6928",
+    "version": [1, 0, 0]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "7859e7d8-e08c-4de3-b4a4-87954c711b76",
+      "version": [1, 0, 0]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "e7660478-4ee5-4fd6-a439-2040ba1b12d1",
+      "entry": "scripts/main.js",
+      "version": [1, 0, 0]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "5396c713-e58d-4c35-ba80-67b1499e5e13",
+      "version": [1, 0, 0]
+    },
+    {
+      "module_name": "@minecraft/server",
+      "version": "2.4.0"
+    }
+  ]
+}

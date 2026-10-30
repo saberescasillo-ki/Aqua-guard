@@ -1,0 +1,19 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.copper_hammer": {
+      "initial_state": "base",
+      "states": {
+        "base": {
+          "animations": [
+            {
+              "copper_hammer.idle": "v.copper_hammer && query.ground_speed < 0.02",
+              "copper_hammer.attack.position": "v.copper_hammer && v.attack_time > 0.0 && v.attack_time < 0.25",
+              "copper_hammer.attack.rotation": "v.copper_hammer && v.attack_time > 0.0 && v.attack_time < 0.25"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shaped": {
+    "description": {
+      "identifier": "resonance:golden_rapier"
+    },
+    "tags": ["crafting_table"],
+    "pattern": ["  G", " NG", "S  "],
+    "key": {
+      "G": { "item": "minecraft:gold_ingot" },
+      "N": { "item": "minecraft:gold_nugget" },
+      "S": { "item": "minecraft:stick" }
+    },
+    "unlock": [
+      {
+        "item": "minecraft:gold_ingot"
+      },
+      {
+        "item": "minecraft:gold_nugget"
+      }
+    ],
+    "result": {
+      "item": "resonance:golden_rapier",
+      "count": 1
+    }
+  }
+}

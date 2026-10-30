@@ -1,0 +1,19 @@
+{
+    "format_version": "1.10.0",
+    "animation_controllers": {
+        "controller.animation.smoke_club": {
+            "initial_state": "base",
+            "states": {
+                "base": {
+                    "animations": [
+                        {
+                            "smoke_club.idle": "v.smoke_club && query.ground_speed < 0.02",
+                            "smoke_club.attack.position": "v.smoke_club && v.attack_time > 0.0 && v.attack_time < 0.25",
+                            "smoke_club.attack.rotation": "v.smoke_club && v.attack_time > 0.0 && v.attack_time < 0.25"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

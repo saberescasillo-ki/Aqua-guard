@@ -1,0 +1,14 @@
+{
+  "format_version": "1.10.0",
+  "render_controllers": {
+    "controller.render.iron_halberd": {
+      "geometry": "geometry.iron_halberd",
+      "materials": [
+        {
+          "*": "variable.is_enchanted ? material.enchanted : material.default"
+        }
+      ],
+      "textures": ["texture.iron_halberd", "texture.enchanted"]
+    }
+  }
+}

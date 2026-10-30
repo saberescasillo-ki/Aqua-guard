@@ -1,0 +1,36 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "resonance:netherite_relic_blade",
+      "materials": {
+        "default": "entity_alphatest_glint",
+        "enchanted": "entity_alphatest_glint"
+      },
+      "textures": {
+        "default": "textures/models/netherite_relic_blade",
+        "enchanted": "textures/misc/enchanted_item_glint"
+      },
+      "geometry": {
+        "default": "geometry.netherite_relic_blade"
+      },
+      "animations": {
+        "netherite_relic_blade.idle": "animation.netherite_relic_blade.idle"
+      },
+      "scripts": {
+        "pre_animation": [
+          "variable.netherite_relic_blade = (query.is_in_ui || v.is_paperdoll) ? 0 : query.is_item_name_any('slot.weapon.mainhand', 0, 'resonance:netherite_relic_blade');"
+        ],
+        "animate": [
+          {
+            "netherite_relic_blade.idle": "!c.is_first_person && variable.netherite_relic_blade"
+          }
+        ]
+      },
+      "render_controllers": ["controller.render.item_default"],
+      "item": {
+        "resonance:netherite_relic_blade": "(1.0)"
+      }
+    }
+  }
+}
