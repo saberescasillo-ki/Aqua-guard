@@ -1,0 +1,52 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "EAF §8| §c§lARGEE§r",
+    "description": "§fEntity Animation Framework §8• §c§lARGEE§r §8• §71.0.0 §8• §fFor Motion+§r",
+    "uuid": "c7f8a9b2-3e4d-5f60-8123-b4c5d6e7f809",
+    "pack_scope": "world",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "type": "script",
+      "entry": "scripts/Main.js",
+      "language": "javascript",
+      "uuid": "e9b0c1d4-5f6a-7182-a345-d6e7f8091a2b",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "b6e7f8a1-2d3c-4e5f-9012-a3b4c5d6e7f8",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.16.0"
+    }
+  ],
+  "metadata": {
+    "authors": [
+      "ARGEE"
+    ],
+    "product_type": "addon"
+  }
+}

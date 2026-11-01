@@ -1,0 +1,36 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Motion+ §8| §c§lARGEE§r",
+    "description": "§fThird-person player animations §8• §c§lARGEE§r §8• §71.0.0 §8• §fWorld Resources only§r",
+    "uuid": "b6e7f8a1-2d3c-4e5f-9012-a3b4c5d6e7f8",
+    "pack_scope": "world",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "d8a9b0c3-4f5e-6071-9234-c5d6e7f8091a",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "metadata": {
+    "authors": [
+      "ARGEE"
+    ],
+    "product_type": "addon"
+  }
+}
