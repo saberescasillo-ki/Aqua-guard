@@ -11,8 +11,7 @@ class PlayerAnimState {
         this.drawingBow = false;
         this.fishingRod = false;
         this.spying = false;
-        this.sentConditions = {};
-        this.ticksSinceRefresh = 0;
+        this.ticksSinceHookCheck = 0;
         this.stateVariables = {
             [HeldItemType.Food]: "eatingFood",
             [HeldItemType.Potion]: "drinkingPotion",
@@ -88,10 +87,7 @@ class PlayerAnimState {
         this.removePlayerState(event.playerId);
     }
 
-    playConditionAnimation(player, condition, animation, force) {
-        const value = !!condition;
-        if (!force && this.sentConditions[animation] === value) return;
-        this.sentConditions[animation] = value;
+    playConditionAnimation(player, condition, animation) {
         player.playAnimation(`animation.mbp_ap.player.${animation}.${condition ? "true" : "false"}`, {
             controller: `controller.animation.mbp_ap.player.${animation}`,
             stopExpression: "q.is_first_person || 0",
@@ -168,12 +164,11 @@ class PlayerAnimState {
         }
 
         // A cast hook can vanish on its own (reeled in by the game, broken line, too far away)
-        if (this.fishingRod && this.ticksSinceRefresh === 0 && system.currentTick - (this.fishingToggledTick ?? 0) > 10 && !this.hasFishingHook(player)) {
+        this.ticksSinceHookCheck = (this.ticksSinceHookCheck + 1) % PlayerAnimState.HOOK_CHECK_TICKS;
+        if (this.fishingRod && this.ticksSinceHookCheck === 0 && system.currentTick - (this.fishingToggledTick ?? 0) > 10 && !this.hasFishingHook(player)) {
             this.fishingRod = false;
         }
 
-        this.ticksSinceRefresh = (this.ticksSinceRefresh + 1) % PlayerAnimState.REFRESH_TICKS;
-        const refresh = this.ticksSinceRefresh === 0;
         const conditions = [
             { condition: this.fishingRod, animation: "fishing_rod" },
             { condition: this.eatingFood, animation: "eating_food" },
@@ -184,8 +179,8 @@ class PlayerAnimState {
             { condition: player.isFlying, animation: "is_flying" },
             { condition: player.isClimbing, animation: "climbing" },
         ];
-        for (const { condition, animation } of conditions) this.playConditionAnimation(player, condition, animation, refresh);
-        if (refresh) this.updateRidingAnimation(player);
+        for (const { condition, animation } of conditions) this.playConditionAnimation(player, condition, animation);
+        this.updateRidingAnimation(player);
 
         // The original animation is stopped in first person. It is also stopped during Elytra gliding,
         // preserving the original add-on's behavior and preventing the walking cycle from leaking into flight.
@@ -199,5 +194,5 @@ class PlayerAnimState {
 }
 
 PlayerAnimState.states = new Map();
-PlayerAnimState.REFRESH_TICKS = 5;
+PlayerAnimState.HOOK_CHECK_TICKS = 5;
 export default PlayerAnimState;
