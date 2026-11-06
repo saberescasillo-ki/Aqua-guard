@@ -2,12 +2,12 @@
   "format_version": 2,
   "header": {
     "name": "Motion+ §8| §c§lARGEE§r §7(sin EAF)",
-    "description": "§fThird-person player animations §8• §c§lARGEE§r §8• §72.3.0 (sonda) §8• §fNo requiere pack de comportamiento§r",
+    "description": "§fThird-person player animations §8• §c§lARGEE§r §8• §73.0.0 §8• §fNo requiere pack de comportamiento§r",
     "uuid": "3bbdb3a4-00e8-4f17-8089-f5807155a88d",
     "pack_scope": "world",
     "version": [
-      2,
       3,
+      0,
       0
     ],
     "min_engine_version": [
@@ -21,8 +21,8 @@
       "type": "resources",
       "uuid": "cb8b5902-cac7-4c43-8111-8ae41bd1816a",
       "version": [
-        2,
         3,
+        0,
         0
       ]
     }

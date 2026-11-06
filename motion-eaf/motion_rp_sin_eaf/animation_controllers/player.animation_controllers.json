@@ -262,8 +262,7 @@
             "move.arms",
             "move.legs",
             "cape",
-            "first_person_attack_rotation_item",
-            "first_person_crossbow_hold"
+            "fishing_rod"
           ],
           "transitions": [
             {
@@ -369,13 +368,7 @@
               "holding_heavy_core": "query.is_item_name_any('slot.weapon.mainhand', 'minecraft:heavy_core')"
             },
             {
-              "fishing_rod": "(variable.is_paperdoll ?? 1) == 0 && !q.is_in_ui && q.is_alive && !q.is_gliding"
-            },
-            {
-              "first_person_attack_rotation_item": "!((variable.is_paperdoll ?? 1) == 0 && !q.is_in_ui)"
-            },
-            {
-              "first_person_crossbow_hold": "!((variable.is_paperdoll ?? 1) == 0 && !q.is_in_ui)"
+              "fishing_rod": "q.is_alive && !q.is_gliding"
             },
             {
               "third_person_melee_spear_controller": "variable.melee_spear_equipped"
