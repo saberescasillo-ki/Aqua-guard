@@ -261,7 +261,8 @@
             "look_at_target_ui",
             "move.arms",
             "move.legs",
-            "cape"
+            "cape",
+            "first_person_attack_rotation_item"
           ],
           "transitions": [
             {
@@ -370,7 +371,10 @@
               "third_person_melee_spear_controller": "variable.melee_spear_equipped"
             },
             {
-              "fishing_rod": "!q.is_in_ui && q.is_alive && !q.is_gliding"
+              "fishing_rod": "(variable.is_paperdoll ?? 1) == 0 && !q.is_in_ui && q.is_alive && !q.is_gliding"
+            },
+            {
+              "first_person_attack_rotation_item": "!((variable.is_paperdoll ?? 1) == 0 && !q.is_in_ui)"
             }
           ],
           "transitions": [
