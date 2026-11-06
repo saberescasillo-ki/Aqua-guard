@@ -3,8 +3,7 @@
  "animations": {
   "animation.mbp_ap.player.reset": {
    "loop": true,
-   "blend_weight": "!(variable.is_first_person ?? 0)",
-   "bones": {}
+   "blend_weight": "!(variable.is_first_person ?? 0)"
   },
   "animation.mbp_ap.player": {
    "loop": true,
