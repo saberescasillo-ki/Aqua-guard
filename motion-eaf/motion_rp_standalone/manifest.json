@@ -1,0 +1,36 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Motion+ §8| §c§lARGEE§r §7(solo texturas)",
+    "description": "§fThird-person player animations §8• §c§lARGEE§r §8• §71.1.0 §8• §fNo requiere pack de comportamiento§r",
+    "uuid": "d2d9f5a8-a80e-4d97-b7cc-1962f85d9f3a",
+    "pack_scope": "world",
+    "version": [
+      1,
+      1,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      26,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "944981fc-7a33-4d5c-9375-691d763b16d1",
+      "version": [
+        1,
+        1,
+        0
+      ]
+    }
+  ],
+  "metadata": {
+    "authors": [
+      "ARGEE"
+    ],
+    "product_type": "addon"
+  }
+}
