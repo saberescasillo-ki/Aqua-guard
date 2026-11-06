@@ -50,27 +50,44 @@ B['body']['rotation'][0] = e
 # world-only expression: its first query does not exist in the inventory doll, so there it stops
 # before changing anything and the doll keeps neutral values instead of a frozen jump or flight
 world_only = ';'.join([
-    't.dx = q.position_delta(0)', 't.dz = q.position_delta(2)', 't.dy = q.position_delta(1)',
-    'v.motion_y = math.clamp(t.dy * 10, -20, 20)',
-    't.len = math.sqrt(t.dx * t.dx + t.dz * t.dz)',
-    'v.has_dir = 1',
+    # only the real player has variable.swim_amount; the inventory doll does not (its queries return 0 there)
+    't.real = (variable.swim_amount ?? -1) >= 0',
+    't.real ? {'
+    't.dx = q.position_delta(0); t.dz = q.position_delta(2); t.dy = q.position_delta(1);'
+    'v.motion_y = math.clamp(t.dy * 10, -20, 20);'
+    't.len = math.sqrt(t.dx * t.dx + t.dz * t.dz);'
+    'v.has_dir = 1;'
     't.len > 0.01 ? { v.dir_fb = (math.cos(q.body_y_rotation + 90) * t.dx + math.sin(q.body_y_rotation + 90) * t.dz) / t.len; '
-    'v.dir_lr = (math.cos(q.body_y_rotation + 180) * t.dx + math.sin(q.body_y_rotation + 180) * t.dz) / t.len; }',
-    'v.is_underwater = q.relative_block_has_all_tags(0, -0.5, 0, \'water\') && !q.is_on_ground',
-    'v.is_falling = v.motion_y < -4.5',
-    # ladders/vines: steady climb (~0.12 blocks/tick up, ~0.15 down) with no horizontal motion
-    't.climb_like = !q.is_on_ground && !q.is_gliding && !q.is_swimming && !q.is_riding && t.len < 0.05 && (math.abs(t.dy - 0.1176) < 0.03 || math.abs(t.dy + 0.15) < 0.03)',
-    'v.climb_time = t.climb_like ? (v.climb_time ?? 0) + q.delta_time : 0',
-    'v.is_climbing = v.climb_time > 0.25',
-    # creative flight: airborne for a while without falling fast
-    'v.air_time = (q.is_on_ground || q.is_in_water || q.is_riding) ? 0 : (v.air_time ?? 0) + q.delta_time',
-    'v.is_flying = !q.is_gliding && v.is_climbing == 0 && v.air_time > 0.8 && t.dy > -0.5',
-    't.last_is_jumping = v.is_jumping ?? 0',
-    'v.is_jumping = !q.is_on_ground && !q.is_in_water && v.is_climbing == 0 && !v.is_falling',
-    '(t.last_is_jumping != v.is_jumping && v.is_jumping) ? { v.leg_sign_jump_impulse = ((v.leg_sign_jump_impulse ?? 0) == -1) ? 1 : -1; }',
+    'v.dir_lr = (math.cos(q.body_y_rotation + 180) * t.dx + math.sin(q.body_y_rotation + 180) * t.dz) / t.len; };'
+    "v.is_underwater = q.relative_block_has_all_tags(0, -0.5, 0, 'water') && !q.is_on_ground;"
+    'v.is_falling = v.motion_y < -4.5 ? 1 : 0;'
+    # sampled once per game tick: position_delta is per tick, frames in between repeat it
+    't.tick = math.round(q.life_time * 20 - 0.5);'
+    '(t.tick != (v.motion_tick ?? 0)) ? {'
+    'v.motion_tick = t.tick;'
+    't.acc = t.dy - (v.last_dy ?? 0); v.last_dy = t.dy;'
+    't.airborne = !q.is_on_ground && !q.is_in_water && !q.is_gliding && !q.is_swimming && !q.is_riding;'
+    # ladders/vines: steady ~0.12 blocks/tick up or ~0.15 down with no horizontal motion
+    'v.climb_ticks = (t.airborne && t.len < 0.05 && (math.abs(t.dy - 0.1176) < 0.03 || math.abs(t.dy + 0.15) < 0.03)) ? (v.climb_ticks ?? 0) + 1 : 0;'
+    # creative flight: airborne with no gravity (a jump loses ~0.08 blocks/tick every tick)
+    'v.fly_ticks = (t.airborne && math.abs(t.acc) < 0.03 && t.dy > -0.5 && v.climb_ticks < 2) ? (v.fly_ticks ?? 0) + 1 : 0;'
+    '};'
+    'v.is_climbing = v.climb_ticks >= 4 ? 1 : 0;'
+    'v.is_flying = v.fly_ticks > 6 ? 1 : 0;'
+    't.last_is_jumping = v.is_jumping ?? 0;'
+    'v.is_jumping = !q.is_on_ground && !q.is_in_water && v.is_climbing == 0 && v.is_flying == 0 && v.is_falling == 0;'
+    '(t.last_is_jumping != v.is_jumping && v.is_jumping) ? { v.leg_sign_jump_impulse = ((v.leg_sign_jump_impulse ?? 0) == -1) ? 1 : -1; };'
+    '}',
     'return 0',
 ]) + ';'
 B['body']['position'] = [world_only, 0, 0]
+
+def swap(x, old, new):
+    assert x.count(old) == 1, old
+    return x.replace(old, new)
+B['root']['rotation'][0] = swap(B['root']['rotation'][0], ') * 6) + math.clamp(22.5 * -v.motion_y_smoothed, -45, 45);', ') * 6) + q.target_x_rotation;')
+B['root']['position'][1] = swap(B['root']['position'][1], 'v.swimming = 8 + (', 'v.swimming = math.sin(q.target_x_rotation) * 17 + 5 + (')
+B['root']['position'][2] = swap(B['root']['position'][2], 'v.swimming = 16;', 'v.swimming = math.cos(q.target_x_rotation) * 17;')
 
 # items: name checks that also work in the doll
 ITEM = {"q.is_item_name_any('slot.weapon.mainhand', 'minecraft:crossbow')": "(q.get_equipped_item_name == 'crossbow')",
