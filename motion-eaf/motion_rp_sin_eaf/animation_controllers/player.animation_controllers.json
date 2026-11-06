@@ -368,13 +368,13 @@
               "holding_heavy_core": "query.is_item_name_any('slot.weapon.mainhand', 'minecraft:heavy_core')"
             },
             {
-              "third_person_melee_spear_controller": "variable.melee_spear_equipped"
-            },
-            {
               "fishing_rod": "(variable.is_paperdoll ?? 1) == 0 && !q.is_in_ui && q.is_alive && !q.is_gliding"
             },
             {
               "first_person_attack_rotation_item": "!((variable.is_paperdoll ?? 1) == 0 && !q.is_in_ui)"
+            },
+            {
+              "third_person_melee_spear_controller": "variable.melee_spear_equipped"
             }
           ],
           "transitions": [
