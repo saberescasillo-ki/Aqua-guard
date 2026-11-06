@@ -302,6 +302,174 @@
     }
    },
    "blend_weight": "1"
+  },
+  "animation.player.first_person.crossbow_hold": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      "t.probe = q.is_item_name_any('slot.weapon.mainhand', 0, 'minecraft:diamond_sword'); return 0;",
+      "t.probe = q.get_equipped_item_name; return 0;",
+      "t.probe = q.get_equipped_item_name('off_hand'); return 0;"
+     ],
+     "position": [
+      "t.probe = q.equipped_item_any_tag('slot.weapon.mainhand', 'minecraft:is_sword'); return 0;",
+      "t.probe = q.equipped_item_all_tags('slot.weapon.mainhand', 'minecraft:is_sword'); return 0;",
+      "t.probe = q.is_item_equipped; return 0;"
+     ]
+    },
+    "head": {
+     "rotation": [
+      "t.probe = q.is_item_equipped('off_hand'); return 0;",
+      "t.probe = q.main_hand_item_use_duration; return 0;",
+      "t.probe = q.main_hand_item_max_duration; return 0;"
+     ],
+     "position": [
+      "t.probe = q.item_remaining_use_duration; return 0;",
+      "t.probe = q.item_in_use_duration; return 0;",
+      "t.probe = q.item_max_use_duration; return 0;"
+     ]
+    },
+    "hat": {
+     "rotation": [
+      "t.probe = q.item_is_charged; return 0;",
+      "t.probe = q.is_using_item; return 0;",
+      "t.probe = q.is_eating; return 0;"
+     ],
+     "position": [
+      "t.probe = q.blocking; return 0;",
+      "t.probe = q.is_charging; return 0;",
+      "t.probe = q.is_selected_item; return 0;"
+     ]
+    },
+    "waist": {
+     "rotation": [
+      "t.probe = q.is_sneaking; return 0;",
+      "t.probe = q.is_sprinting; return 0;",
+      "t.probe = q.is_on_ground; return 0;"
+     ],
+     "position": [
+      "t.probe = q.is_moving; return 0;",
+      "t.probe = q.ground_speed; return 0;",
+      "t.probe = q.modified_move_speed; return 0;"
+     ]
+    },
+    "leftArm": {
+     "rotation": [
+      "t.probe = q.modified_distance_moved; return 0;",
+      "t.probe = q.walk_distance; return 0;",
+      "t.probe = q.vertical_speed; return 0;"
+     ],
+     "position": [
+      "t.probe = q.yaw_speed; return 0;",
+      "t.probe = q.is_jumping; return 0;",
+      "t.probe = q.is_swimming; return 0;"
+     ]
+    },
+    "rightArm": {
+     "rotation": [
+      "t.probe = q.is_crawling; return 0;",
+      "t.probe = q.is_gliding; return 0;",
+      "t.probe = q.is_riding; return 0;"
+     ],
+     "position": [
+      "t.probe = q.is_sleeping; return 0;",
+      "t.probe = q.is_in_water; return 0;",
+      "t.probe = q.is_in_lava; return 0;"
+     ]
+    },
+    "leftLeg": {
+     "rotation": [
+      "t.probe = q.is_on_fire; return 0;",
+      "t.probe = q.is_levitating; return 0;",
+      "t.probe = q.is_alive; return 0;"
+     ],
+     "position": [
+      "t.probe = q.hurt_time; return 0;",
+      "t.probe = q.health; return 0;",
+      "t.probe = q.max_health; return 0;"
+     ]
+    },
+    "rightLeg": {
+     "rotation": [
+      "t.probe = q.is_emoting; return 0;",
+      "t.probe = q.is_spectator; return 0;",
+      "t.probe = q.is_invisible; return 0;"
+     ],
+     "position": [
+      "t.probe = q.has_head_gear; return 0;",
+      "t.probe = q.has_cape; return 0;",
+      "t.probe = q.cape_flap_amount; return 0;"
+     ]
+    },
+    "leftSleeve": {
+     "rotation": [
+      "t.probe = q.is_persona_or_premium_skin; return 0;",
+      "t.probe = q.body_y_rotation; return 0;",
+      "t.probe = q.head_x_rotation(0); return 0;"
+     ],
+     "position": [
+      "t.probe = q.head_y_rotation(0); return 0;",
+      "t.probe = q.target_x_rotation; return 0;",
+      "t.probe = q.target_y_rotation; return 0;"
+     ]
+    },
+    "rightSleeve": {
+     "rotation": [
+      "t.probe = q.camera_rotation(0); return 0;",
+      "t.probe = q.distance_from_camera; return 0;",
+      "t.probe = q.time_of_day; return 0;"
+     ],
+     "position": [
+      "t.probe = q.moon_phase; return 0;",
+      "t.probe = q.is_first_person; return 0;",
+      "t.probe = q.is_in_ui; return 0;"
+     ]
+    },
+    "leftPants": {
+     "rotation": [
+      "t.probe = q.is_local_player; return 0;",
+      "t.probe = q.position(1); return 0;",
+      "t.probe = q.position_delta(1); return 0;"
+     ],
+     "position": [
+      "t.probe = q.relative_block_has_all_tags(0, -1, 0, 'stone'); return 0;",
+      "t.probe = q.is_riding_any_entity_of_type('minecraft:boat'); return 0;",
+      "t.probe = variable.attack_time; return 0;"
+     ]
+    },
+    "rightPants": {
+     "rotation": [
+      "t.probe = variable.item_use_normalized; return 0;",
+      "t.probe = variable.is_first_person; return 0;",
+      "t.probe = variable.is_paperdoll; return 0;"
+     ],
+     "position": [
+      "t.probe = variable.is_holding_spyglass; return 0;",
+      "t.probe = variable.melee_spear_equipped; return 0;",
+      "t.probe = variable.is_brandishing_spear; return 0;"
+     ]
+    },
+    "jacket": {
+     "rotation": [
+      "t.probe = variable.is_tooting_goat_horn; return 0;",
+      "t.probe = variable.is_using_brush; return 0;",
+      "t.probe = variable.swim_amount; return 0;"
+     ],
+     "position": [
+      "t.probe = variable.use_item_interval_progress; return 0;",
+      "t.probe = variable.use_item_startup_progress; return 0;",
+      "t.probe = variable.map_face_icon; return 0;"
+     ]
+    },
+    "cape": {
+     "rotation": [
+      "t.probe = variable.player_x_rotation; return 0;",
+      "t.probe = variable.damage_nearby_mobs; return 0;",
+      0
+     ]
+    }
+   }
   }
  }
 }
