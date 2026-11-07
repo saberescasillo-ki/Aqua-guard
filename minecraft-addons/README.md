@@ -43,27 +43,27 @@ designed in `treegen.py`; the game picks a random design each time.
 - A tree is never placed on top of, or inside, another tree.
 - Trees, plants and fallen logs check the biome at their own position, so
   they only appear inside their own biome.
-- Each surface biome takes **25%** of the vanilla biome it replaces, both the
+- Each biome takes **35%** of the vanilla biome it replaces, both the
   normal and the mutated variant, in large continuous patches.
 
 ### Truly mutated forests
 
-| Biome | Replaces 25% of | Trees |
+| Biome | Replaces 35% of | Trees |
 | --- | --- | --- |
-| Truly Mutated Forest (`botn:truly_mutated_forest`) | Forest, Flower Forest | 30 oak designs, fallen oak logs |
+| Truly Mutated Forest (`botn:truly_mutated_forest`) | Forest, Flower Forest | 30 tall oaks (13–20 blocks, slim base, five with 2×2 trunks), fallen oak logs |
 | Truly Mutated Birch Forest (`botn:truly_mutated_birch_forest`) | Birch Forest, Old Growth Birch Forest | 30 birch designs, fallen birch logs |
 | Truly Mutated Jungle (`botn:truly_mutated_jungle`) | Jungle, Modified Jungle | 30 vine-draped jungle giants (2×2 and 3×3 trunks, roots, many crowns) |
 | Truly Mutated Dappled Forest (`botn:truly_mutated_dappled_forest`) | Dappled Forest (it has no mutated variant) | 15 autumn poplars and 15 new maples with mixed red, orange and yellow crowns |
 
 ### Colossal Pine Forest (`botn:colossal_pine_forest`)
-Replaces 25% of Taiga and Old Growth Pine Taiga. Its 20 colossal pines have
+Replaces 35% of Taiga and Old Growth Pine Taiga. Its 20 colossal pines have
 3×3 or 4×4 trunks, are 46–62 blocks tall with a broad crown over the top
-half, and stand on podzol among their roots. They are spread out: about
-**one pine every 37 blocks**. The ground has podzol and coarse dirt patches,
+half, and stand on podzol among their roots. They grow close together: about
+**one pine every 20 blocks**. The ground has podzol and coarse dirt patches,
 ferns and sweet berry bushes.
 
 ### Deep Grove (`botn:deep_grove`)
-A cave biome that replaces 25% of Lush Caves and Dripstone Caves. Its 20
+A cave biome that replaces 35% of Lush Caves and Dripstone Caves. Its 20
 underground tree designs are low and wide so they fit under cave ceilings:
 mangrove or dark oak trunks, azalea and flowering azalea crowns with a
 glowing shroomlight heart, hanging glow berries and spore blossoms. They

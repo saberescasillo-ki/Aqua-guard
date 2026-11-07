@@ -31,7 +31,7 @@
               "minecraft:lush_caves",
               "minecraft:dripstone_caves"
             ],
-            "amount": 0.25,
+            "amount": 0.35,
             "noise_frequency_scale": 3
           }
         ]

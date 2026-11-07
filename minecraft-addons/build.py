@@ -41,7 +41,7 @@ CONDITIONAL_FMT = "1.26.50"
 BIOME_FMT = "1.26.50"
 CLIENT_BIOME_FMT = "1.21.120"
 
-VERSION = [1, 0, 0]          # BREATHE OF THE Nature - overworld
+VERSION = [1, 1, 0]          # BREATHE OF THE Nature - overworld
 BOTT_VERSION = [7, 0, 0]     # BREATHE OF THE TREES
 
 UUIDS = {
@@ -493,7 +493,7 @@ def overworld_surface(top, mid="dirt", foundation="stone"):
 PATCH_SCALE = 3
 # Each new biome takes this share of the vanilla biomes it replaces (both
 # the normal and the mutated variant).
-SHARE = 0.25
+SHARE = 0.35
 
 
 def replacement(targets, amount=SHARE, scale=PATCH_SCALE):
@@ -533,8 +533,9 @@ TEMPERATE = {"downfall": 0.8, "snow_accumulation": [0.0, 0.125],
 
 
 def truly_mutated_forest(bp, rp, shelf):
-    # The 30 oak designs of BREATHE OF THE TREES 2.0 / The Oak.
-    trees = structure_trees(bp, "botn", "oak", designs("oak", range(30), "bott"))
+    # Tall, slim-based oaks.
+    trees = structure_trees(bp, "botn", "oak",
+                            designs("tall_oak", range(30), "botn"))
     forest_biome(
         bp, rp, "truly_mutated_forest", ["forest", "flower_forest"], "forest",
         TEMPERATE, trees, 4,
@@ -606,8 +607,8 @@ def truly_mutated_dappled_forest(bp, rp):
 def colossal_pine_forest(bp, rp):
     trees = structure_trees(bp, "botn", "colossal_pine",
                             designs("colossal_pine", range(20), "botn"))
-    # One tree per chunk with a 3/16 chance: about one per 1,365 square
-    # blocks, i.e. roughly one colossal pine every 37 blocks.
+    # One tree per chunk with a 2/3 chance: about one per 384 square
+    # blocks, i.e. roughly one colossal pine every 20 blocks.
     forest_biome(
         bp, rp, "colossal_pine_forest", ["taiga", "mega_taiga"], "mega_taiga",
         {"downfall": 0.8, "snow_accumulation": [0.0, 0.125],
@@ -615,7 +616,7 @@ def colossal_pine_forest(bp, rp):
         trees, 1,
         [(b("short_grass"), 5), (b("fern"), 5), (b("sweet_berry_bush"), 1)],
         [(b("lily_of_the_valley"), 1), (b("brown_mushroom"), 1)],
-        tree_chance=chance(3, 16),
+        tree_chance=chance(2, 3),
         surface_extra={"minecraft:surface_material_adjustments": {
             "adjustments": [
                 {"materials": {"top_material": b("podzol")},

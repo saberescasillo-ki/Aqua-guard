@@ -8,7 +8,7 @@
     "adjustment_radius": 4,
     "facing_direction": "south",
     "rotate_around_center": true,
-    "ground_level": 4,
+    "ground_level": 3,
     "constraints": {
       "block_intersection": {
         "block_allowlist": [

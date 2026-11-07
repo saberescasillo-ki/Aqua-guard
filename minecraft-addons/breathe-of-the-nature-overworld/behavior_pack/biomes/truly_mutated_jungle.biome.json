@@ -35,7 +35,7 @@
               "minecraft:jungle",
               "minecraft:jungle_mutated"
             ],
-            "amount": 0.25,
+            "amount": 0.35,
             "noise_frequency_scale": 3
           }
         ]

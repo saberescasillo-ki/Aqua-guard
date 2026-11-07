@@ -710,6 +710,17 @@ def poplar(rng, i):
     return t
 
 
+def tall_oak(rng, i):
+    """Tall oaks with a slim base: no root flare, so their soil island stays
+    small. Every sixth one has a 2x2 trunk."""
+    width = 2 if i % 6 == 5 else 1
+    t = broadleaf(rng, "minecraft:oak_log", "minecraft:oak_leaves", width,
+                  rng.randint(13, 18) + 2 * (width - 1), rng.randint(4, 6),
+                  (4, 7), (2.6, 3.3), (3.0, 3.8), branch_from=0.5,
+                  pitch=(0.35, 0.9), thick_branches=width > 1)
+    return t
+
+
 # Autumn maples: wide domes in mixed red, orange and yellow leaves.
 MAPLE_PALETTES = (
     (("red", 6), ("orange", 3), ("yellow", 1)),
@@ -789,6 +800,7 @@ def cave_tree(rng, i):
 
 
 SPECIES = {
+    "tall_oak": tall_oak,
     "maple": maple,
     "colossal_pine": colossal_pine,
     "cave_tree": cave_tree,
