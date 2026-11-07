@@ -13,7 +13,7 @@ Example script:
     wait 30
     testforblock <x> -31 <z> air
 
-Optional overlay/<PACK>/ folders (BOTW_BP, BOTT_BP, BOTW_RP) next to this
+Optional overlay/<PACK>/ folders (BOTN_BP, BOTT_BP, BOTN_RP) next to this
 script are copied over the packs, which is handy for debug features.
 """
 import json, os, shutil, subprocess, sys, threading, time, queue
@@ -25,9 +25,9 @@ LEVEL = "test"
 
 def setup(fresh, seed, experiments):
     packs = {
-        "behavior_packs": [("BOTW_BP", f"{ADDONS}/breathe-of-the-wild/behavior_pack"),
+        "behavior_packs": [("BOTN_BP", f"{ADDONS}/breathe-of-the-nature-overworld/behavior_pack"),
                            ("BOTT_BP", f"{ADDONS}/breathe-of-the-trees/behavior_pack")],
-        "resource_packs": [("BOTW_RP", f"{ADDONS}/breathe-of-the-wild/resource_pack")],
+        "resource_packs": [("BOTN_RP", f"{ADDONS}/breathe-of-the-nature-overworld/resource_pack")],
     }
     world = os.path.join(SRV, "worlds", LEVEL)
     if fresh and os.path.isdir(world):
@@ -90,7 +90,7 @@ def main():
             waitfor(line[8:]); continue
         print(">>", line, flush=True)
         p.stdin.write(line + "\n"); p.stdin.flush()
-        time.sleep(0.01)
+        time.sleep(0.03)
     p.stdin.write("stop\n"); p.stdin.flush()
     try: p.wait(timeout=60)
     except subprocess.TimeoutExpired: p.kill()

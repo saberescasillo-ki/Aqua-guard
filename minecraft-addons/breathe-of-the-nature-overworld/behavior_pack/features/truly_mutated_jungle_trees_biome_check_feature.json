@@ -1,0 +1,15 @@
+{
+  "format_version": "1.26.50",
+  "minecraft:conditional_list": {
+    "description": {
+      "identifier": "botn:truly_mutated_jungle_trees_biome_check_feature"
+    },
+    "conditional_features": [
+      {
+        "places_feature": "botn:jungle_trees_feature",
+        "condition": "query.has_biome_tag('botn_truly_mutated_jungle', variable.worldx, query.heightmap(variable.worldx, variable.worldz), variable.worldz)"
+      }
+    ],
+    "early_out_scheme": "condition_success"
+  }
+}

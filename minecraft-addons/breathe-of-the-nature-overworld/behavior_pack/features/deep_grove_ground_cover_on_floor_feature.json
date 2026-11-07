@@ -1,0 +1,11 @@
+{
+  "format_version": "1.26.50",
+  "minecraft:snap_to_surface_feature": {
+    "description": {
+      "identifier": "botn:deep_grove_ground_cover_on_floor_feature"
+    },
+    "feature_to_snap": "botn:deep_grove_ground_cover_feature",
+    "search_range": 12,
+    "surface": "floor"
+  }
+}

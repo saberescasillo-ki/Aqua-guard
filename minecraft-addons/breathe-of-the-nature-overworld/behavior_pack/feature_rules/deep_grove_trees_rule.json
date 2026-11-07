@@ -1,0 +1,43 @@
+{
+  "format_version": "1.13.0",
+  "minecraft:feature_rules": {
+    "description": {
+      "identifier": "botn:deep_grove_trees_rule",
+      "places_feature": "botn:deep_grove_trees_on_floor_feature"
+    },
+    "conditions": {
+      "placement_pass": "before_surface_pass",
+      "minecraft:biome_filter": [
+        {
+          "test": "has_biome_tag",
+          "operator": "==",
+          "value": "botn_deep_grove"
+        }
+      ]
+    },
+    "distribution": {
+      "iterations": 64,
+      "x": {
+        "distribution": "uniform",
+        "extent": [
+          2,
+          13
+        ]
+      },
+      "y": {
+        "distribution": "uniform",
+        "extent": [
+          -54,
+          40
+        ]
+      },
+      "z": {
+        "distribution": "uniform",
+        "extent": [
+          2,
+          13
+        ]
+      }
+    }
+  }
+}

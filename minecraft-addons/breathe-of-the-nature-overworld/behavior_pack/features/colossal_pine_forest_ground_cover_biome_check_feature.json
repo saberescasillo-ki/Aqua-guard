@@ -1,0 +1,15 @@
+{
+  "format_version": "1.26.50",
+  "minecraft:conditional_list": {
+    "description": {
+      "identifier": "botn:colossal_pine_forest_ground_cover_biome_check_feature"
+    },
+    "conditional_features": [
+      {
+        "places_feature": "botn:colossal_pine_forest_ground_cover_feature",
+        "condition": "query.has_biome_tag('botn_colossal_pine_forest', variable.worldx, query.heightmap(variable.worldx, variable.worldz), variable.worldz)"
+      }
+    ],
+    "early_out_scheme": "condition_success"
+  }
+}

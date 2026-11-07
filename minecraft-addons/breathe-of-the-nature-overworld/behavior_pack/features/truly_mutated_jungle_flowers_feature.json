@@ -1,0 +1,27 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:single_block_feature": {
+    "description": {
+      "identifier": "botn:truly_mutated_jungle_flowers_feature"
+    },
+    "places_block": [
+      {
+        "block": "minecraft:poppy",
+        "weight": 2
+      },
+      {
+        "block": "minecraft:dandelion",
+        "weight": 1
+      },
+      {
+        "block": "minecraft:blue_orchid",
+        "weight": 1
+      }
+    ],
+    "enforce_placement_rules": true,
+    "enforce_survivability_rules": true,
+    "may_replace": [
+      "minecraft:air"
+    ]
+  }
+}

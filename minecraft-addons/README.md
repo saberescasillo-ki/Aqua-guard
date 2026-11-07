@@ -1,84 +1,73 @@
-# BREATHE OF THE WILD & BREATHE OF THE TREES
+# BREATHE OF THE Nature - overworld & BREATHE OF THE TREES
 
 Two Minecraft **Bedrock Edition** add-ons that change world generation using
 **vanilla blocks only**: no custom blocks, textures or entities.
 
 | Add-on | File | What it does |
 | --- | --- | --- |
-| BREATHE OF THE WILD | `dist/BREATHE_OF_THE_WILD.mcaddon` | Adds 4 new overworld biomes |
-| BREATHE OF THE TREES | `dist/BREATHE_OF_THE_TREES.mcaddon` | Adds bigger, branchier procedural versions of the vanilla trees |
+| BREATHE OF THE Nature - overworld | `dist/BREATHE_OF_THE_NATURE_OVERWORLD.mcaddon` | 6 new biomes grown from hand-shaped trees |
+| BREATHE OF THE TREES | `dist/BREATHE_OF_THE_TREES.mcaddon` | Bigger, branchier procedural versions of the vanilla trees |
 
-Built for Minecraft Bedrock **1.26.60** (the latest version).
+Built for Minecraft Bedrock **1.26.60** and tested on Bedrock Dedicated
+Server 1.26.61. *BREATHE OF THE Nature - overworld* replaces the older
+*BREATHE OF THE WILD* add-on.
 
 ## Installing
 
 1. Open the `.mcaddon` file on your device. Minecraft imports it automatically.
 2. Create a **new world** (world generation only affects new chunks).
-3. Under **Behavior Packs**, activate the add-on. *BREATHE OF THE WILD* also
-   turns on its resource pack.
-4. **BREATHE OF THE WILD only:** if your version shows a **Custom Biomes**
-   toggle under **Experiments**, turn it on before creating the world.
-5. When updating from an older version of these add-ons, delete the old
-   packs first (Settings → Storage) so the new version is the one used.
-6. Both add-ons can run together. *BREATHE OF THE TREES* skips the three
-   *BREATHE OF THE WILD* biomes so they keep their own trees.
+3. Under **Behavior Packs**, activate the add-on. *BREATHE OF THE Nature*
+   also turns on its resource pack.
+4. Remove *BREATHE OF THE WILD* if you still have it (Settings → Storage).
+5. Both add-ons can run together. *BREATHE OF THE TREES* skips the
+   *BREATHE OF THE Nature* biomes so they keep their own trees.
 
 Find the new biomes with:
 
 ```
-/locate biome botw:no_mans_land
-/locate biome botw:the_oak
-/locate biome botw:the_birch
-/locate biome botw:the_poplar
+/locate biome botn:truly_mutated_forest
+/locate biome botn:truly_mutated_birch_forest
+/locate biome botn:truly_mutated_jungle
+/locate biome botn:truly_mutated_dappled_forest
+/locate biome botn:colossal_pine_forest
+/locate biome botn:deep_grove
 ```
 
-## Tree shapes
-The big trees of *BREATHE OF THE WILD* are hand-shaped **structures**
-(`.mcstructure`), not the game's built-in tree generator. `treegen.py`
-designs each species from a seed and saves **30 variations per tree type**;
-the game picks one at random each time.
+## BREATHE OF THE Nature - overworld
 
-- Broadleaf trees have a real trunk, root flares, branches that fork, and a
-  fluffy leaf cluster at the end of every branch. No pyramid canopies.
+Every biome grows **only** hand-shaped structure trees (`.mcstructure`),
+designed in `treegen.py`; the game picks a random design each time.
+
+- Every tree stands on a small soil island, so on slopes and uneven ground
+  it never hangs half in the air.
 - A tree is never placed on top of, or inside, another tree.
-- Every tree stands on a small **grass-topped soil island**, so on slopes
-  and uneven ground it never hangs half in the air.
-- Trees, plants and fallen logs check the biome at their exact position, so
+- Trees, plants and fallen logs check the biome at their own position, so
   they only appear inside their own biome.
-- The biomes are deliberately rare: each one replaces only a small share of
-  its vanilla biome, in large continuous patches rather than scattered
-  chunk-sized fragments.
+- Each surface biome takes **25%** of the vanilla biome it replaces, both the
+  normal and the mutated variant, in large continuous patches.
 
-## BREATHE OF THE WILD
+### Truly mutated forests
 
-### No Man's Land (`botw:no_mans_land`)
-Replaces part of the Savanna and Desert biomes with an enormous open pit.
-
-- The biome is hollowed out into a huge bowl that reaches **Y −32**, deep in
-  the deepslate layer. The pit does not drop straight down: every column's
-  depth depends on how much of its surroundings (up to 25 blocks away) is
-  No Man's Land, so the ground terraces down from the rim to the bottom.
-- No Man's Land comes in large, rare patches (often 100+ blocks across).
-  The slopes show ore veins and cave cross-sections.
-- The slopes and the floor are a scorched mix of deepslate, tuff, cobbled
-  deepslate, coarse dirt, gravel, smooth basalt, blackstone and magma.
-- Lava pools, jagged basalt/deepslate/tuff pillars, dead bushes, dry grass,
-  glow lichen on the walls and extra-wide caves under the floor.
-- Dusty fog, a pale ochre sky, falling white ash, no rain and no animal spawns.
-
-**Be careful:** the slopes get steep toward the middle of the pit.
-
-### The Oak, The Birch, The Poplar
-Variants of the vanilla Forest, Birch Forest and Dappled Forest. Each one
-grows **only** the structure trees of its species (the 20 designs that
-*BREATHE OF THE TREES* 2.0 used plus 10 new ones), with no vanilla trees
-mixed in.
-
-| Biome | Replaces part of | Trees |
+| Biome | Replaces 25% of | Trees |
 | --- | --- | --- |
-| The Oak (`botw:the_oak`) | Forest | 30 oak designs (5 old 2×2 oaks, 10 spreading oaks), fallen oak logs |
-| The Birch (`botw:the_birch`) | Birch Forest, Old Growth Birch Forest | 30 birch designs (10 leaning birches), fallen birch logs |
-| The Poplar (`botw:the_poplar`) | Dappled Forest | 30 poplar designs in yellow, orange and red (10 tall grand poplars) |
+| Truly Mutated Forest (`botn:truly_mutated_forest`) | Forest, Flower Forest | 30 oak designs, fallen oak logs |
+| Truly Mutated Birch Forest (`botn:truly_mutated_birch_forest`) | Birch Forest, Old Growth Birch Forest | 30 birch designs, fallen birch logs |
+| Truly Mutated Jungle (`botn:truly_mutated_jungle`) | Jungle, Modified Jungle | 30 vine-draped jungle giants (2×2 and 3×3 trunks, roots, many crowns) |
+| Truly Mutated Dappled Forest (`botn:truly_mutated_dappled_forest`) | Dappled Forest (it has no mutated variant) | 15 autumn poplars and 15 new maples with mixed red, orange and yellow crowns |
+
+### Colossal Pine Forest (`botn:colossal_pine_forest`)
+Replaces 25% of Taiga and Old Growth Pine Taiga. Its 20 colossal pines have
+3×3 or 4×4 trunks, are 46–62 blocks tall with a broad crown over the top
+half, and stand on podzol among their roots. They are spread out: about
+**one pine every 37 blocks**. The ground has podzol and coarse dirt patches,
+ferns and sweet berry bushes.
+
+### Deep Grove (`botn:deep_grove`)
+A cave biome that replaces 25% of Lush Caves and Dripstone Caves. Its 20
+underground tree designs are low and wide so they fit under cave ceilings:
+mangrove or dark oak trunks, azalea and flowering azalea crowns with a
+glowing shroomlight heart, hanging glow berries and spore blossoms. They
+stand on a moss island over rooted dirt, among moss carpets and azaleas.
 
 ## BREATHE OF THE TREES
 
@@ -123,12 +112,12 @@ BEDROCK_BLOCKS_JSON=path/to/mojang-blocks.json python3 build.py
 ```
 
 ## Notes
-- No Man's Land checks the biome around every column while generating, so
-  chunks in that biome may load a little slower on low-end devices.
-- Trees use a fixed orientation so vines stay attached; the 20 variations
+- Trees use a fixed orientation so vines stay attached; the many designs
   per species give the variety instead of rotation.
 - If something does not generate, open **Settings → Creator → Content Log**
   to see the error.
+- Pack icon: the character artwork supplied by the author
+  (`assets/pack_icon_nature.png`).
 - `tools/bds_harness.py` runs a Bedrock Dedicated Server with both packs
   and drives it with console commands (`/locate`, `/testforblock`, …). It is
   how world generation is tested; see the file for details.

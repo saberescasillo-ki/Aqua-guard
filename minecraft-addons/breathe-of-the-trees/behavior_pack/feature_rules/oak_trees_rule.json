@@ -30,7 +30,7 @@
         {
           "test": "has_biome_tag",
           "operator": "!=",
-          "value": "botw"
+          "value": "botn"
         }
       ]
     },

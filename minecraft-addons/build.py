@@ -2,8 +2,9 @@
 """
 Generates and packages the two Minecraft Bedrock add-ons:
 
-  * BREATHE OF THE WILD  - three new overworld biomes (Mystic Forest,
-                           Mighty Birch Forest, No Man's Land).
+  * BREATHE OF THE Nature - overworld - "Truly mutated" variants of vanilla
+      forests, a colossal pine forest and a cave grove, all grown from
+      designed structure trees.
   * BREATHE OF THE TREES - bigger, branchier versions of every vanilla tree.
 
 Trees are designed in treegen.py and shipped as .mcstructure files
@@ -40,13 +41,14 @@ CONDITIONAL_FMT = "1.26.50"
 BIOME_FMT = "1.26.50"
 CLIENT_BIOME_FMT = "1.21.120"
 
-VERSION = [7, 0, 0]
+VERSION = [1, 0, 0]          # BREATHE OF THE Nature - overworld
+BOTT_VERSION = [7, 0, 0]     # BREATHE OF THE TREES
 
 UUIDS = {
-    "botw_bp": "399882bf-3a8d-46bd-ad24-5283eb4ea059",
-    "botw_bp_data": "c8043372-c698-4fce-a42d-31209801cf60",
-    "botw_rp": "9e3a4593-734e-49e4-9242-61cb5e3f5142",
-    "botw_rp_res": "0b304093-f09a-4e36-8dcc-146e6faae71c",
+    "botn_bp": "ed919a5d-3661-4c19-9199-8e8d82994125",
+    "botn_bp_data": "4bd6c3b4-b68c-41c4-8661-ebf13df6c6c5",
+    "botn_rp": "53f88819-39c6-4666-a9f6-aeeb7c8f69f3",
+    "botn_rp_res": "4c19bb9f-e8aa-43df-a3b4-126bdcfdfa0a",
     "bott_bp": "5769b0cd-7e54-4be4-815f-a9f5de97db85",
     "bott_bp_data": "17abb3fe-0c0e-421c-9f18-c2f784460d8f",
 }
@@ -106,19 +108,13 @@ TREE_MAY_GROW_ON = blocks(*SOILS)
 TREE_MAY_REPLACE = blocks("air", *LEAVES, *PLANTS)
 TREE_MAY_GROW_THROUGH = blocks(*SOILS, *PLANTS)
 
-# Everything natural terrain is made of; No Man's Land removes all of it.
-TERRAIN = [
+# Natural underground blocks a cave tree may grow into.
+CAVE_ROCK = [
     "stone", "granite", "diorite", "andesite", "deepslate", "tuff", "calcite",
-    "dirt", "coarse_dirt", "grass_block", "podzol", "dirt_with_roots", "mud",
-    "moss_block", "clay", "gravel", "sand", "red_sand", "sandstone",
-    "red_sandstone", "dripstone_block", "pointed_dripstone", "smooth_basalt",
-    "amethyst_block", "budding_amethyst", "infested_stone",
-    "infested_deepslate", "coal_ore", "iron_ore", "copper_ore", "gold_ore",
-    "redstone_ore", "lapis_ore", "emerald_ore", "diamond_ore",
-    "deepslate_coal_ore", "deepslate_iron_ore", "deepslate_copper_ore",
-    "deepslate_gold_ore", "deepslate_redstone_ore", "deepslate_lapis_ore",
-    "deepslate_emerald_ore", "deepslate_diamond_ore", "glow_lichen",
-    *PLANTS,
+    "gravel", "clay", "dripstone_block", "pointed_dripstone", "moss_block",
+    "moss_carpet", "glow_lichen", "cave_vines", "cave_vines_body_with_berries",
+    "cave_vines_head_with_berries", "hanging_roots", "dirt_with_roots",
+    "azalea", "flowering_azalea", "small_dripleaf_block", "big_dripleaf",
 ]
 
 
@@ -155,11 +151,12 @@ class Pack:
         if (check and self.exact_biomes and len(biome_filter) == 1
                 and placement_pass != "pregeneration_pass"):
             biome_tag = biome_filter[0]["value"]
-            # The biome is checked at a fixed height (variable.worldy does not
-            # exist in feature Molang); surface biomes reach up to Y 70.
-            y = self.check_y.get(biome_tag, 70)
+            # variable.worldy does not exist in feature Molang, and biomes are
+            # 3D (replace_biomes only swaps the surface layer), so the biome
+            # is checked at the column's surface height.
             x = f"variable.worldx + {check_offset}" if check_offset else "variable.worldx"
             z = f"variable.worldz + {check_offset}" if check_offset else "variable.worldz"
+            y = self.check_y.get(biome_tag, f"query.heightmap({x}, {z})")
             places = self.feature(
                 ident.replace("_rule", "_biome_check_feature"),
                 "minecraft:conditional_list", {
@@ -271,32 +268,45 @@ def fallen_log(pack, ident, log, length, decoration):
 
 # Structure trees ---------------------------------------------------------
 
-VARIANTS = 30
 # Blocks a tree structure may overwrite. Leaves and logs are left out on
 # purpose so a tree never lands on top of (or inside) another tree.
+# Natural ground (and mountain snow/ice) is allowed so the soil island and
+# roots can sink into any terrain, including steep and snowy slopes.
 TREE_ALLOW = [*PLANTS, *SOILS, "air", "stone", "granite", "diorite",
-              "andesite", "tuff", "gravel", "sand", "clay", "coarse_dirt"]
+              "andesite", "tuff", "calcite", "deepslate", "gravel", "sand",
+              "red_sand", "sandstone", "clay", "snow", "powder_snow", "ice",
+              "packed_ice", "blue_ice", "dripstone_block", "pointed_dripstone",
+              "coal_ore", "iron_ore", "copper_ore", "gold_ore", "lapis_ore",
+              "redstone_ore", "emerald_ore", "diamond_ore", "glow_lichen",
+              "water", "flowing_water"]
 
 
-def structure_trees(pack, ns, species, extra_allow=(), seed_ns=None):
-    """VARIANTS designed trees of one species, picked at random.
+def designs(species, variants, seed_ns, remap=None):
+    """Design list for structure_trees: one entry per variant number."""
+    return [(species, v, seed_ns, remap) for v in variants]
 
-    seed_ns picks which design set to use; "bott" reproduces the trees that
-    BREATHE OF THE TREES 2.0 shipped.
+
+def structure_trees(pack, ns, name, tree_designs, island="minecraft:grass_block",
+                    island_fill="minecraft:dirt", extra_allow=()):
+    """One structure per design, picked at random.
+
+    tree_designs: (species, variant, seed_ns, remap) tuples. The seed
+    namespace picks the design set: "bott" and "botw" reproduce the trees
+    earlier releases shipped, "botn" holds the new ones.
     """
     allow = blocks(*TREE_ALLOW, *extra_allow)
     entries = []
-    for i in range(VARIANTS):
-        t = treegen.generate(species, i, seed_ns or ns,
-                             island="minecraft:grass_block")
+    for k, (species, variant, seed_ns, remap) in enumerate(tree_designs, 1):
+        t = treegen.generate(species, variant, seed_ns, island=island,
+                             island_fill=island_fill, remap=remap)
         data, _, ground = t.to_mcstructure()
-        for name in t.block_names():
-            b(name)
-        name = f"{species}_{i + 1:02d}"
-        pack.put(f"structures/{ns}/{name}.mcstructure", data)
+        for block in t.block_names():
+            b(block)
+        sname = f"{name}_{k:02d}"
+        pack.put(f"structures/{ns}/{sname}.mcstructure", data)
         entries.append((pack.feature(
-            f"{ns}:{name}_feature", "minecraft:structure_template_feature", {
-                "structure_name": f"{ns}:{name}",
+            f"{ns}:{sname}_feature", "minecraft:structure_template_feature", {
+                "structure_name": f"{ns}:{sname}",
                 "adjustment_radius": 4,
                 "facing_direction": "south",
                 "rotate_around_center": True,
@@ -306,32 +316,33 @@ def structure_trees(pack, ns, species, extra_allow=(), seed_ns=None):
                     "only_check_intersection_for_motion_blocking_blocks": True,
                 }},
             }), 1))
-    return weighted(pack, f"{ns}:{species}_trees_feature", entries)
+    return weighted(pack, f"{ns}:{name}_trees_feature", entries)
 
 
 # ---------------------------------------------------------------------------
 # Manifests, texts and icons
 # ---------------------------------------------------------------------------
 
-def manifest(name, desc, header_uuid, module_uuid, module_type, deps=()):
+def manifest(name, desc, header_uuid, module_uuid, module_type, deps=(),
+             version=VERSION):
     data = {
         "format_version": 2,
         "header": {
             "name": "pack.name",
             "description": "pack.description",
             "uuid": header_uuid,
-            "version": VERSION,
+            "version": version,
             "min_engine_version": MIN_ENGINE,
         },
         "modules": [{
             "type": module_type,
             "uuid": module_uuid,
-            "version": VERSION,
+            "version": version,
         }],
         "metadata": {"authors": ["saberescasillo"]},
     }
     if deps:
-        data["dependencies"] = [{"uuid": d, "version": VERSION} for d in deps]
+        data["dependencies"] = [{"uuid": d, "version": version} for d in deps]
     return data
 
 
@@ -400,29 +411,32 @@ def icon(sky_top, sky_bottom, trunk, leaves, ground):
 # BREATHE OF THE WILD
 # ---------------------------------------------------------------------------
 
-def build_botw():
-    bp = Pack(os.path.join(ROOT, "breathe-of-the-wild", "behavior_pack"),
-              exact_biomes=True)
-    rp = Pack(os.path.join(ROOT, "breathe-of-the-wild", "resource_pack"))
-    name = "BREATHE OF THE WILD"
-    desc = ("Four new vanilla-block biomes: No Man's Land, The Oak, "
-            "The Birch and The Poplar.")
-    bp.put("manifest.json", manifest(name, desc, UUIDS["botw_bp"],
-                                     UUIDS["botw_bp_data"], "data",
-                                     deps=[UUIDS["botw_rp"]]))
-    rp.put("manifest.json", manifest(name, desc, UUIDS["botw_rp"],
-                                     UUIDS["botw_rp_res"], "resources"))
+def build_botn():
+    bp = Pack(os.path.join(ROOT, "breathe-of-the-nature-overworld",
+                           "behavior_pack"), exact_biomes=True)
+    rp = Pack(os.path.join(ROOT, "breathe-of-the-nature-overworld",
+                           "resource_pack"))
+    name = "BREATHE OF THE Nature - overworld"
+    desc = ("Truly mutated forests, a colossal pine forest and a cave grove, "
+            "grown from hand-shaped trees. Vanilla blocks only.")
+    bp.put("manifest.json", manifest(name, desc, UUIDS["botn_bp"],
+                                     UUIDS["botn_bp_data"], "data",
+                                     deps=[UUIDS["botn_rp"]]))
+    rp.put("manifest.json", manifest(name, desc, UUIDS["botn_rp"],
+                                     UUIDS["botn_rp_res"], "resources"))
+    with open(os.path.join(ROOT, "assets", "pack_icon_nature.png"), "rb") as f:
+        icon_png = f.read()
     for p in (bp, rp):
         texts(p, name, desc)
-        p.put("pack_icon.png", icon((120, 190, 230), (200, 235, 245),
-                                    (102, 76, 46), (52, 140, 60),
-                                    (96, 160, 64)))
+        p.put("pack_icon.png", icon_png)
 
-    shelf = shelf_mushrooms(bp, "botw")
-    no_mans_land(bp, rp)
-    the_oak(bp, rp, shelf)
-    the_birch(bp, rp, shelf)
-    the_poplar(bp, rp)
+    shelf = shelf_mushrooms(bp, "botn")
+    truly_mutated_forest(bp, rp, shelf)
+    truly_mutated_birch_forest(bp, rp, shelf)
+    truly_mutated_jungle(bp, rp)
+    truly_mutated_dappled_forest(bp, rp)
+    colossal_pine_forest(bp, rp)
+    deep_grove(bp, rp)
     return bp, rp
 
 
@@ -444,30 +458,21 @@ def biome(pack, ident, climate, surface, tags, replacements, extra=None):
     })
 
 
-def client_biome(pack, ident, components):
+VANILLA_CLIENT_BIOMES = os.environ.get(
+    "BEDROCK_CLIENT_BIOMES", os.path.join(ROOT, "assets", "client_biomes"))
+
+
+def client_biome(pack, ident, look_like):
+    """Client biome that looks like a vanilla one (sky, water, grass and
+    foliage colours, fog, music), from assets/client_biomes/."""
+    with open(os.path.join(VANILLA_CLIENT_BIOMES,
+                           f"{look_like}.client_biome.json")) as f:
+        components = json.load(f)["minecraft:client_biome"]["components"]
     name = ident.split(":", 1)[1]
     pack.put(f"biomes/{name}.client_biome.json", {
         "format_version": CLIENT_BIOME_FMT,
         "minecraft:client_biome": {"description": {"identifier": ident},
                                    "components": components},
-    })
-
-
-def fog(pack, ident, air_color, start, end, water_color):
-    name = ident.split(":", 1)[1]
-    pack.put(f"fogs/{name}.json", {
-        "format_version": "1.21.90",
-        "minecraft:fog_settings": {
-            "description": {"identifier": ident},
-            "distance": {
-                "air": {"fog_start": start, "fog_end": end,
-                        "fog_color": air_color,
-                        "render_distance_type": "render"},
-                "water": {"fog_start": 0.0, "fog_end": 60.0,
-                          "fog_color": water_color,
-                          "render_distance_type": "fixed"},
-            },
-        },
     })
 
 
@@ -486,372 +491,180 @@ def overworld_surface(top, mid="dirt", foundation="stone"):
 # noise_frequency_scale: lower values give bigger, continuous patches that
 # show up less often; high values (20+) scatter tiny chunk-sized fragments.
 PATCH_SCALE = 3
+# Each new biome takes this share of the vanilla biomes it replaces (both
+# the normal and the mutated variant).
+SHARE = 0.25
 
 
-def replacement(targets, amount, scale=PATCH_SCALE):
+def replacement(targets, amount=SHARE, scale=PATCH_SCALE):
     return {"dimension": "minecraft:overworld",
             "targets": [f"minecraft:{t}" for t in targets],
             "amount": amount, "noise_frequency_scale": scale}
 
 
-# "The" biomes: vanilla-like forests grown only from the designed structure
-# trees (the same 20 designs per species as BREATHE OF THE TREES 2.0).
-
-def structure_forest(bp, rp, key, species, targets, climate, extra_tags,
-                     grass, foliage, trees_per_chunk, ground, flowers,
-                     fallen=None):
-    ident = f"botw:{key}"
+def forest_biome(bp, rp, key, targets, look_like, climate, trees,
+                 trees_per_chunk, ground, flowers, extra_tags=(),
+                 fallen=None, tree_chance=None, surface_extra=None):
+    """Surface biome grown only from structure trees."""
+    ident = f"botn:{key}"
     biome(bp, ident, climate=climate,
           surface=overworld_surface("grass_block"),
-          tags=["animal", "monster", "overworld", "bee_habitat", "botw",
-                f"botw_{key}", *extra_tags],
-          replacements=[replacement(targets, 0.13)])
-    client_biome(rp, ident, {
-        "minecraft:grass_appearance": {"color": grass},
-        "minecraft:foliage_appearance": {"color": foliage},
-    })
-    f = [tag(f"botw_{key}")]
-    trees = structure_trees(bp, "botw", species, seed_ns="bott")
-    bp.rule(f"botw:{key}_trees_rule", trees, f,
-            surface_scatter(trees_per_chunk, margin=2), "before_surface_pass")
-    bp.rule(f"botw:{key}_ground_cover_rule",
-            plant(bp, f"botw:{key}_ground_cover_feature", ground), f,
+          tags=["animal", "monster", "overworld", "bee_habitat", "botn",
+                f"botn_{key}", *extra_tags],
+          replacements=[replacement(targets)], extra=surface_extra)
+    client_biome(rp, ident, look_like)
+    f = [tag(f"botn_{key}")]
+    bp.rule(f"botn:{key}_trees_rule", trees, f,
+            surface_scatter(trees_per_chunk, tree_chance, margin=2),
+            "before_surface_pass")
+    bp.rule(f"botn:{key}_ground_cover_rule",
+            plant(bp, f"botn:{key}_ground_cover_feature", ground), f,
             surface_scatter(40), "surface_pass")
-    bp.rule(f"botw:{key}_flowers_rule",
-            plant(bp, f"botw:{key}_flowers_feature", flowers), f,
+    bp.rule(f"botn:{key}_flowers_rule",
+            plant(bp, f"botn:{key}_flowers_feature", flowers), f,
             surface_scatter(5), "surface_pass")
     if fallen:
-        bp.rule(f"botw:{key}_fallen_log_rule", fallen, f,
+        bp.rule(f"botn:{key}_fallen_log_rule", fallen, f,
                 surface_scatter(1, chance(1, 3)), "surface_pass")
 
 
-def the_oak(bp, rp, shelf):
-    structure_forest(
-        bp, rp, "the_oak", "oak", ["forest"],
-        {"downfall": 0.8, "snow_accumulation": [0.0, 0.125],
-         "temperature": 0.7},
-        [], "#79c05a", "#59ae30", 4,
+TEMPERATE = {"downfall": 0.8, "snow_accumulation": [0.0, 0.125],
+             "temperature": 0.7}
+
+
+def truly_mutated_forest(bp, rp, shelf):
+    # The 30 oak designs of BREATHE OF THE TREES 2.0 / The Oak.
+    trees = structure_trees(bp, "botn", "oak", designs("oak", range(30), "bott"))
+    forest_biome(
+        bp, rp, "truly_mutated_forest", ["forest", "flower_forest"], "forest",
+        TEMPERATE, trees, 4,
         [(b("short_grass"), 8), (b("fern"), 1), (b("leaf_litter", growth=2), 1)],
         [(b("dandelion"), 2), (b("poppy"), 2), (b("lily_of_the_valley"), 1),
          (b("oxeye_daisy"), 1)],
-        fallen_log(bp, "botw:the_oak_fallen_log_feature", "oak_log",
-                   rng(4, 7), shelf))
+        fallen=fallen_log(bp, "botn:oak_fallen_log_feature", "oak_log",
+                          rng(4, 7), shelf))
 
 
-def the_birch(bp, rp, shelf):
-    structure_forest(
-        bp, rp, "the_birch", "birch", ["birch_forest", "birch_forest_mutated"],
+def truly_mutated_birch_forest(bp, rp, shelf):
+    trees = structure_trees(bp, "botn", "birch",
+                            designs("birch", range(30), "bott"))
+    forest_biome(
+        bp, rp, "truly_mutated_birch_forest",
+        ["birch_forest", "birch_forest_mutated"], "birch_forest",
         {"downfall": 0.6, "snow_accumulation": [0.0, 0.125],
          "temperature": 0.6},
-        ["birch"], "#88bb67", "#6ba941", 5,
+        trees, 5,
         [(b("short_grass"), 8), (b("fern"), 1)],
         [(b("wildflowers", growth=3), 3), (b("lily_of_the_valley"), 1),
          (b("dandelion"), 1), (b("cornflower"), 1)],
-        fallen_log(bp, "botw:the_birch_fallen_log_feature", "birch_log",
-                   rng(4, 7), shelf))
+        extra_tags=["birch"],
+        fallen=fallen_log(bp, "botn:birch_fallen_log_feature", "birch_log",
+                          rng(4, 7), shelf))
 
 
-def the_poplar(bp, rp):
-    structure_forest(
-        bp, rp, "the_poplar", "poplar", ["dappled_forest"],
+JUNGLE_WOOD = {
+    "minecraft:oak_log": "minecraft:jungle_log",
+    "minecraft:oak_wood": "minecraft:jungle_wood",
+    "minecraft:oak_leaves": "minecraft:jungle_leaves",
+}
+
+
+def truly_mutated_jungle(bp, rp):
+    # The vine-draped giants (the old Mystic Forest shapes), in jungle wood.
+    trees = structure_trees(
+        bp, "botn", "jungle",
+        designs("mystic_oak", range(30), "botw", JUNGLE_WOOD))
+    forest_biome(
+        bp, rp, "truly_mutated_jungle", ["jungle", "jungle_mutated"], "jungle",
+        {"downfall": 0.9, "snow_accumulation": [0.0, 0.125],
+         "temperature": 0.95},
+        trees, 2,
+        [(b("short_grass"), 6), (b("fern"), 4), (b("bush"), 1)],
+        [(b("poppy"), 2), (b("dandelion"), 1), (b("blue_orchid"), 1)],
+        extra_tags=["spawns_jungle_mobs"])
+
+
+def truly_mutated_dappled_forest(bp, rp):
+    # Half of the old autumn poplars plus 15 new maples.
+    kept_poplars = [*range(10), *range(20, 25)]
+    trees = structure_trees(
+        bp, "botn", "autumn",
+        designs("poplar", kept_poplars, "bott") +
+        designs("maple", range(15), "botn"))
+    forest_biome(
+        bp, rp, "truly_mutated_dappled_forest", ["dappled_forest"],
+        "dappled_forest",
         {"downfall": 0.6, "snow_accumulation": [0.0, 0.125],
          "temperature": 0.6},
-        [], "#8fb35a", "#c9a43a", 4,
+        trees, 4,
         [(b("short_grass"), 6), (b("fern"), 2), (b("leaf_litter", growth=3), 3),
          (b("leaf_litter", growth=1), 2)],
         [(b("azure_bluet"), 1), (b("oxeye_daisy"), 1), (b("cornflower"), 1),
          (b("brown_mushroom"), 1)])
 
 
-# No Man's Land: the biome is hollowed out down to the deepslate. Each
-# column's depth depends on how much of the biome surrounds it, so the pit
-# slopes down gradually from its rim instead of dropping straight to Y -32.
-PIT_BOTTOM_Y = -32      # lowest air block in the middle of the pit
-PIT_SLICE = 32          # height of one air column structure
-PIT_SLICES = 6          # 6 x 32 blocks: from the floor up past the surface
-NML_TAG = "botw_no_mans_land"
-# Biomes are 3D: replace_biomes only swaps the surface layer, so deep down
-# the column is still savanna/desert and a rule placed at Y -32 never fires.
-# Every No Man's Land rule is therefore anchored high in the sky (which
-# belongs to the surface biome) and its features are dropped down from there.
-ANCHOR_Y = 250
-SURFACE = "query.heightmap(variable.worldx, variable.worldz)"
+def colossal_pine_forest(bp, rp):
+    trees = structure_trees(bp, "botn", "colossal_pine",
+                            designs("colossal_pine", range(20), "botn"))
+    # One tree per chunk with a 3/16 chance: about one per 1,365 square
+    # blocks, i.e. roughly one colossal pine every 37 blocks.
+    forest_biome(
+        bp, rp, "colossal_pine_forest", ["taiga", "mega_taiga"], "mega_taiga",
+        {"downfall": 0.8, "snow_accumulation": [0.0, 0.125],
+         "temperature": 0.3},
+        trees, 1,
+        [(b("short_grass"), 5), (b("fern"), 5), (b("sweet_berry_bush"), 1)],
+        [(b("lily_of_the_valley"), 1), (b("brown_mushroom"), 1)],
+        tree_chance=chance(3, 16),
+        surface_extra={"minecraft:surface_material_adjustments": {
+            "adjustments": [
+                {"materials": {"top_material": b("podzol")},
+                 "noise_frequency_scale": 0.0625, "noise_range": [-0.1, 0.25]},
+                {"materials": {"top_material": b("coarse_dirt")},
+                 "noise_frequency_scale": 0.0625, "noise_range": [0.25, 1.0]},
+            ]}})
 
 
-def nml_check(x="variable.worldx", z="variable.worldz"):
-    return f"query.has_biome_tag('{NML_TAG}', {x}, 70, {z})"
-
-
-PIT_RADII = (5, 10, 15, 20, 25)
-PIT_LEVELS = range(PIT_BOTTOM_Y, 65, 12)    # possible floor heights
-RIM_Y = 70                                  # typical surface height
-
-
-def pit_inside_count():
-    """Molang: how many of the nearby sample points belong to No Man's Land.
-
-    Note: query.has_biome_tag only works with offsets inside conditions;
-    in scatter coordinate expressions it always returns 0.
-    """
-    samples = []
-    for r in PIT_RADII:
-        for dx, dz in ((r, 0), (-r, 0), (0, r), (0, -r)):
-            samples.append(nml_check(f"variable.worldx + ({dx})",
-                                     f"variable.worldz + ({dz})"))
-    return "(" + " + ".join(samples) + ")"
-
-
-def pit_levels(pack, name, leaf):
-    """Pick the deepest floor this column has earned: the more of its
-    surroundings are No Man's Land, the deeper it goes. Columns near the
-    rim stay shallow, so the pit slopes down instead of dropping.
-
-    `leaf` is placed with its input at that floor level. The choice only
-    depends on biome lookups, so separate chains (carving, then the floor
-    decoration in a later pass) always agree on the floor height. The
-    heightmap cannot be used for this: it is not updated after carving.
-    """
-    count = pit_inside_count()
-    n = 4 * len(PIT_RADII)
-    options = []
-    for level in PIT_LEVELS:
-        # depth fraction needed for this floor, eased like a crater wall
-        depth = (RIM_Y - level) / (RIM_Y - PIT_BOTTOM_Y)
-        needed = math.ceil(n * (0.25 + 0.55 * depth ** (1 / 1.2)))
-        at_level = pack.feature(
-            f"botw:no_mans_land_{name}_{level + 64:03d}_feature",
-            "minecraft:scatter_feature", {
-                "places_feature": leaf, "iterations": 1,
-                "x": 0, "y": level, "z": 0,
-            })
-        options.append({"places_feature": at_level,
-                        "condition": f"{count} >= {needed}"})
-    return pack.feature(f"botw:no_mans_land_{name}_levels_feature",
-                        "minecraft:conditional_list", {
-                            "conditional_features": options,
-                            "early_out_scheme": "condition_success",
-                        }, fmt=CONDITIONAL_FMT)
-
-
-def offset(pack, ident, feature, y, chance_=None):
-    """Place `feature` y blocks above the input, optionally by chance."""
-    body = {"places_feature": feature, "iterations": 1, "x": 0, "y": y, "z": 0}
-    if chance_:
-        body["scatter_chance"] = chance_
-    return pack.feature(ident, "minecraft:scatter_feature", body)
-
-
-def below_anchor(y):
-    """Offset from ANCHOR_Y to y (a number, Molang string or distribution)."""
-    if isinstance(y, dict):
-        return {**y, "extent": [e - ANCHOR_Y for e in y["extent"]]}
-    if isinstance(y, str):
-        return f"({y}) - {ANCHOR_Y}"
-    return y - ANCHOR_Y
-
-
-def nml_rule(pack, name, feature, distribution, placement_pass):
-    """Rule anchored at ANCHOR_Y that drops `feature` to distribution["y"]."""
-    drop = pack.feature(f"botw:no_mans_land_{name}_drop_feature",
-                        "minecraft:scatter_feature", {
-                            "places_feature": feature, "iterations": 1,
-                            "x": 0, "y": below_anchor(distribution["y"]),
-                            "z": 0,
-                        })
-    pack.rule(f"botw:no_mans_land_{name}_rule", drop, [tag(NML_TAG)],
-              {**distribution, "y": ANCHOR_Y}, placement_pass)
-
-
-def column_chain(pack, name, y_expr, leaf_feature, placement_pass):
-    """Visit every column of the chunk, move to y_expr, and place
-    leaf_feature there if the column belongs to No Man's Land."""
-    checked = pack.feature(f"botw:no_mans_land_{name}_check_feature",
-                           "minecraft:conditional_list", {
-                               "conditional_features": [{
-                                   "places_feature": leaf_feature,
-                                   "condition": nml_check(),
-                               }],
-                               "early_out_scheme": "condition_success",
-                           }, fmt=CONDITIONAL_FMT)
-    point = pack.feature(f"botw:no_mans_land_{name}_point_feature",
-                         "minecraft:scatter_feature", {
-                             "places_feature": checked,
-                             "iterations": 1,
-                             "x": 0, "y": below_anchor(y_expr), "z": 0,
-                         })
-    row = grid_scatter(pack, f"botw:no_mans_land_{name}_row_feature", point,
-                       "z", [0, 15])
-    pack.rule(f"botw:no_mans_land_{name}_rule", row, [tag(NML_TAG)], {
-        "iterations": 16,
-        "x": {"distribution": "fixed_grid", "extent": [0, 15]},
-        "y": ANCHOR_Y,
-        "z": 0,
-    }, placement_pass, check=False)
-
-
-def grid_scatter(pack, ident, places, axis, extent, iterations=None):
-    """Scatter that walks a fixed 1-D grid along one axis."""
-    coords = {"x": 0, "y": 0, "z": 0}
-    coords[axis] = {"distribution": "fixed_grid", "extent": extent}
-    return pack.feature(ident, "minecraft:scatter_feature", {
-        "places_feature": places,
-        "iterations": iterations or (extent[1] - extent[0] + 1),
-        **coords,
-    })
-
-
-def no_mans_land(bp, rp):
-    ident = "botw:no_mans_land"
+def deep_grove(bp, rp):
+    """Cave biome with low, glowing azalea trees on the cave floors."""
+    ident = "botn:deep_grove"
+    key_tag = "botn_deep_grove"
     biome(bp, ident,
-          climate={"downfall": 0.0, "snow_accumulation": [0.0, 0.125],
-                   "temperature": 2.0},
-          surface=overworld_surface("coarse_dirt", mid="gravel"),
-          tags=["monster", "overworld", "botw", "botw_no_mans_land"],
-          replacements=[replacement(["savanna", "desert"], 0.11, 0.5)])
-    fog(rp, "botw:fog_no_mans_land", "#9c876a", 0.25, 0.85, "#3f3a2c")
-    client_biome(rp, ident, {
-        "minecraft:sky_color": {"sky_color": "#c2a983"},
-        "minecraft:fog_appearance": {"fog_identifier": "botw:fog_no_mans_land"},
-        "minecraft:water_appearance": {"surface_color": "#5b5a3a"},
-        "minecraft:grass_appearance": {"color": "#9a8f5a"},
-        "minecraft:foliage_appearance": {"color": "#8d8250"},
-        "minecraft:precipitation": {"white_ash": 0.15},
-    })
-    f = [tag(NML_TAG)]
-    # Pit features sit far below the surface; check the biome at Y 70.
-    bp.check_y[NML_TAG] = 70
+          climate={"downfall": 0.0, "temperature": 0.9},
+          surface=overworld_surface("grass_block"),
+          tags=["caves", "overworld", "monster", "botn", key_tag],
+          replacements=[replacement(["lush_caves", "dripstone_caves"])])
+    client_biome(rp, ident, "lush_caves")
+    trees = structure_trees(bp, "botn", "cave_tree",
+                            designs("cave_tree", range(20), "botn"),
+                            island="minecraft:moss_block",
+                            island_fill="minecraft:dirt_with_roots",
+                            extra_allow=CAVE_ROCK)
 
-    # 1) Hollow out each column from its floor up past the surface with
-    #    stacked 1x32x1 air structures (they overwrite every block, water and
-    #    lava included).
-    bp.put("structures/botw/pit_column.mcstructure",
-           treegen.solid_structure(b("air"), (1, PIT_SLICE, 1)))
-    pit_column = bp.feature("botw:no_mans_land_pit_column_feature",
-                            "minecraft:structure_template_feature", {
-                                "structure_name": "botw:pit_column",
-                                "facing_direction": "south",
-                                "rotate_around_center": False,
-                                "constraints": {},
-                            })
-    stack = bp.feature("botw:no_mans_land_carve_stack_feature",
-                       "minecraft:scatter_feature", {
-                           "places_feature": pit_column,
-                           "iterations": PIT_SLICES,
-                           "x": 0,
-                           "y": {"distribution": "fixed_grid",
-                                 "extent": [0, (PIT_SLICES - 1) * PIT_SLICE],
-                                 "step_size": PIT_SLICE},
-                           "z": 0,
-                       })
-    column_chain(bp, "carve", 0, pit_levels(bp, "carve", stack),
-                 "before_surface_pass")
+    def on_floor(name, feature):
+        # Snapping keeps the placement inside the biome.
+        return bp.feature(f"botn:deep_grove_{name}_on_floor_feature",
+                          "minecraft:snap_to_surface_feature", {
+                              "feature_to_snap": feature,
+                              "search_range": 12,
+                              "surface": "floor",
+                          }, fmt=CONDITIONAL_FMT)
 
-    # 2) Repaint the new ground (rim slopes and floor) with a scorched mix.
-    floor_block = bp.feature("botw:no_mans_land_floor_block_feature",
-                             "minecraft:single_block_feature", {
-                                 "places_block": [
-                                     {"block": b("deepslate"), "weight": 6},
-                                     {"block": b("tuff"), "weight": 3},
-                                     {"block": b("cobbled_deepslate"), "weight": 2},
-                                     {"block": b("coarse_dirt"), "weight": 3},
-                                     {"block": b("gravel"), "weight": 2},
-                                     {"block": b("smooth_basalt"), "weight": 1},
-                                     {"block": b("blackstone"), "weight": 1},
-                                     {"block": b("magma"), "weight": 1},
-                                 ],
-                                 "enforce_placement_rules": False,
-                                 "enforce_survivability_rules": False,
-                                 "may_replace": blocks(*TERRAIN),
-                             }, fmt=BLOCK_FEATURE_FMT)
-
-    # 3) Lava pools sunk into the floor.
-    lava = bp.feature("botw:no_mans_land_lava_pool_feature",
-                      "minecraft:ore_feature", {
-                          "count": 28,
-                          "replace_rules": [{
-                              "places_block": b("lava"),
-                              "may_replace": blocks(
-                                  "deepslate", "tuff", "cobbled_deepslate",
-                                  "coarse_dirt", "gravel", "smooth_basalt",
-                                  "blackstone", "magma", "stone"),
-                          }],
-                      })
-
-    # 4) Jagged stone pillars rising from the floor.
-    pillar_block = bp.feature("botw:no_mans_land_pillar_block_feature",
-                              "minecraft:single_block_feature", {
-                                  "places_block": [
-                                      {"block": b("basalt"), "weight": 3},
-                                      {"block": b("deepslate"), "weight": 2},
-                                      {"block": b("tuff"), "weight": 2},
-                                      {"block": b("blackstone"), "weight": 1},
-                                  ],
-                                  "enforce_placement_rules": False,
-                                  "enforce_survivability_rules": False,
-                                  "may_replace": [b("air")],
-                              }, fmt=BLOCK_FEATURE_FMT)
-    pillar = bp.feature("botw:no_mans_land_pillar_feature",
-                        "minecraft:scatter_feature", {
-                            "places_feature": pillar_block,
-                            "iterations": "math.random_integer(4, 16)",
-                            "x": 0,
-                            "y": {"distribution": "fixed_grid",
-                                  "extent": [0, 15]},
-                            "z": 0,
-                        })
-
-    # 5) Dead scrub on the floor.
-    scrub = plant(bp, "botw:no_mans_land_scrub_feature", [
-        (b("deadbush"), 3), (b("short_dry_grass"), 3),
-        (b("tall_dry_grass"), 1),
-    ])
-
-    # Everything sits on the floor the carve chose for that column; this
-    # runs in surface_pass, after the carve (before_surface_pass).
-    floor_decor = bp.feature("botw:no_mans_land_floor_decor_feature",
-                             "minecraft:aggregate_feature", {"features": [
-                                 offset(bp, "botw:no_mans_land_floor_paint_feature",
-                                        floor_block, -1),
-                                 offset(bp, "botw:no_mans_land_floor_scrub_feature",
-                                        scrub, 0, chance(1, 8)),
-                                 offset(bp, "botw:no_mans_land_floor_pillar_feature",
-                                        pillar, 0, chance(1, 300)),
-                                 offset(bp, "botw:no_mans_land_floor_lava_feature",
-                                        lava, -2, chance(1, 700)),
-                             ]})
-    column_chain(bp, "floor", 0, pit_levels(bp, "floor", floor_decor),
-                 "surface_pass")
-
-    # 6) Glowing lichen on the cliff walls.
-    lichen = bp.feature("botw:no_mans_land_lichen_feature",
-                        "minecraft:multiface_feature", {
-                            "places_block": b("glow_lichen"),
-                            "search_range": 6,
-                            "can_place_on_floor": False,
-                            "can_place_on_ceiling": True,
-                            "can_place_on_wall": True,
-                            "chance_of_spreading": 0.6,
-                            "can_place_on": blocks(
-                                "stone", "deepslate", "tuff", "granite",
-                                "diorite", "andesite", "cobbled_deepslate"),
-                        })
-    nml_rule(bp, "lichen", lichen, {
-        "iterations": 24,
-        "x": {"distribution": "uniform", "extent": [0, 15]},
-        "y": {"distribution": "uniform", "extent": [PIT_BOTTOM_Y, 40]},
-        "z": {"distribution": "uniform", "extent": [0, 15]},
-    }, "after_surface_pass")
-
-    # 7) Extra-wide caves branching off under the pit floor.
-    caves = bp.feature("botw:no_mans_land_cave_carver_feature",
-                       "minecraft:cave_carver_feature", {
-                           "fill_with": b("air"),
-                           "width_modifier": 2.5,
-                           "skip_carve_chance": 3,
-                       })
-    bp.rule("botw:no_mans_land_cave_carver_rule", caves, f,
-            {"iterations": 1, "x": 0, "y": ANCHOR_Y, "z": 0},
-            "pregeneration_pass")
+    moss = plant(bp, "botn:deep_grove_ground_cover_feature", [
+        (b("moss_carpet"), 6), (b("azalea"), 1), (b("flowering_azalea"), 1)])
+    # Cave biomes are 3D: rules are placed at underground heights so they
+    # only fire where the cave biome itself is.
+    # Most random points land inside rock (snapping only starts in air),
+    # so many attempts are made per chunk.
+    for name, feature, iterations in (("trees", trees, 64),
+                                      ("ground_cover", moss, 96)):
+        bp.rule(f"botn:deep_grove_{name}_rule", on_floor(name, feature),
+                [tag(key_tag)], {
+                    "iterations": iterations,
+                    "x": {"distribution": "uniform", "extent": [2, 13]},
+                    "y": {"distribution": "uniform", "extent": [-54, 40]},
+                    "z": {"distribution": "uniform", "extent": [2, 13]},
+                }, "before_surface_pass", check=False)
 
 
 # ---------------------------------------------------------------------------
@@ -868,12 +681,13 @@ def build_bott():
     desc = ("Bigger, taller and branchier versions of the vanilla trees, "
             "generated procedurally. Vanilla blocks only.")
     bp.put("manifest.json", manifest(name, desc, UUIDS["bott_bp"],
-                                     UUIDS["bott_bp_data"], "data"))
+                                     UUIDS["bott_bp_data"], "data",
+                                     version=BOTT_VERSION))
     texts(bp, name, desc)
     bp.put("pack_icon.png", icon((250, 170, 120), (255, 225, 180),
                                  (110, 80, 50), (64, 150, 54),
                                  (100, 150, 60)))
-    not_botw = tag("botw", "!=")
+    not_botn = tag("botn", "!=")
 
     def leaves(leaf, height, radius):
         return {"height": height, "radius": radius, "leaf_block": b(leaf)}
@@ -912,7 +726,7 @@ def build_bott():
                 "inner_radius": 3, "leaf_block": b(leaf)}
 
     def add(name_, feature, filt, per_chunk, chance_=None):
-        bp.rule(f"bott:{name_}_rule", feature, [*filt, not_botw],
+        bp.rule(f"bott:{name_}_rule", feature, [*filt, not_botn],
                 surface_scatter(per_chunk, chance_), "before_surface_pass")
 
     oak = weighted(bp, "bott:oak_trees_feature", [
@@ -1070,16 +884,16 @@ def package(filename, folders):
 
 
 def main():
-    botw_bp, botw_rp = build_botw()
+    botn_bp, botn_rp = build_botn()
     bott_bp = build_bott()
-    packs = [botw_bp, botw_rp, bott_bp]
+    packs = [botn_bp, botn_rp, bott_bp]
     validate_blocks()
     validate_references(packs)
     for p in packs:
         p.write()
-    package("BREATHE_OF_THE_WILD.mcaddon", [
-        (botw_bp.path, "BREATHE_OF_THE_WILD_BP"),
-        (botw_rp.path, "BREATHE_OF_THE_WILD_RP"),
+    package("BREATHE_OF_THE_NATURE_OVERWORLD.mcaddon", [
+        (botn_bp.path, "BREATHE_OF_THE_NATURE_OVERWORLD_BP"),
+        (botn_rp.path, "BREATHE_OF_THE_NATURE_OVERWORLD_RP"),
     ])
     package("BREATHE_OF_THE_TREES.mcaddon", [
         (bott_bp.path, "BREATHE_OF_THE_TREES_BP"),

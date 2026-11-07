@@ -232,7 +232,8 @@ class Tree:
                     if math.hypot(x - cx, z - cz) <= r - rng.random():
                         self.put((x, -1, z), soil, {}, SOIL)
 
-    def island(self, rng, top="minecraft:grass_block", depth=4):
+    def island(self, rng, top="minecraft:grass_block", depth=4,
+               fill="minecraft:dirt"):
         """Grass-topped soil plug under the tree, so on uneven ground the
         tree sits on a small island instead of hanging in the air."""
         cx, cz = self.trunk_center
@@ -241,11 +242,25 @@ class Tree:
         radius = min(7.0, max(2.5, max(base, default=0) + 1.0))
         for k in range(1, depth + 1):
             r = radius * (1 - (k - 1) / depth) ** 0.8
-            name = top if k == 1 else "minecraft:dirt"
+            name = top if k == 1 else fill
             for x in range(int(cx - r - 1), int(cx + r + 2)):
                 for z in range(int(cz - r - 1), int(cz + r + 2)):
                     if math.hypot(x - cx, z - cz) <= r - rng.random() * 0.6:
                         self.put((x, -k, z), name, {}, SOIL)
+
+    def remap(self, mapping):
+        """Swap block types, e.g. oak wood for jungle wood."""
+        for p, (prio, name, states) in list(self.cells.items()):
+            if name in mapping:
+                self.cells[p] = (prio, mapping[name], states)
+
+    def recolor_leaves(self, rng, palette):
+        """Give every leaf block a random block from [(name, weight), ...]."""
+        names = [n for n, _ in palette]
+        weights = [w for _, w in palette]
+        for p, (prio, name, states) in list(self.cells.items()):
+            if prio == LEAF:
+                self.cells[p] = (prio, rng.choices(names, weights)[0], states)
 
     def merge(self, other, offset):
         """Copy another tree into this one, shifted by offset."""
@@ -695,7 +710,88 @@ def poplar(rng, i):
     return t
 
 
+# Autumn maples: wide domes in mixed red, orange and yellow leaves.
+MAPLE_PALETTES = (
+    (("red", 6), ("orange", 3), ("yellow", 1)),
+    (("orange", 6), ("red", 2), ("yellow", 2)),
+    (("yellow", 6), ("orange", 3), ("red", 1)),
+)
+
+
+def maple(rng, i):
+    width = 2 if i % 5 == 4 else 1
+    t = Tree("minecraft:poplar_log", "minecraft:orange_poplar_leaves",
+             trunk_center=_center(width))
+    path = t.trunk(width, rng.randint(5, 8) + width, rng, wobble=0.15)
+    if width > 1:
+        t.roots(width, rng, 4, 2.5)
+    top = path[-1]
+    for yaw in _spread_yaws(rng, rng.randint(3, 4)):
+        end = t.limb(top, yaw, rng.uniform(0.6, 1.0), rng.uniform(3, 5),
+                     curve=0.2)
+        t.cluster(end, rng.uniform(2.6, 3.3), rng, squash=0.75)
+    r = rng.uniform(4.2, 5.4) + 0.4 * width
+    t.blob((top[0], top[1] + 3, top[2]), r, r * 0.62, r, rng, ragged=0.3)
+    t.recolor_leaves(rng, [(f"minecraft:{c}_poplar_leaves", w)
+                           for c, w in MAPLE_PALETTES[i % 3]])
+    return t
+
+
+def colossal_pine(rng, i):
+    """Giant pines: 3x3 or 4x4 trunks, 46-62 blocks, a broad crown over the
+    top half."""
+    width = 4 if i % 4 == 3 else 3
+    return conifer(rng, "minecraft:spruce_log", "minecraft:spruce_leaves",
+                   width, rng.randint(46, 62), rng.uniform(0.48, 0.58),
+                   rng.uniform(6.5, 8.0), columnar=rng.uniform(0.2, 0.4),
+                   roots=rng.randint(6, 8), soil="minecraft:podzol")
+
+
+def cave_tree(rng, i):
+    """Low, wide azalea-crowned trees for caves, lit by glow berries and a
+    shroomlight heart, with spore blossoms under the canopy."""
+    log = ("minecraft:mangrove_log", "minecraft:dark_oak_log")[i % 2]
+    width = 2 if i % 3 == 2 else 1
+    t = Tree(log, "minecraft:azalea_leaves", trunk_center=_center(width))
+    path = t.trunk(width, rng.randint(4, 7) + width, rng, wobble=0.3)
+    t.roots(width, rng, rng.randint(4, 6), 2.5)
+    for yaw in _spread_yaws(rng, rng.randint(3, 5)):
+        start = _point_on(path, rng.uniform(0.6, 0.9))
+        end = t.limb(start, yaw, rng.uniform(0.05, 0.35), rng.uniform(3, 5))
+        t.cluster(end, rng.uniform(2.2, 3.0), rng, squash=0.5)
+    top = path[-1]
+    t.cluster((top[0], top[1] + 1, top[2]), rng.uniform(3.0, 3.8), rng,
+              squash=0.45)
+    t.recolor_leaves(rng, [("minecraft:azalea_leaves", 3),
+                           ("minecraft:azalea_leaves_flowered", 1)])
+    inner = [p for p, c in t.cells.items() if c[0] == LEAF and all(
+        t.cells.get((p[0] + d[0], p[1] + d[1], p[2] + d[2]), (None,))[0] == LEAF
+        for d in ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0),
+                  (0, 0, 1), (0, 0, -1)))]
+    for p in rng.sample(sorted(inner), min(3, len(inner))):
+        t.put(p, "minecraft:shroomlight", {}, LOG, replace=True)
+    for (x, y, z), c in sorted(t.cells.items()):
+        if c[0] != LEAF or not t.is_free((x, y - 1, z)):
+            continue
+        roll = rng.random()
+        if roll < 0.1:          # glow berry vine
+            n = rng.randint(1, 4)
+            for k in range(1, n + 1):
+                q = (x, y - k, z)
+                if q[1] < 1 or not t.is_free(q):
+                    break
+                name = ("minecraft:cave_vines_head_with_berries" if k == n
+                        else "minecraft:cave_vines_body_with_berries")
+                t.put(q, name, {"growing_plant_age": 25}, DECOR)
+        elif roll < 0.13:
+            t.put((x, y - 1, z), "minecraft:spore_blossom", {}, DECOR)
+    return t
+
+
 SPECIES = {
+    "maple": maple,
+    "colossal_pine": colossal_pine,
+    "cave_tree": cave_tree,
     "mystic_oak": mystic_oak,
     "mighty_birch": mighty_birch,
     "oak": oak,
@@ -713,11 +809,15 @@ SPECIES = {
 }
 
 
-def generate(species, variant, namespace, island=None):
-    """island: top block of a soil plug added under the tree, or None."""
+def generate(species, variant, namespace, island=None,
+             island_fill="minecraft:dirt", remap=None):
+    """island: top block of a soil plug added under the tree, or None.
+    remap: {block: block} swaps applied to the design (e.g. wood type)."""
     seed = f"{namespace}:{species}:{variant}"
     rng = random.Random(seed)
     tree = SPECIES[species](rng, variant)
+    if remap:
+        tree.remap(remap)
     if island:
-        tree.island(rng, island)
+        tree.island(rng, island, fill=island_fill)
     return tree
