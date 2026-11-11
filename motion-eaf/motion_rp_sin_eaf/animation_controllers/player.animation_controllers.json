@@ -368,7 +368,7 @@
               "holding_heavy_core": "query.is_item_name_any('slot.weapon.mainhand', 'minecraft:heavy_core')"
             },
             {
-              "fishing_rod": "q.is_alive && !q.is_gliding"
+              "fishing_rod": "!q.is_gliding && (q.is_alive || (variable.swim_amount ?? -1) < 0)"
             },
             {
               "third_person_melee_spear_controller": "variable.melee_spear_equipped"

@@ -142,7 +142,7 @@ key = lambda a: a if isinstance(a, str) else list(a)[0]
 st['third_person']['animations'] = [a for a in st['third_person']['animations'] if key(a) not in ('fishing_rod', 'first_person_attack_rotation_item', 'first_person_crossbow_hold')]
 spear = [a for a in st['third_person']['animations'] if key(a) == 'third_person_melee_spear_controller'][0]
 st['third_person']['animations'].remove(spear)
-st['third_person']['animations'] += [{'fishing_rod': 'q.is_alive && !q.is_gliding'}, spear]
+st['third_person']['animations'] += [{'fishing_rod': '!q.is_gliding && (q.is_alive || (variable.swim_amount ?? -1) < 0)'}, spear]  # the doll is never "alive" (q.is_alive is 0 there)
 st['paperdoll']['animations'] = [a for a in st['paperdoll']['animations'] if a not in ('fishing_rod', 'first_person_attack_rotation_item', 'first_person_crossbow_hold')] + ['fishing_rod']
 open(c, 'w').write(json.dumps(cd, indent=2) + '\n')
 print('third_person (final):', [key(a) for a in st['third_person']['animations'][-3:]], '| paperdoll:', st['paperdoll']['animations'])
