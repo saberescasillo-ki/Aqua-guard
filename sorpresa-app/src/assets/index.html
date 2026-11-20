@@ -58,6 +58,31 @@
     from { transform: translateY(0) rotate(0deg); }
     to { transform: translateY(115vh) rotate(360deg); }
   }
+
+  /* ---------- Galería ---------- */
+  .icon-btn {
+    position: fixed; top: 14px; left: 14px; z-index: 10;
+    width: 48px; height: 48px; padding: 0; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 245, 249, .9); border: 2px solid #ff4f9a;
+  }
+  .icon-btn svg { width: 26px; height: 26px; }
+  #gallery {
+    position: fixed; inset: 0; z-index: 20; background: #ffd6e5; overflow: hidden;
+    opacity: 0; pointer-events: none; transition: opacity .45s ease;
+  }
+  #gallery.open { opacity: 1; pointer-events: auto; }
+  #gallery .name {
+    position: absolute; white-space: nowrap; font-style: italic;
+    padding: 8px 14px; border-radius: 14px; color: #ad1457;
+    background: rgba(255, 255, 255, .75); border: 1.5px solid #ff8fbd;
+    box-shadow: 0 4px 12px rgba(194, 24, 91, .15);
+  }
+  #close {
+    position: fixed; top: 14px; right: 14px; z-index: 30; font-size: 1rem;
+    padding: 10px 18px; display: none;
+  }
+  #gallery.open ~ #close { display: block; }
 </style>
 </head>
 <body>
@@ -78,6 +103,14 @@
       <div id="tell">dime ese número</div>
     </div>
   </div>
+
+  <button id="openGallery" class="icon-btn" aria-label="Galería">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#e91e63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.8"/><path d="M21 15l-5-5L5 21"/>
+    </svg>
+  </button>
+  <div id="gallery"></div>
+  <button id="close">✕ Salir</button>
 
 <script>
   var $ = function (id) { return document.getElementById(id); };
@@ -108,7 +141,7 @@
   }, 700 + 2400 + 2000);
 
   // 3) Al elegir: mostrar el número y "dime ese número"
-  var btns = document.querySelectorAll('button');
+  var btns = document.querySelectorAll('#buttons button');
   for (var j = 0; j < btns.length; j++) {
     btns[j].addEventListener('click', function () {
       var n = this.getAttribute('data-n');
@@ -122,6 +155,68 @@
       }, 550);
     });
   }
+
+  // ---------- Galería de nombres ----------
+  var names = ['Fumiko', 'Faby', 'Gary motorizado', 'Acelerador de partículas', 'Arañas',
+    'Le pelebre', 'Citoplasto', 'Ciega', 'Lady', 'Dear', 'Rompecorazones', 'Repartidora de migajas'];
+
+  // Rectángulo girado: centro, medio ancho/alto (con margen) y ángulo
+  function corners(o) {
+    var c = Math.cos(o.a), sn = Math.sin(o.a), pts = [];
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(function (k) {
+      var x = k[0] * o.hw, y = k[1] * o.hh;
+      pts.push([o.x + x * c - y * sn, o.y + x * sn + y * c]);
+    });
+    return pts;
+  }
+  function overlap(A, B) {   // Separating Axis Theorem
+    var pa = corners(A), pb = corners(B);
+    var axes = [[Math.cos(A.a), Math.sin(A.a)], [-Math.sin(A.a), Math.cos(A.a)],
+                [Math.cos(B.a), Math.sin(B.a)], [-Math.sin(B.a), Math.cos(B.a)]];
+    for (var i = 0; i < 4; i++) {
+      var ax = axes[i], p = pa.map(function (q) { return q[0] * ax[0] + q[1] * ax[1]; }),
+          r = pb.map(function (q) { return q[0] * ax[0] + q[1] * ax[1]; });
+      if (Math.max.apply(0, p) < Math.min.apply(0, r) || Math.max.apply(0, r) < Math.min.apply(0, p)) return false;
+    }
+    return true;
+  }
+
+  function buildGallery(tries) {
+    tries = tries || 0;
+    var g = $('gallery'); g.innerHTML = '';
+    var W = window.innerWidth, H = window.innerHeight, placed = [], clash = false;
+    // los nombres largos primero, así encuentran espacio
+    var order = names.slice().sort(function (x, y) { return y.length - x.length; });
+    order.forEach(function (n) {
+      var el = document.createElement('div');
+      el.className = 'name'; el.textContent = n;
+      el.style.fontSize = (n.length > 14 ? 15 + Math.random() * 4 : 17 + Math.random() * 9) + 'px';
+      g.appendChild(el);
+      var w = el.offsetWidth, h = el.offsetHeight, best = null;
+      for (var t = 0; t < 600; t++) {
+        var ang = (Math.random() * 70 - 35) * Math.PI / 180, r = Math.abs(ang);
+        var bw = w * Math.cos(r) + h * Math.sin(r), bh = w * Math.sin(r) + h * Math.cos(r);
+        if (bw > W - 16) continue;
+        var o = { x: bw / 2 + 8 + Math.random() * (W - bw - 16),
+                  y: 78 + bh / 2 + Math.random() * Math.max(0, H - bh - 92),
+                  hw: w / 2 + 6, hh: h / 2 + 6, a: ang };
+        var hits = placed.filter(function (q) { return overlap(o, q); }).length;
+        if (!best || hits < best.hits) best = { hits: hits, o: o };
+        if (hits === 0) break;
+      }
+      if (!best) best = { o: { x: W / 2, y: H / 2, hw: w / 2, hh: h / 2, a: 0 } };
+      if (best.hits) clash = true;
+      placed.push(best.o);
+      el.style.left = (best.o.x - w / 2) + 'px';
+      el.style.top = (best.o.y - h / 2) + 'px';
+      el.style.transform = 'rotate(' + (best.o.a * 180 / Math.PI).toFixed(1) + 'deg)';
+    });
+    if (clash && tries < 15) buildGallery(tries + 1);
+  }
+  $('openGallery').addEventListener('click', function () {
+    $('gallery').classList.add('open'); buildGallery();
+  });
+  $('close').addEventListener('click', function () { $('gallery').classList.remove('open'); });
 </script>
 </body>
 </html>
