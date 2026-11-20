@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>For You</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body {
+    background: #ff4f9a;
+    transition: background-color 4.5s ease-in-out;
+    font-family: Georgia, "Times New Roman", serif;
+    color: #8a2c58;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    user-select: none; -webkit-user-select: none;
+  }
+  body.pastel { background: #ffd6e5; }
+
+  .stage { width: 100%; max-width: 420px; text-align: center; position: relative; z-index: 2; }
+
+  .fade { opacity: 0; transform: translateY(14px); transition: opacity 2.4s ease, transform 2.4s ease; }
+  .fade.show { opacity: 1; transform: none; }
+
+  #msg { font-size: 1.55rem; line-height: 1.5; margin: 0 0 34px; font-style: italic; }
+  #ask { font-size: 1.35rem; margin: 0 0 22px; font-weight: bold; transition-duration: 1.2s; }
+
+  .buttons { display: flex; flex-direction: column; gap: 14px; transition-duration: 1.2s; transition-delay: .3s; }
+  button {
+    font: inherit; font-size: 1.2rem; padding: 15px 20px; border-radius: 999px;
+    border: 2px solid #ff4f9a; background: #fff5f9; color: #c2185b;
+    box-shadow: 0 6px 16px rgba(194, 24, 91, .18);
+    transition: transform .15s ease, background .2s ease;
+  }
+  button:active { transform: scale(.95); background: #ffe1ec; }
+  button .ico { margin-right: 8px; }
+
+  #result { display: none; }
+  #result.on { display: block; }
+  #num {
+    font-size: 9rem; line-height: 1; font-weight: bold; color: #e91e63;
+    text-shadow: 0 8px 24px rgba(233, 30, 99, .3);
+    animation: pop .9s cubic-bezier(.2, 1.6, .4, 1) both;
+  }
+  #tell { font-size: 1.5rem; margin-top: 18px; font-style: italic; animation: rise 1.4s .6s ease both; }
+
+  @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes rise { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  .hide { opacity: 0 !important; pointer-events: none; transition: opacity .5s ease !important; }
+
+  .petal {
+    position: fixed; top: -40px; z-index: 1; pointer-events: none; opacity: .55;
+    animation: fall linear infinite;
+  }
+  @keyframes fall {
+    from { transform: translateY(0) rotate(0deg); }
+    to { transform: translateY(115vh) rotate(360deg); }
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <p id="msg" class="fade">Hello there My dear, as You may know, You know who AM i... So... Need You to do something</p>
+
+    <div id="question">
+      <p id="ask" class="fade">What do You prefer?</p>
+      <div id="buttons" class="buttons fade">
+        <button data-n="7"><span class="ico">🌻</span>Sunflower</button>
+        <button data-n="9"><span class="ico">🌹</span>Rose</button>
+        <button data-n="0"><span class="ico">🤷‍♀️</span>Whatever</button>
+      </div>
+    </div>
+
+    <div id="result">
+      <div id="num"></div>
+      <div id="tell">dime ese número</div>
+    </div>
+  </div>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+
+  // Pétalos / corazones cayendo suavemente
+  var icons = ['🌸', '💗', '🌷', '💕'];
+  for (var i = 0; i < 14; i++) {
+    var p = document.createElement('div');
+    p.className = 'petal';
+    p.textContent = icons[i % icons.length];
+    p.style.left = (Math.random() * 100) + 'vw';
+    p.style.fontSize = (14 + Math.random() * 16) + 'px';
+    p.style.animationDuration = (9 + Math.random() * 9) + 's';
+    p.style.animationDelay = (-Math.random() * 18) + 's';
+    document.body.appendChild(p);
+  }
+
+  // 1) Rosa -> rosa pastel lentamente, mientras aparece el texto
+  setTimeout(function () {
+    document.body.classList.add('pastel');
+    $('msg').classList.add('show');
+  }, 700);
+
+  // 2) Cuando el texto ya apareció (2.4 s de fade), 2 segundos después: la pregunta y los botones
+  setTimeout(function () {
+    $('ask').classList.add('show');
+    $('buttons').classList.add('show');
+  }, 700 + 2400 + 2000);
+
+  // 3) Al elegir: mostrar el número y "dime ese número"
+  var btns = document.querySelectorAll('button');
+  for (var j = 0; j < btns.length; j++) {
+    btns[j].addEventListener('click', function () {
+      var n = this.getAttribute('data-n');
+      $('question').classList.add('hide');
+      $('msg').classList.add('hide');
+      setTimeout(function () {
+        $('question').style.display = 'none';
+        $('msg').style.display = 'none';
+        $('num').textContent = n;
+        $('result').classList.add('on');
+      }, 550);
+    });
+  }
+</script>
+</body>
+</html>

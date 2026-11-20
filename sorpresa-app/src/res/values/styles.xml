@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="RosaTheme" parent="@android:style/Theme.Material.Light.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">#ffff4f9a</item>
+        <item name="android:colorAccent">#ffff4f9a</item>
+    </style>
+</resources>
