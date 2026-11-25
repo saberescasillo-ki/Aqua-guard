@@ -227,10 +227,12 @@ function go(v) {
 }
 $('tab1').onclick = $('back').onclick = () => go(1);
 $('tab2').onclick = $('go').onclick = () => go(2);
+window.volverAtras = () => { if (!$('view2').hidden) { go(1); return true; } return false; };
 
 let tt;
 const toast = m => { $('toast').textContent = m; clearTimeout(tt); tt = setTimeout(() => $('toast').textContent = '', 2200); };
 $('copy').onclick = async () => {
+  if (window.Android && window.Android.copy) { toast(window.Android.copy(last) ? '¡Copiado!' : 'No se pudo copiar'); return; }
   try { await navigator.clipboard.writeText(last); toast('¡Copiado!'); }
   catch (e) {
     const ta = document.createElement('textarea'); ta.value = last; document.body.appendChild(ta); ta.select();
